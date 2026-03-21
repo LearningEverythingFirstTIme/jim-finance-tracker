@@ -56,8 +56,10 @@ import {
   Receipt,
   Zap,
   Activity,
+  Flame,
 } from 'lucide-react';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
+import { useSpendingStreak } from '@/hooks/useSpendingStreak';
 import { useReminders } from '@/hooks/useReminders';
 import { useBudgets } from '@/hooks/useBudgets';
 import { useSavingsGoals } from '@/hooks/useSavingsGoals';
@@ -100,6 +102,7 @@ const PANEL_ICONS: Record<PanelId, React.ElementType> = {
   'recent-transactions': Receipt,
   'due-soon': Bell,
   'forecast': Activity,
+  'streak': Flame,
 };
 
 function getGreeting(): string {
@@ -159,6 +162,7 @@ export default function DashboardPage() {
   const { trigger } = useHaptics();
   const {
     stats,
+    transactions,
     categoryBreakdown,
     recentTransactions,
     topCategories,
@@ -169,6 +173,14 @@ export default function DashboardPage() {
   } = useDashboardStats();
   const { reminders } = useReminders();
   const { getOverallBudget } = useBudgets();
+
+  // Spending streak — computed from raw transactions + current budget
+  const currentMonthForStreak = getCurrentMonth();
+  const overallBudgetForStreak = getOverallBudget(currentMonthForStreak);
+  const streak = useSpendingStreak(
+    transactions,
+    overallBudgetForStreak?.amount ?? null
+  );
   const { goals } = useSavingsGoals();
   const { layout, saveLayout } = useDashboardLayout();
 
@@ -764,6 +776,130 @@ export default function DashboardPage() {
     </Card>
   );
 
+  const renderStreakPanel = () => {
+    const { currentStreak, bestStreak30d, dailyLimit, hasLimit, weekHistory } = streak;
+
+    // Motivational copy based on streak length
+    const getMessage = (n: number): string => {
+      if (n === 0)  return "Today's a fresh start — you've got this!";
+      if (n === 1)  return "Day 1! Every great streak begins here.";
+      if (n <= 3)   return "Building momentum — keep it going!";
+      if (n <= 6)   return "Nice work! The habit is forming 🌱";
+      if (n <= 13)  return "One week strong! You're on fire 🔥";
+      if (n <= 20)  return "Two weeks in! Discipline looks good on you 💪";
+      if (n <= 29)  return "Nearly a month of staying on track ⭐";
+      return "LEGENDARY. A full month under budget 🏆";
+    };
+
+    // Flame color intensity scales with streak
+    const flameColor =
+      currentStreak === 0  ? 'text-muted-foreground' :
+      currentStreak <= 3   ? 'text-[#fdcb6e] dark:text-[#ffeaa7]' :
+      currentStreak <= 13  ? 'text-[#ff6b35] dark:text-[#ff8c5a]' :
+                             'text-[#e17055] dark:text-[#ff7675]';
+
+    return (
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+              <Flame className="h-4 w-4 text-primary" />
+            </div>
+            <CardTitle className="text-lg">Spending Streak</CardTitle>
+          </div>
+          {hasLimit && dailyLimit !== null && (
+            <span className="text-xs text-muted-foreground font-medium">
+              {formatCurrency(dailyLimit)}/day limit
+            </span>
+          )}
+        </CardHeader>
+        <CardContent className="space-y-4">
+
+          {/* No limit state */}
+          {!hasLimit ? (
+            <div className="text-center py-4 text-muted-foreground">
+              <Flame className="h-8 w-8 mx-auto mb-2 opacity-30" />
+              <p className="font-medium">No spending limit set yet</p>
+              <p className="text-sm mt-1">Set a monthly budget and your streak will start tracking automatically</p>
+              <Link href="/budgets">
+                <Button variant="outline" size="sm" className="mt-3 font-bold">
+                  Set a Budget
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <>
+              {/* Big streak count */}
+              <div className="flex items-end gap-3">
+                <div className="flex items-center gap-2">
+                  <Flame className={`h-10 w-10 ${flameColor}`} />
+                  <span className="stat-value">{currentStreak}</span>
+                </div>
+                <div className="pb-1">
+                  <p className="text-sm font-semibold leading-tight">day{currentStreak !== 1 ? 's' : ''} in a row</p>
+                  <p className="text-xs text-muted-foreground font-medium">under daily limit</p>
+                </div>
+              </div>
+
+              {/* Motivational message */}
+              <p className="text-sm font-medium text-muted-foreground">
+                {getMessage(currentStreak)}
+              </p>
+
+              {/* 7-day history dots */}
+              {weekHistory.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Last 7 days</p>
+                  <div className="flex items-center gap-1.5">
+                    {weekHistory.map((day) => (
+                      <div key={day.date} className="flex flex-col items-center gap-1 flex-1">
+                        <div
+                          className={[
+                            'w-full h-7 rounded-md border-2 flex items-center justify-center transition-all',
+                            day.under
+                              ? 'bg-[#00b894]/20 border-[#00b894] dark:bg-[#55efc4]/20 dark:border-[#55efc4]'
+                              : 'bg-[#e17055]/20 border-[#e17055] dark:bg-[#ff7675]/20 dark:border-[#ff7675]',
+                            day.isToday ? 'ring-2 ring-primary ring-offset-1 scale-110' : '',
+                          ].join(' ')}
+                          title={`${day.date}: ${formatCurrency(day.spent)}`}
+                        >
+                          {day.under
+                            ? <Check className="h-3 w-3 text-[#00b894] dark:text-[#55efc4]" />
+                            : <X className="h-3 w-3 text-[#e17055] dark:text-[#ff7675]" />
+                          }
+                        </div>
+                        <span className="text-[10px] text-muted-foreground font-medium">
+                          {new Date(day.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'narrow' })}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Best streak comparison */}
+              {bestStreak30d > currentStreak && (
+                <div className="flex items-center justify-between text-sm bg-muted/50 rounded-lg border-2 border-border px-3 py-2">
+                  <span className="text-muted-foreground font-medium">Best (last 30 days)</span>
+                  <span className="font-bold flex items-center gap-1">
+                    <Trophy className="h-3.5 w-3.5 text-[#fdcb6e]" />
+                    {bestStreak30d} days
+                  </span>
+                </div>
+              )}
+              {bestStreak30d > 0 && bestStreak30d === currentStreak && currentStreak >= 7 && (
+                <div className="flex items-center gap-2 text-sm font-bold text-[#00b894] dark:text-[#55efc4]">
+                  <Trophy className="h-4 w-4 shrink-0" />
+                  <span>This is your best streak in 30 days!</span>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
   const renderForecastPanel = () => {
     const today = new Date();
     const dayOfMonth = today.getDate();
@@ -927,6 +1063,7 @@ export default function DashboardPage() {
       case 'recent-transactions': return renderRecentTransactionsPanel();
       case 'due-soon':            return renderDueSoonPanel();
       case 'forecast':            return renderForecastPanel();
+      case 'streak':              return renderStreakPanel();
     }
   };
 

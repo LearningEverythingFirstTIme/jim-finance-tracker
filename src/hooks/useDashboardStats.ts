@@ -112,6 +112,7 @@ export function useDashboardStats() {
 
   return {
     stats,
+    transactions,
     categoryBreakdown,
     recentTransactions,
     topCategories,
