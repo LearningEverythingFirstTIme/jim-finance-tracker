@@ -23,6 +23,8 @@ import {
   Sun,
   Moon,
   DollarSign,
+  Wallet,
+  Target,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
@@ -31,6 +33,8 @@ import { useState } from 'react';
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/transactions', label: 'Transactions', icon: Receipt },
+  { href: '/budgets', label: 'Budgets', icon: Wallet },
+  { href: '/goals', label: 'Goals', icon: Target },
   { href: '/categories', label: 'Categories', icon: Tags },
   { href: '/reminders', label: 'Reminders', icon: Bell },
   { href: '/reports', label: 'Reports', icon: BarChart3 },

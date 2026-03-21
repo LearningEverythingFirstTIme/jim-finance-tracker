@@ -9,6 +9,12 @@ const ICON_NAMES = [
   'RotateCcw', 'Plus', 'Coffee', 'ShoppingCart', 'Plane', 'Gamepad2',
 ] as const;
 
+const GOAL_ICON_NAMES = [
+  'Target', 'Home', 'Car', 'Plane', 'Laptop', 'ShoppingCart', 'Gift', 'Heart',
+  'Briefcase', 'DollarSign', 'Coffee', 'Film', 'Gamepad2', 'GraduationCap',
+  'Baby', 'Trophy', 'Umbrella', 'CreditCard', 'Wallet', 'PiggyBank',
+] as const;
+
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Utensils: LucideIcons.Utensils,
   Car: LucideIcons.Car,
@@ -30,13 +36,21 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   ShoppingCart: LucideIcons.ShoppingCart,
   Plane: LucideIcons.Plane,
   Gamepad2: LucideIcons.Gamepad2,
+  Target: LucideIcons.Target,
+  DollarSign: LucideIcons.DollarSign,
+  GraduationCap: LucideIcons.GraduationCap,
+  Baby: LucideIcons.Baby,
+  Trophy: LucideIcons.Trophy,
+  Umbrella: LucideIcons.Umbrella,
+  Wallet: LucideIcons.Wallet,
+  PiggyBank: LucideIcons.PiggyBank,
 };
 
 export function getIconComponent(iconName: string): React.ComponentType<{ className?: string }> {
   return iconMap[iconName] || Palette;
 }
 
-export { ICON_NAMES };
+export { ICON_NAMES, GOAL_ICON_NAMES };
 
 export function DynamicIcon({ name, className, ...props }: { name: string; className?: string } & React.SVGProps<SVGSVGElement>) {
   const Icon = getIconComponent(name);

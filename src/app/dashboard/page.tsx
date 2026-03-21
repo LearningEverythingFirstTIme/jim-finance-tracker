@@ -26,10 +26,15 @@ import {
   DollarSign,
   Sparkles,
   Trophy,
+  Wallet,
+  Target,
+  AlertTriangle,
 } from 'lucide-react';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useReminders } from '@/hooks/useReminders';
-import { formatCurrency, formatDateShort, getDaysUntilDue, getPercentageChange, getTodayDate } from '@/lib/format';
+import { useBudgets } from '@/hooks/useBudgets';
+import { useSavingsGoals } from '@/hooks/useSavingsGoals';
+import { formatCurrency, formatDateShort, getDaysUntilDue, getPercentageChange, getTodayDate, getCurrentMonth, getMonthRange } from '@/lib/format';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -54,6 +59,8 @@ function getGreeting(): string {
 export default function DashboardPage() {
   const { stats, categoryBreakdown, recentTransactions, topCategories, categories, getCategoriesByType, addTransaction, loading } = useDashboardStats();
   const { reminders } = useReminders();
+  const { budgets, getOverallBudget } = useBudgets();
+  const { goals } = useSavingsGoals();
 
   const [quickAddType, setQuickAddType] = useState<TransactionType>('expense');
   const [quickAddAmount, setQuickAddAmount] = useState('');
@@ -249,6 +256,140 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">{stats.transactionCount}</div>
             <p className="text-xs text-muted-foreground">Total recorded</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Budget Status & Savings Goals Row */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Wallet className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Budget Status</CardTitle>
+            </div>
+            <Link href="/budgets">
+              <Button variant="ghost" size="sm">
+                Manage <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {(() => {
+              const currentMonth = getCurrentMonth();
+              const overallBudget = getOverallBudget(currentMonth);
+              const range = getMonthRange(currentMonth);
+              const thisMonthExpenses = stats.thisMonthExpenses;
+              
+              if (!overallBudget) {
+                return (
+                  <div className="text-center py-4 text-muted-foreground">
+                    <p>No budget set for this month</p>
+                    <Link href="/budgets">
+                      <Button variant="outline" size="sm" className="mt-2">
+                        Set Budget
+                      </Button>
+                    </Link>
+                  </div>
+                );
+              }
+
+              const percentage = Math.min((thisMonthExpenses / overallBudget.amount) * 100, 100);
+              const remaining = overallBudget.amount - thisMonthExpenses;
+              const isOver = thisMonthExpenses > overallBudget.amount;
+              const isClose = percentage >= 80 && !isOver;
+
+              return (
+                <div className="space-y-3">
+                  {isOver && (
+                    <div className="flex items-center gap-2 text-red-500 text-sm">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span>Over budget by {formatCurrency(Math.abs(remaining))}</span>
+                    </div>
+                  )}
+                  {isClose && (
+                    <div className="flex items-center gap-2 text-yellow-500 text-sm">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span>Approaching budget limit</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Spent</span>
+                    <span className="font-medium">{formatCurrency(thisMonthExpenses)}</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all ${isOver ? 'bg-red-500' : isClose ? 'bg-yellow-500' : 'bg-green-500'}`}
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Budget</span>
+                    <span className="font-medium">{formatCurrency(overallBudget.amount)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Remaining</span>
+                    <span className={`font-medium ${isOver ? 'text-red-500' : 'text-green-500'}`}>
+                      {formatCurrency(Math.max(0, remaining))}
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Savings Goals</CardTitle>
+            </div>
+            <Link href="/goals">
+              <Button variant="ghost" size="sm">
+                View All <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {goals.length === 0 ? (
+              <div className="text-center py-4 text-muted-foreground">
+                <p>No savings goals yet</p>
+                <Link href="/goals">
+                  <Button variant="outline" size="sm" className="mt-2">
+                    Create Goal
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Total Saved</span>
+                  <span className="font-bold text-green-500">
+                    {formatCurrency(goals.reduce((sum, g) => sum + g.currentAmount, 0))}
+                  </span>
+                </div>
+                {goals.slice(0, 3).map((goal) => {
+                  const percentage = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
+                  return (
+                    <div key={goal.id} className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span className="truncate">{goal.name}</span>
+                        <span className="text-muted-foreground">
+                          {formatCurrency(goal.currentAmount)} / {formatCurrency(goal.targetAmount)}
+                        </span>
+                      </div>
+                      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full transition-all"
+                          style={{ width: `${percentage}%`, backgroundColor: goal.color }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
