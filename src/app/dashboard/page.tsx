@@ -299,7 +299,7 @@ export default function DashboardPage() {
 
             <div className="space-y-2">
               <Label>Category</Label>
-              <Select value={quickAddCategory} onValueChange={(v) => v && setQuickAddCategory(v)}>
+              <Select value={quickAddCategory} onValueChange={(v) => v && setQuickAddCategory(v)} items={Object.fromEntries(filteredCategories.map(cat => [cat.id, cat.name]))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>

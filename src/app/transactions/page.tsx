@@ -99,7 +99,7 @@ export default function TransactionsPage() {
               />
             </div>
             <div className="flex gap-2">
-              <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as TransactionType | 'all')}>
+              <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as TransactionType | 'all')} items={{ all: 'All Types', income: 'Income', expense: 'Expense' }}>
                 <SelectTrigger className="w-32">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue />
@@ -110,7 +110,7 @@ export default function TransactionsPage() {
                   <SelectItem value="expense">Expense</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={categoryFilter} onValueChange={(v) => v && setCategoryFilter(v)}>
+              <Select value={categoryFilter} onValueChange={(v) => v && setCategoryFilter(v)} items={{ all: 'All Categories', ...Object.fromEntries(categories.map(cat => [cat.id, cat.name])) }}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>

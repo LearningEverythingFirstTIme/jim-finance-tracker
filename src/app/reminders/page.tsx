@@ -251,7 +251,7 @@ export default function RemindersPage() {
 
             <div className="space-y-2">
               <Label>Category *</Label>
-              <Select value={categoryId} onValueChange={(v) => v && setCategoryId(v)}>
+              <Select value={categoryId} onValueChange={(v) => v && setCategoryId(v)} items={Object.fromEntries(expenseCategories.map(cat => [cat.id, cat.name]))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>

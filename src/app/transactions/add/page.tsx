@@ -156,7 +156,7 @@ export default function AddTransactionPage() {
 
             <div className="space-y-2">
               <Label>Category *</Label>
-              <Select value={categoryId} onValueChange={(v) => v && setCategoryId(v)}>
+              <Select value={categoryId} onValueChange={(v) => v && setCategoryId(v)} items={Object.fromEntries(filteredCategories.map(cat => [cat.id, cat.name]))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>

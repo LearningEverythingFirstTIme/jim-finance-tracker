@@ -131,7 +131,7 @@ export default function ReportsPage() {
           <h1 className="text-2xl font-bold">Reports</h1>
           <p className="text-muted-foreground">Monthly financial analysis</p>
         </div>
-        <Select value={selectedMonth} onValueChange={(v) => v && setSelectedMonth(v)}>
+        <Select value={selectedMonth} onValueChange={(v) => v && setSelectedMonth(v)} items={Object.fromEntries(LAST_6_MONTHS.map(month => { const [year, m] = month.split('-'); return [month, `${getMonthName(parseInt(m) - 1)} ${year}`]; }))}>
           <SelectTrigger className="w-40">
             <SelectValue />
           </SelectTrigger>
