@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useHaptics } from '@/components/haptics-provider';
 import {
   Dialog,
   DialogContent,
@@ -25,6 +26,7 @@ const COLOR_OPTIONS = [
 ];
 
 export default function CategoriesPage() {
+  const { trigger } = useHaptics();
   const { categories, loading, addCategory, updateCategory, deleteCategory } = useCategories();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -67,9 +69,11 @@ export default function CategoriesPage() {
     try {
       if (editingCategory) {
         await updateCategory(editingCategory.id, { name, icon, color, type });
+        void trigger("nudge");
         toast.success('Category updated');
       } else {
         await addCategory({ name, icon, color, type });
+        void trigger("success");
         toast.success('Category added');
       }
       setIsDialogOpen(false);
@@ -83,6 +87,7 @@ export default function CategoriesPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteCategory(id);
+      void trigger([100, 50, 100]);
       toast.success('Category deleted');
       setDeleteConfirm(null);
     } catch {
@@ -224,7 +229,7 @@ export default function CategoriesPage() {
                     className={`w-8 h-8 rounded-[6px] flex items-center justify-center transition-all ${
                       icon === iconName ? 'bg-primary/20 ring-2 ring-primary border-2 border-primary' : 'hover:bg-muted/50 border-2 border-transparent'
                     }`}
-                    onClick={() => setIcon(iconName)}
+                    onClick={() => { void trigger(30); setIcon(iconName); }}
                     title={iconName}
                   >
                     <DynamicIcon name={iconName} className="h-4 w-4" />
@@ -244,7 +249,7 @@ export default function CategoriesPage() {
                       color === c ? 'border-foreground scale-110 [box-shadow:var(--btn-shadow)]' : 'border-transparent hover:scale-105'
                     }`}
                     style={{ backgroundColor: c }}
-                    onClick={() => setColor(c)}
+                    onClick={() => { void trigger(30); setColor(c); }}
                   />
                 ))}
               </div>

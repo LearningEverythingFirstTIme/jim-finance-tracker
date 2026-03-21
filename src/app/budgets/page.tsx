@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { useHaptics } from '@/components/haptics-provider';
 import {
   Dialog,
   DialogContent,
@@ -82,6 +83,7 @@ function getStatusBadge(percentage: number, hasBudget: boolean) {
 }
 
 export default function BudgetsPage() {
+  const { trigger } = useHaptics();
   const { budgets, loading, addBudget, updateBudget, deleteBudget, getBudgetsForMonth, getOverallBudget } = useBudgets();
   const { transactions } = useTransactions();
   const { categories } = useCategories();
@@ -168,9 +170,11 @@ export default function BudgetsPage() {
     try {
       if (editingBudget) {
         await updateBudget(editingBudget.id, input);
+        void trigger("nudge");
         toast.success('Budget updated');
       } else {
         await addBudget(input);
+        void trigger("success");
         toast.success('Budget added');
       }
       setIsDialogOpen(false);
@@ -184,6 +188,7 @@ export default function BudgetsPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteBudget(id);
+      void trigger([100, 50, 100]);
       toast.success('Budget deleted');
       setDeleteConfirm(null);
     } catch {
@@ -209,7 +214,7 @@ export default function BudgetsPage() {
           <p className="text-muted-foreground text-base">Track your monthly spending limits</p>
         </div>
         <div className="flex items-center gap-2">
-          <Select value={selectedMonth} onValueChange={(v) => v && setSelectedMonth(v)} items={Object.fromEntries(MONTHS.map(m => [m.value, m.label]))}>
+          <Select value={selectedMonth} onValueChange={(v) => { void trigger(30); if (v) setSelectedMonth(v); }} items={Object.fromEntries(MONTHS.map(m => [m.value, m.label]))}>
             <SelectTrigger className="w-44">
               <SelectValue />
             </SelectTrigger>
@@ -477,7 +482,7 @@ export default function BudgetsPage() {
               </Select>
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-lg border-2 border-border cursor-pointer select-none hover:bg-muted/50 transition-colors" onClick={() => setRollover(!rollover)}>
+            <div className="flex items-center gap-3 p-3 rounded-lg border-2 border-border cursor-pointer select-none hover:bg-muted/50 transition-colors" onClick={() => { void trigger("nudge"); setRollover(!rollover); }}>
               <input
                 type="checkbox"
                 id="rollover"

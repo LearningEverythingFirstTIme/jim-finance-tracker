@@ -3,11 +3,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth-provider';
+import { useHaptics } from '@/components/haptics-provider';
 import { LogOut, User, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
 export default function SettingsPage() {
   const { user, signOut } = useAuth();
+  const { trigger } = useHaptics();
   const { theme, setTheme } = useTheme();
 
   return (
@@ -34,7 +36,7 @@ export default function SettingsPage() {
               <p className="text-sm text-muted-foreground font-medium">{user?.email}</p>
             </div>
           </div>
-          <Button variant="destructive" onClick={signOut} className="w-full font-bold">
+          <Button variant="destructive" onClick={() => { void trigger([100, 50, 100]); signOut(); }} className="w-full font-bold">
             <LogOut className="h-4 w-4 mr-2" />
             Sign Out
           </Button>
@@ -63,7 +65,7 @@ export default function SettingsPage() {
               <Button
                 variant={theme === 'light' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setTheme('light')}
+                onClick={() => { void trigger("nudge"); setTheme('light'); }}
                 className="font-bold"
               >
                 <Sun className="h-4 w-4 mr-1" /> Light
@@ -71,7 +73,7 @@ export default function SettingsPage() {
               <Button
                 variant={theme === 'dark' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setTheme('dark')}
+                onClick={() => { void trigger("nudge"); setTheme('dark'); }}
                 className="font-bold"
               >
                 <Moon className="h-4 w-4 mr-1" /> Dark

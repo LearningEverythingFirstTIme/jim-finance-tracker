@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { useHaptics } from '@/components/haptics-provider';
 import {
   Dialog,
   DialogContent,
@@ -103,6 +104,7 @@ function getMonthsToCompletion(goal: SavingsGoal): number | null {
 }
 
 export default function GoalsPage() {
+  const { trigger } = useHaptics();
   const { goals, loading, addGoal, updateGoal, updateGoalAmount, deleteGoal } = useSavingsGoals();
   const { contributions, addContribution, deleteContribution, getContributionsForGoal } = useSavingsContributions();
 
@@ -187,9 +189,11 @@ export default function GoalsPage() {
     try {
       if (editingGoal) {
         await updateGoal(editingGoal.id, input);
+        void trigger("nudge");
         toast.success('Goal updated');
       } else {
         await addGoal(input);
+        void trigger("success");
         toast.success('Goal created');
       }
       setIsGoalDialogOpen(false);
@@ -229,6 +233,7 @@ export default function GoalsPage() {
           await updateGoalAmount(goalId, g.currentAmount + delta);
         }
       });
+      void trigger("success");
       toast.success(`Added ${formatCurrency(amount)} to ${goal.name}`);
       setIsContributionDialogOpen(false);
     } catch {
@@ -246,6 +251,7 @@ export default function GoalsPage() {
           await updateGoalAmount(gId, g.currentAmount + delta);
         }
       });
+      void trigger([100, 50, 100]);
       toast.success('Contribution removed');
     } catch {
       toast.error('Failed to remove contribution');
@@ -255,6 +261,7 @@ export default function GoalsPage() {
   const handleDeleteGoal = async (id: string) => {
     try {
       await deleteGoal(id);
+      void trigger([100, 50, 100]);
       toast.success('Goal deleted (contributions remain in history)');
       setDeleteConfirm(null);
     } catch {
@@ -435,7 +442,7 @@ export default function GoalsPage() {
                     <div>
                       <button
                         className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground font-medium"
-                        onClick={() => setExpandedGoal(isExpanded ? null : goal.id)}
+                        onClick={() => { void trigger(30); setExpandedGoal(isExpanded ? null : goal.id); }}
                       >
                         {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                         {goalContributions.length} contribution{goalContributions.length !== 1 ? 's' : ''}
@@ -514,7 +521,7 @@ export default function GoalsPage() {
                     className={`w-8 h-8 rounded-[6px] flex items-center justify-center transition-all ${
                       goalIcon === iconName ? 'bg-primary/20 ring-2 ring-primary border-2 border-primary' : 'hover:bg-muted/50 border-2 border-transparent'
                     }`}
-                    onClick={() => setGoalIcon(iconName)}
+                    onClick={() => { void trigger(30); setGoalIcon(iconName); }}
                     title={iconName}
                   >
                     <DynamicIcon name={iconName} className="h-4 w-4" />
@@ -534,7 +541,7 @@ export default function GoalsPage() {
                       goalColor === c ? 'border-foreground scale-110 [box-shadow:var(--btn-shadow)]' : 'border-transparent hover:scale-105'
                     }`}
                     style={{ backgroundColor: c }}
-                    onClick={() => setGoalColor(c)}
+                    onClick={() => { void trigger(30); setGoalColor(c); }}
                   />
                 ))}
               </div>

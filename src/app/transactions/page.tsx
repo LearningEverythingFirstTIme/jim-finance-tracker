@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { useHaptics } from '@/components/haptics-provider';
 import {
   Select,
   SelectContent,
@@ -28,6 +29,7 @@ import { toast } from 'sonner';
 import type { Transaction, TransactionType } from '@/types';
 
 export default function TransactionsPage() {
+  const { trigger } = useHaptics();
   const { transactions, loading, deleteTransaction, updateTransaction, getPendingRecurring, generateRecurringForMonth } = useTransactions();
   const { categories } = useCategories();
 
@@ -63,6 +65,7 @@ export default function TransactionsPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteTransaction(id);
+      void trigger([100, 50, 100]);
       toast.success('Transaction deleted');
       setDeleteConfirm(null);
     } catch {
@@ -74,6 +77,7 @@ export default function TransactionsPage() {
     setGeneratingRecurring(true);
     try {
       const count = await generateRecurringForMonth(currentMonth);
+      void trigger("success");
       toast.success(`Generated ${count} recurring transaction${count !== 1 ? 's' : ''}`);
     } catch {
       toast.error('Failed to generate recurring transactions');
@@ -103,7 +107,7 @@ export default function TransactionsPage() {
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
               className="rounded-none border-0"
-              onClick={() => setViewMode('list')}
+              onClick={() => { void trigger(30); setViewMode('list'); }}
             >
               <List className="h-4 w-4" />
             </Button>
@@ -111,7 +115,7 @@ export default function TransactionsPage() {
               variant={viewMode === 'calendar' ? 'default' : 'ghost'}
               size="sm"
               className="rounded-none border-0 border-l-3 border-l-border"
-              onClick={() => setViewMode('calendar')}
+              onClick={() => { void trigger(30); setViewMode('calendar'); }}
             >
               <CalendarDays className="h-4 w-4" />
             </Button>
@@ -163,12 +167,12 @@ export default function TransactionsPage() {
               <Input
                 placeholder="Search transactions..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => { void trigger(30); setSearch(e.target.value); }}
                 className="pl-10"
               />
             </div>
             <div className="flex gap-2">
-              <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as TransactionType | 'all')} items={{ all: 'All Types', income: 'Income', expense: 'Expense' }}>
+              <Select value={typeFilter} onValueChange={(v) => { void trigger(30); setTypeFilter(v as TransactionType | 'all'); }} items={{ all: 'All Types', income: 'Income', expense: 'Expense' }}>
                 <SelectTrigger className="w-36">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue />
@@ -179,7 +183,7 @@ export default function TransactionsPage() {
                   <SelectItem value="expense">Expense</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={categoryFilter} onValueChange={(v) => v && setCategoryFilter(v)} items={{ all: 'All Categories', ...Object.fromEntries(categories.map(cat => [cat.id, cat.name])) }}>
+              <Select value={categoryFilter} onValueChange={(v) => { void trigger(30); if (v) setCategoryFilter(v); }} items={{ all: 'All Categories', ...Object.fromEntries(categories.map(cat => [cat.id, cat.name])) }}>
                 <SelectTrigger className="w-44">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
@@ -254,7 +258,7 @@ export default function TransactionsPage() {
                             <Button
                               variant="ghost"
                               size="icon-sm"
-                              onClick={() => setEditTransaction(tx)}
+                              onClick={() => { void trigger("nudge"); setEditTransaction(tx); }}
                             >
                               <Pencil className="h-4 w-4" />
                             </Button>
@@ -390,6 +394,7 @@ function CalendarView({
   month: string;
   onMonthChange: (month: string) => void;
 }) {
+  const { trigger } = useHaptics();
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   const [year, monthNum] = month.split('-').map(Number);
@@ -397,12 +402,14 @@ function CalendarView({
   const daysInMonth = new Date(year, monthNum, 0).getDate();
 
   const prevMonth = () => {
+    void trigger(30);
     const d = new Date(year, monthNum - 2, 1);
     onMonthChange(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
     setSelectedDay(null);
   };
 
   const nextMonth = () => {
+    void trigger(30);
     const d = new Date(year, monthNum, 1);
     onMonthChange(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
     setSelectedDay(null);
@@ -457,7 +464,7 @@ function CalendarView({
               return (
                 <button
                   key={day}
-                  onClick={() => setSelectedDay(isSelected ? null : dateStr)}
+                  onClick={() => { void trigger(30); setSelectedDay(isSelected ? null : dateStr); }}
                   className={`
                     relative p-1 rounded-[8px] text-center min-h-[60px] flex flex-col items-center justify-start gap-0.5
                     transition-all border-3
@@ -486,7 +493,7 @@ function CalendarView({
           <CardHeader>
             <div className="flex items-center justify-between">
               <h3 className="font-bold">{formatDate(selectedDay)}</h3>
-              <Button variant="ghost" size="icon-sm" onClick={() => setSelectedDay(null)}>
+              <Button variant="ghost" size="icon-sm" onClick={() => { void trigger(30); setSelectedDay(null); }}>
                 <X className="h-4 w-4" />
               </Button>
             </div>

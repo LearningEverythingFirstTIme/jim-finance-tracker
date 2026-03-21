@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { useHaptics } from '@/components/haptics-provider';
 import {
   Select,
   SelectContent,
@@ -57,6 +58,7 @@ function getGreeting(): string {
 }
 
 export default function DashboardPage() {
+  const { trigger } = useHaptics();
   const { stats, categoryBreakdown, recentTransactions, topCategories, categories, getCategoriesByType, addTransaction, loading } = useDashboardStats();
   const { reminders } = useReminders();
   const { budgets, getOverallBudget } = useBudgets();
@@ -121,6 +123,8 @@ export default function DashboardPage() {
         category.color
       );
 
+      void trigger("success");
+
       if (quickAddType === 'income') {
         const messages = [
           "Money in the bank! 🎉",
@@ -167,7 +171,7 @@ export default function DashboardPage() {
         </div>
         <div 
           className="cursor-pointer select-none hover:scale-110 transition-transform" 
-          onClick={() => setLogoClicks(c => c + 1)}
+          onClick={() => { void trigger(30); setLogoClicks(c => c + 1); }}
         >
           <div className="w-12 h-12 rounded-xl bg-primary border-3 border-border flex items-center justify-center [box-shadow:var(--btn-shadow)]">
             <DollarSign className="h-7 w-7 text-white" />
@@ -419,6 +423,7 @@ export default function DashboardPage() {
                 size="sm"
                 className="flex-1 font-bold"
                 onClick={() => {
+                  void trigger(30);
                   setQuickAddType('expense');
                   setQuickAddCategory('');
                 }}
@@ -430,6 +435,7 @@ export default function DashboardPage() {
                 size="sm"
                 className="flex-1 font-bold"
                 onClick={() => {
+                  void trigger(30);
                   setQuickAddType('income');
                   setQuickAddCategory('');
                 }}

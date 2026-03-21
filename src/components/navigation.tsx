@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/components/auth-provider';
+import { useHaptics } from '@/components/haptics-provider';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -43,10 +44,12 @@ const NAV_ITEMS = [
 export function Navigation() {
   const pathname = usePathname();
   const { signOut } = useAuth();
+  const { trigger } = useHaptics();
   const { theme, setTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const toggleTheme = () => {
+    void trigger("nudge");
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
@@ -70,7 +73,7 @@ export function Navigation() {
                   const Icon = item.icon;
                   const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                   return (
-                    <Link key={item.href} href={item.href}>
+                    <Link key={item.href} href={item.href} onClick={() => void trigger("nudge")}>
                       <Button
                         variant={isActive ? 'default' : 'ghost'}
                         size="sm"
@@ -96,7 +99,7 @@ export function Navigation() {
 
               <DropdownMenu>
                 <DropdownMenuTrigger>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" onClick={() => void trigger("nudge")}>
                     <Settings className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -105,7 +108,7 @@ export function Navigation() {
                     <Link href="/settings" className="w-full">Settings</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
+                  <DropdownMenuItem onClick={() => { void trigger([100, 50, 100]); signOut(); }} className="text-destructive focus:text-destructive">
                     <LogOut className="h-4 w-4 mr-2" />
                     Sign Out
                   </DropdownMenuItem>
@@ -116,7 +119,7 @@ export function Navigation() {
                 variant="ghost"
                 size="icon"
                 className="md:hidden"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                onClick={() => { void trigger(30); setMobileMenuOpen(!mobileMenuOpen); }}
               >
                 <Menu className="h-5 w-5" />
               </Button>
@@ -133,7 +136,7 @@ export function Navigation() {
                 const Icon = item.icon;
                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                 return (
-                  <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                  <Link key={item.href} href={item.href} onClick={() => { void trigger("nudge"); setMobileMenuOpen(false); }}>
                     <Button
                       variant={isActive ? 'default' : 'ghost'}
                       className={cn(

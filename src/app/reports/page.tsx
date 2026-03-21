@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useHaptics } from '@/components/haptics-provider';
 import {
   Select,
   SelectContent,
@@ -54,6 +55,7 @@ function getMonthsBetween(start: string, end: string): string[] {
 }
 
 export default function ReportsPage() {
+  const { trigger } = useHaptics();
   const { transactions, loading } = useTransactions();
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
 
@@ -162,7 +164,7 @@ export default function ReportsPage() {
           <h1 className="text-3xl font-black tracking-tight">Reports</h1>
           <p className="text-muted-foreground text-base font-medium">Monthly financial analysis</p>
         </div>
-        <Select value={selectedMonth} onValueChange={(v) => v && setSelectedMonth(v)} items={Object.fromEntries(MONTH_OPTIONS.map((month: string) => { const [year, m] = month.split('-'); return [month, `${getMonthName(parseInt(m) - 1)} ${year}`]; }))}>
+        <Select value={selectedMonth} onValueChange={(v) => { void trigger(30); if (v) setSelectedMonth(v); }} items={Object.fromEntries(MONTH_OPTIONS.map((month: string) => { const [year, m] = month.split('-'); return [month, `${getMonthName(parseInt(m) - 1)} ${year}`]; }))}>
           <SelectTrigger className="w-44">
             <SelectValue />
           </SelectTrigger>
@@ -233,6 +235,7 @@ export default function ReportsPage() {
                 <Select
                   value={trendStart}
                   onValueChange={(v) => {
+                    void trigger(30);
                     if (v && v <= trendEnd) setTrendStart(v);
                   }}
                   items={Object.fromEntries(MONTH_OPTIONS.map((m) => {
@@ -258,6 +261,7 @@ export default function ReportsPage() {
                 <Select
                   value={trendEnd}
                   onValueChange={(v) => {
+                    void trigger(30);
                     if (v && v >= trendStart) setTrendEnd(v);
                   }}
                   items={Object.fromEntries(MONTH_OPTIONS.map((m) => {

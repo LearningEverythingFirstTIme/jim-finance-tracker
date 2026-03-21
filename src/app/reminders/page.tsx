@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { useHaptics } from '@/components/haptics-provider';
 import {
   Select,
   SelectContent,
@@ -28,6 +29,7 @@ import { toast } from 'sonner';
 import type { Reminder } from '@/types';
 
 export default function RemindersPage() {
+  const { trigger } = useHaptics();
   const { reminders, loading, addReminder, updateReminder, deleteReminder } = useReminders();
   const { categories } = useCategories();
 
@@ -105,6 +107,7 @@ export default function RemindersPage() {
           category.name,
           category.color
         );
+        void trigger("nudge");
         toast.success('Reminder updated');
       } else {
         await addReminder(
@@ -113,6 +116,7 @@ export default function RemindersPage() {
           category.name,
           category.color
         );
+        void trigger("success");
         toast.success('Reminder added');
       }
       setIsDialogOpen(false);
@@ -126,6 +130,7 @@ export default function RemindersPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteReminder(id);
+      void trigger([100, 50, 100]);
       toast.success('Reminder deleted');
       setDeleteConfirm(null);
     } catch {

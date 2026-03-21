@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { HapticsProvider } from "@/components/haptics-provider";
 import { AuthGuard } from "@/components/auth-guard";
 import { Navigation } from "@/components/navigation";
 import { Toaster } from "@/components/ui/sonner";
@@ -26,7 +27,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
         <ThemeProvider>
-          <AuthProvider>
+          <HapticsProvider>
+            <AuthProvider>
             <AuthGuard>
               <Navigation />
               <main className="min-h-screen pt-14">
@@ -37,6 +39,7 @@ export default function RootLayout({
             </AuthGuard>
             <Toaster />
           </AuthProvider>
+          </HapticsProvider>
         </ThemeProvider>
       </body>
     </html>

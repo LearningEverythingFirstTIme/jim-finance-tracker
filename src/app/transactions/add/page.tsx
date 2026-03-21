@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useHaptics } from '@/components/haptics-provider';
 import {
   Select,
   SelectContent,
@@ -23,6 +24,7 @@ import type { TransactionType } from '@/types';
 
 export default function AddTransactionPage() {
   const router = useRouter();
+  const { trigger } = useHaptics();
   const { categories, getCategoriesByType } = useCategories();
   const { addTransaction } = useTransactions();
 
@@ -71,6 +73,8 @@ export default function AddTransactionPage() {
         category.color
       );
       
+      void trigger("success");
+      
       if (type === 'income') {
         const messages = [
           "Money in the bank! 🎉",
@@ -94,7 +98,7 @@ export default function AddTransactionPage() {
   return (
     <div className="max-w-lg mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/transactions">
+        <Link href="/transactions" onClick={() => void trigger(50)}>
           <Button variant="ghost" size="icon">
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -114,6 +118,7 @@ export default function AddTransactionPage() {
                 variant={type === 'expense' ? 'destructive' : 'outline'}
                 className="flex-1 font-bold"
                 onClick={() => {
+                  void trigger(30);
                   setType('expense');
                   setCategoryId('');
                 }}
@@ -125,6 +130,7 @@ export default function AddTransactionPage() {
                 variant={type === 'income' ? 'default' : 'outline'}
                 className="flex-1 font-bold"
                 onClick={() => {
+                  void trigger(30);
                   setType('income');
                   setCategoryId('');
                 }}
