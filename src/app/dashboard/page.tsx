@@ -5,7 +5,8 @@ import {
   DndContext,
   closestCenter,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -128,7 +129,7 @@ function SortablePanelChip({ id }: { id: PanelId }) {
         transition: transition ?? undefined,
       }}
       className={cn(
-        'flex items-center gap-4 p-4 bg-card rounded-xl border-2 border-border [box-shadow:var(--card-shadow)] cursor-grab active:cursor-grabbing select-none transition-[opacity,transform,box-shadow] duration-100',
+        'flex items-center gap-4 p-4 bg-card rounded-xl border-2 border-border [box-shadow:var(--card-shadow)] cursor-grab active:cursor-grabbing select-none transition-[opacity,transform,box-shadow] duration-100 [touch-action:none]',
         isDragging && 'opacity-50 [box-shadow:var(--card-shadow-hover)] scale-[1.02] z-50'
       )}
       {...attributes}
@@ -203,8 +204,11 @@ export default function DashboardPage() {
 
   // DnD setup
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 250, tolerance: 5 },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
