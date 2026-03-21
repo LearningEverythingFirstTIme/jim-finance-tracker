@@ -55,6 +55,7 @@ import {
   BarChart3,
   Receipt,
   Zap,
+  Activity,
 } from 'lucide-react';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useReminders } from '@/hooks/useReminders';
@@ -98,6 +99,7 @@ const PANEL_ICONS: Record<PanelId, React.ElementType> = {
   'spending-chart': BarChart3,
   'recent-transactions': Receipt,
   'due-soon': Bell,
+  'forecast': Activity,
 };
 
 function getGreeting(): string {
@@ -762,14 +764,169 @@ export default function DashboardPage() {
     </Card>
   );
 
+  const renderForecastPanel = () => {
+    const today = new Date();
+    const dayOfMonth = today.getDate();
+    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    const daysRemaining = daysInMonth - dayOfMonth;
+
+    const currentMonth = getCurrentMonth();
+    const overallBudget = getOverallBudget(currentMonth);
+
+    if (stats.thisMonthExpenses === 0) {
+      return (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+                <Activity className="h-4 w-4 text-primary" />
+              </div>
+              <CardTitle className="text-lg">Spending Forecast</CardTitle>
+            </div>
+            <Link href="/reports">
+              <Button variant="ghost" size="sm" className="font-bold">
+                Reports <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-4 text-muted-foreground">
+              <Activity className="h-8 w-8 mx-auto mb-2 opacity-40" />
+              <p className="font-medium">No spending recorded yet this month</p>
+              <p className="text-sm mt-1">Add some transactions and your forecast will appear here</p>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    // Daily rate based on actual days elapsed (minimum 1 to avoid div-by-zero on day 0)
+    const elapsed = Math.max(dayOfMonth, 1);
+    const dailyRate = stats.thisMonthExpenses / elapsed;
+    const projectedTotal = dailyRate * daysInMonth;
+    const projectedAdditional = dailyRate * daysRemaining;
+
+    // Pick the comparison baseline: budget if one exists, otherwise last month
+    const referenceAmount = overallBudget
+      ? overallBudget.amount
+      : stats.lastMonthExpenses;
+    const referenceLabel = overallBudget ? 'budget' : 'last month';
+
+    const projectedPct = referenceAmount > 0
+      ? Math.min((projectedTotal / referenceAmount) * 100, 100)
+      : 0;
+    const currentPct = referenceAmount > 0
+      ? Math.min((stats.thisMonthExpenses / referenceAmount) * 100, 100)
+      : 0;
+
+    const isOver = referenceAmount > 0 && projectedTotal > referenceAmount;
+    const isWarning = !isOver && referenceAmount > 0 && projectedPct >= 80;
+
+    const barColor = isOver
+      ? 'bg-[#e17055] dark:bg-[#ff7675]'
+      : isWarning
+      ? 'bg-[#fdcb6e] dark:bg-[#ffeaa7]'
+      : 'bg-[#00b894] dark:bg-[#55efc4]';
+
+    const statusColor = isOver
+      ? 'text-[#e17055] dark:text-[#ff7675]'
+      : isWarning
+      ? 'text-[#fdcb6e] dark:text-[#ffeaa7]'
+      : 'text-[#00b894] dark:text-[#55efc4]';
+
+    const statusMessage = isOver
+      ? `${formatCurrency(projectedTotal - referenceAmount)} over ${referenceLabel} by month end`
+      : isWarning
+      ? `Getting close — ${formatCurrency(referenceAmount - projectedTotal)} headroom left`
+      : `${formatCurrency(referenceAmount - projectedTotal)} under ${referenceLabel} — on track`;
+
+    return (
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+              <Activity className="h-4 w-4 text-primary" />
+            </div>
+            <CardTitle className="text-lg">Spending Forecast</CardTitle>
+          </div>
+          <Link href="/reports">
+            <Button variant="ghost" size="sm" className="font-bold">
+              Reports <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </Link>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Projected total */}
+          <div>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">
+              Projected month-end spend
+            </p>
+            <div className="stat-value">{formatCurrency(projectedTotal)}</div>
+          </div>
+
+          {/* Forecast progress bar */}
+          {referenceAmount > 0 && (
+            <div className="space-y-1.5">
+              {/* Bar track */}
+              <div className="relative h-4 bg-muted rounded-full overflow-hidden border-2 border-border">
+                {/* Projected fill (lighter) */}
+                <div
+                  className={`absolute inset-y-0 left-0 rounded-full opacity-30 ${barColor}`}
+                  style={{ width: `${projectedPct}%` }}
+                />
+                {/* Current spend fill (solid) */}
+                <div
+                  className={`absolute inset-y-0 left-0 rounded-full transition-all ${barColor}`}
+                  style={{ width: `${currentPct}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-xs text-muted-foreground font-medium">
+                <span>{formatCurrency(stats.thisMonthExpenses)} spent</span>
+                <span>{formatCurrency(referenceAmount)} {referenceLabel}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Mini stats row */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-muted/50 rounded-lg border-2 border-border p-3">
+              <p className="text-xs text-muted-foreground font-medium">Daily rate</p>
+              <p className="font-bold text-base font-variant-numeric tabular-nums mt-0.5">
+                {formatCurrency(dailyRate)}
+              </p>
+            </div>
+            <div className="bg-muted/50 rounded-lg border-2 border-border p-3">
+              <p className="text-xs text-muted-foreground font-medium">Est. remaining</p>
+              <p className="font-bold text-base tabular-nums mt-0.5">
+                {formatCurrency(projectedAdditional)}
+              </p>
+            </div>
+          </div>
+
+          {/* Status message */}
+          <div className={`flex items-center gap-2 text-sm font-bold ${statusColor}`}>
+            {isOver
+              ? <AlertTriangle className="h-4 w-4 shrink-0" />
+              : isWarning
+              ? <AlertTriangle className="h-4 w-4 shrink-0" />
+              : <TrendingDown className="h-4 w-4 shrink-0" />
+            }
+            <span>{statusMessage}</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   const renderPanel = (panelId: PanelId): React.ReactNode => {
     switch (panelId) {
-      case 'budget':            return renderBudgetPanel();
-      case 'goals':             return renderGoalsPanel();
-      case 'quick-add':         return renderQuickAddPanel();
-      case 'spending-chart':    return renderSpendingChartPanel();
+      case 'budget':              return renderBudgetPanel();
+      case 'goals':               return renderGoalsPanel();
+      case 'quick-add':           return renderQuickAddPanel();
+      case 'spending-chart':      return renderSpendingChartPanel();
       case 'recent-transactions': return renderRecentTransactionsPanel();
-      case 'due-soon':          return renderDueSoonPanel();
+      case 'due-soon':            return renderDueSoonPanel();
+      case 'forecast':            return renderForecastPanel();
     }
   };
 

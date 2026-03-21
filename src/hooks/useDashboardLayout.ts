@@ -11,9 +11,11 @@ export type PanelId =
   | 'quick-add'
   | 'spending-chart'
   | 'recent-transactions'
-  | 'due-soon';
+  | 'due-soon'
+  | 'forecast';
 
 export const DEFAULT_LAYOUT: PanelId[] = [
+  'forecast',
   'budget',
   'goals',
   'quick-add',
@@ -29,6 +31,7 @@ export const PANEL_LABELS: Record<PanelId, string> = {
   'spending-chart': 'Spending by Category',
   'recent-transactions': 'Recent Transactions',
   'due-soon': 'Due Soon',
+  'forecast': 'Spending Forecast',
 };
 
 export function useDashboardLayout() {
