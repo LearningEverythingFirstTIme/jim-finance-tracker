@@ -52,11 +52,11 @@ export function Navigation() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b-2 border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex h-14 items-center justify-between">
             <div className="flex items-center gap-6">
-              <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
+              <Link href="/dashboard" className="flex items-center gap-2 font-extrabold tracking-tight text-foreground">
                 <DollarSign className="h-5 w-5 text-primary" />
                 <span className="hidden sm:inline">Jim&apos;s Finance</span>
               </Link>
@@ -68,9 +68,12 @@ export function Navigation() {
                   return (
                     <Link key={item.href} href={item.href}>
                       <Button
-                        variant={isActive ? 'secondary' : 'ghost'}
+                        variant={isActive ? 'default' : 'ghost'}
                         size="sm"
-                        className={cn('gap-2', isActive && 'bg-secondary')}
+                        className={cn(
+                          'gap-2',
+                          !isActive && 'border-transparent shadow-none hover:border-transparent'
+                        )}
                       >
                         <Icon className="h-4 w-4" />
                         {item.label}
@@ -120,7 +123,7 @@ export function Navigation() {
 
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden" onClick={() => setMobileMenuOpen(false)}>
-          <div className="fixed top-14 left-0 right-0 border-b bg-background p-4" onClick={(e) => e.stopPropagation()}>
+          <div className="fixed top-14 left-0 right-0 border-b-2 border-border bg-background p-4" onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-col gap-2">
               {NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
@@ -128,8 +131,11 @@ export function Navigation() {
                 return (
                   <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
                     <Button
-                      variant={isActive ? 'secondary' : 'ghost'}
-                      className={cn('w-full justify-start gap-2', isActive && 'bg-secondary')}
+                      variant={isActive ? 'default' : 'ghost'}
+                      className={cn(
+                        'w-full justify-start gap-2',
+                        !isActive && 'border-transparent shadow-none hover:border-transparent'
+                      )}
                     >
                       <Icon className="h-4 w-4" />
                       {item.label}
