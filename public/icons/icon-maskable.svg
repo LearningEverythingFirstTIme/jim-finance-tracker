@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Solid fill background (maskable icons must fill the entire canvas) -->
+  <rect width="512" height="512" fill="#ff6b35"/>
+  <!-- Dollar sign centered in the 80% safe zone (40px inset each side on a 512px canvas) -->
+  <text
+    x="256"
+    y="330"
+    text-anchor="middle"
+    fill="#ffffff"
+    font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    font-weight="900"
+    font-size="240"
+  >$</text>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Orange rounded background matching the nav logo -->
+  <rect width="512" height="512" rx="96" fill="#ff6b35"/>
+  <!-- Dollar sign -->
+  <text
+    x="256"
+    y="360"
+    text-anchor="middle"
+    fill="#ffffff"
+    font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    font-weight="900"
+    font-size="310"
+  >$</text>
+</svg>
