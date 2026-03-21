@@ -33,7 +33,6 @@ export default function AddTransactionPage() {
   const [date, setDate] = useState(getTodayDate());
   const [isRecurring, setIsRecurring] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [addAnother, setAddAnother] = useState(false);
 
   const filteredCategories = getCategoriesByType(type);
 
@@ -84,14 +83,7 @@ export default function AddTransactionPage() {
         toast.success('Transaction added');
       }
       
-      if (addAnother) {
-        setAmount('');
-        setNote('');
-        setCategoryId('');
-        setIsRecurring(false);
-      } else {
-        router.push('/transactions');
-      }
+      router.push('/transactions');
     } catch {
       toast.error('Failed to add transaction');
     } finally {
@@ -210,24 +202,10 @@ export default function AddTransactionPage() {
             <div className="flex gap-2 pt-4">
               <Button
                 type="submit"
-                variant="outline"
-                className="flex-1"
+                className="w-full"
                 disabled={loading}
-                onClick={() => setAddAnother(true)}
               >
-                {loading && addAnother ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  'Add Another'
-                )}
-              </Button>
-              <Button
-                type="submit"
-                className="flex-1"
-                disabled={loading}
-                onClick={() => setAddAnother(false)}
-              >
-                {loading && !addAnother ? (
+                {loading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   'Add Transaction'
