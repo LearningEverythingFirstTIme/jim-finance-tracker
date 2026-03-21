@@ -49,132 +49,164 @@
 }
 
 :root {
-  /* Backgrounds — warm cream instead of cold white */
-  --background: oklch(0.977 0.005 80);
-  --foreground: oklch(0.12 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.12 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.12 0 0);
+  /* Backgrounds — warm yellow-white (NEO-BRUTALIST) */
+  --background: #fffbe6;
+  --foreground: #2d3436;
+  --card: #ffffff;
+  --card-foreground: #2d3436;
+  --popover: #ffffff;
+  --popover-foreground: #2d3436;
 
   /* Primary — vivid orange accent */
-  --primary: oklch(0.64 0.22 37);
-  --primary-foreground: oklch(1 0 0);
+  --primary: #ff6b35;
+  --primary-foreground: #ffffff;
 
   /* Secondary — warm light grey */
-  --secondary: oklch(0.94 0.008 80);
-  --secondary-foreground: oklch(0.12 0 0);
+  --secondary: #f5f5f0;
+  --secondary-foreground: #2d3436;
 
-  /* Muted — slightly less washed-out */
-  --muted: oklch(0.94 0.008 80);
-  --muted-foreground: oklch(0.45 0 0);
+  /* Muted */
+  --muted: #f5f5f0;
+  --muted-foreground: #636e72;
 
-  /* Accent — light orange tint for hover states */
-  --accent: oklch(0.96 0.015 60);
-  --accent-foreground: oklch(0.12 0 0);
+  /* Accent — electric purple */
+  --accent: #6c5ce7;
+  --accent-foreground: #ffffff;
 
-  /* Destructive */
-  --destructive: oklch(0.577 0.245 27.325);
+  /* Semantic colors */
+  --success: #00b894;
+  --warning: #fdcb6e;
+  --destructive: #e17055;
 
-  /* Borders — near-black for the brutalist signature look */
-  --border: oklch(0.18 0 0);
-  --input: oklch(0.88 0 0);
-  --ring: oklch(0.64 0.22 37);
+  /* Borders — NEAR-BLACK always */
+  --border: #2d3436;
+  --input: #f5f5f0;
+  --ring: #ff6b35;
 
-  /* Charts — distinct vibrant colors (not greys) */
-  --chart-1: oklch(0.64 0.22 37);
-  --chart-2: oklch(0.58 0.20 264);
-  --chart-3: oklch(0.62 0.16 180);
-  --chart-4: oklch(0.78 0.18 85);
-  --chart-5: oklch(0.62 0.18 10);
+  /* Charts — distinct vibrant colors */
+  --chart-1: #ff6b35;
+  --chart-2: #6c5ce7;
+  --chart-3: #00b894;
+  --chart-4: #fdcb6e;
+  --chart-5: #e17055;
 
-  --radius: 0.5rem;
+  /* Border radius — neo-brutalist rounded */
+  --radius: 12px;
 
-  /* Neo-Brutalist shadows — hard offset, no blur */
-  --btn-shadow: 3px 3px 0px oklch(0.15 0 0);
-  --btn-shadow-hover: 4px 4px 0px oklch(0.15 0 0);
-  --btn-shadow-active: 1px 1px 0px oklch(0.15 0 0);
-  --card-shadow: 3px 3px 0px oklch(0.15 0 0);
-  --card-shadow-hover: 5px 5px 0px oklch(0.15 0 0);
+  /* Neo-Brutalist shadows — LARGE offset, hard edge, no blur */
+  --btn-shadow: 4px 4px 0px #2d3436;
+  --btn-shadow-hover: 6px 6px 0px #2d3436;
+  --btn-shadow-active: 1px 1px 0px #2d3436;
+  --card-shadow: 6px 6px 0px #2d3436;
+  --card-shadow-hover: 8px 8px 0px #2d3436;
+  --nav-shadow: 0 4px 0px #2d3436;
+  --dialog-shadow: 8px 8px 0px #2d3436;
 
   /* Sidebar */
-  --sidebar: oklch(0.97 0.005 80);
-  --sidebar-foreground: oklch(0.12 0 0);
-  --sidebar-primary: oklch(0.64 0.22 37);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.94 0.008 80);
-  --sidebar-accent-foreground: oklch(0.12 0 0);
-  --sidebar-border: oklch(0.18 0 0);
-  --sidebar-ring: oklch(0.64 0.22 37);
+  --sidebar: #fffbe6;
+  --sidebar-foreground: #2d3436;
+  --sidebar-primary: #ff6b35;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f5f5f0;
+  --sidebar-accent-foreground: #2d3436;
+  --sidebar-border: #2d3436;
+  --sidebar-ring: #ff6b35;
 }
 
 .dark {
-  /* Backgrounds — rich charcoal, not flat black */
-  --background: oklch(0.175 0.025 264);
-  --foreground: oklch(0.96 0 0);
-  --card: oklch(0.22 0.02 264);
-  --card-foreground: oklch(0.96 0 0);
-  --popover: oklch(0.22 0.02 264);
-  --popover-foreground: oklch(0.96 0 0);
+  /* Backgrounds — deep navy-charcoal */
+  --background: #1a1a2e;
+  --foreground: #f5f5f5;
+  --card: #25253e;
+  --card-foreground: #f5f5f5;
+  --popover: #25253e;
+  --popover-foreground: #f5f5f5;
 
-  /* Primary — slightly brighter orange for dark bg */
-  --primary: oklch(0.70 0.22 37);
-  --primary-foreground: oklch(1 0 0);
+  /* Primary — brighter orange for dark bg */
+  --primary: #ff8c5a;
+  --primary-foreground: #ffffff;
 
-  --secondary: oklch(0.28 0.02 264);
-  --secondary-foreground: oklch(0.96 0 0);
+  --secondary: #2d2d4a;
+  --secondary-foreground: #f5f5f5;
 
-  --muted: oklch(0.28 0.02 264);
-  --muted-foreground: oklch(0.65 0 0);
+  --muted: #2d2d4a;
+  --muted-foreground: #b2bec3;
 
-  --accent: oklch(0.28 0.02 264);
-  --accent-foreground: oklch(0.96 0 0);
+  /* Accent — lighter purple */
+  --accent: #a29bfe;
+  --accent-foreground: #1a1a2e;
 
-  --destructive: oklch(0.704 0.191 22.216);
+  /* Semantic colors — brighter for dark bg */
+  --success: #55efc4;
+  --warning: #ffeaa7;
+  --destructive: #ff7675;
 
-  /* Borders — visible against charcoal */
-  --border: oklch(0.40 0.02 264);
-  --input: oklch(0.32 0.02 264);
-  --ring: oklch(0.70 0.22 37);
+  /* Borders — visible purple-gray */
+  --border: #4a4a6a;
+  --input: #2d2d4a;
+  --ring: #ff8c5a;
 
   /* Charts */
-  --chart-1: oklch(0.72 0.22 37);
-  --chart-2: oklch(0.65 0.20 264);
-  --chart-3: oklch(0.68 0.16 180);
-  --chart-4: oklch(0.83 0.18 85);
-  --chart-5: oklch(0.68 0.18 10);
+  --chart-1: #ff8c5a;
+  --chart-2: #a29bfe;
+  --chart-3: #55efc4;
+  --chart-4: #ffeaa7;
+  --chart-5: #ff7675;
 
-  /* Dark mode shadows — darker than charcoal for depth */
-  --btn-shadow: 3px 3px 0px oklch(0.07 0 0);
-  --btn-shadow-hover: 4px 4px 0px oklch(0.07 0 0);
-  --btn-shadow-active: 1px 1px 0px oklch(0.07 0 0);
-  --card-shadow: 3px 3px 0px oklch(0.07 0 0);
-  --card-shadow-hover: 5px 5px 0px oklch(0.07 0 0);
+  /* Dark mode shadows — darker for depth */
+  --btn-shadow: 4px 4px 0px #0a0a15;
+  --btn-shadow-hover: 6px 6px 0px #0a0a15;
+  --btn-shadow-active: 1px 1px 0px #0a0a15;
+  --card-shadow: 6px 6px 0px #0a0a15;
+  --card-shadow-hover: 8px 8px 0px #0a0a15;
+  --nav-shadow: 0 4px 0px #0a0a15;
+  --dialog-shadow: 8px 8px 0px #0a0a15;
 
-  --sidebar: oklch(0.22 0.02 264);
-  --sidebar-foreground: oklch(0.96 0 0);
-  --sidebar-primary: oklch(0.70 0.22 37);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.28 0.02 264);
-  --sidebar-accent-foreground: oklch(0.96 0 0);
-  --sidebar-border: oklch(0.40 0.02 264);
-  --sidebar-ring: oklch(0.70 0.22 37);
+  --sidebar: #1a1a2e;
+  --sidebar-foreground: #f5f5f5;
+  --sidebar-primary: #ff8c5a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #2d2d4a;
+  --sidebar-accent-foreground: #f5f5f5;
+  --sidebar-border: #4a4a6a;
+  --sidebar-ring: #ff8c5a;
 }
 
-/* Mobile: reduce shadow offsets on small screens */
+/* Mobile: reduce shadow offsets by ~40% */
 @media (max-width: 640px) {
   :root {
-    --btn-shadow: 2px 2px 0px oklch(0.15 0 0);
-    --btn-shadow-hover: 3px 3px 0px oklch(0.15 0 0);
-    --card-shadow: 2px 2px 0px oklch(0.15 0 0);
-    --card-shadow-hover: 3px 3px 0px oklch(0.15 0 0);
+    --btn-shadow: 2px 2px 0px #2d3436;
+    --btn-shadow-hover: 3px 3px 0px #2d3436;
+    --btn-shadow-active: 1px 1px 0px #2d3436;
+    --card-shadow: 4px 4px 0px #2d3436;
+    --card-shadow-hover: 5px 5px 0px #2d3436;
+    --nav-shadow: 0 2px 0px #2d3436;
+    --dialog-shadow: 5px 5px 0px #2d3436;
   }
   .dark {
-    --btn-shadow: 2px 2px 0px oklch(0.07 0 0);
-    --btn-shadow-hover: 3px 3px 0px oklch(0.07 0 0);
-    --card-shadow: 2px 2px 0px oklch(0.07 0 0);
-    --card-shadow-hover: 3px 3px 0px oklch(0.07 0 0);
+    --btn-shadow: 2px 2px 0px #0a0a15;
+    --btn-shadow-hover: 3px 3px 0px #0a0a15;
+    --btn-shadow-active: 1px 1px 0px #0a0a15;
+    --card-shadow: 4px 4px 0px #0a0a15;
+    --card-shadow-hover: 5px 5px 0px #0a0a15;
+    --nav-shadow: 0 2px 0px #0a0a15;
+    --dialog-shadow: 5px 5px 0px #0a0a15;
   }
+}
+
+/* Background dot grid pattern */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle, currentColor 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: -1;
 }
 
 @layer base {
@@ -189,10 +221,116 @@
   html {
     @apply font-sans;
   }
-  /* Bolder headings with tighter tracking */
-  h1, h2, h3 {
+  /* Neo-Brutalist typography — BOLD and impactful */
+  h1 {
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  h2 {
+    font-size: 24px;
     font-weight: 800;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.02em;
     line-height: 1.2;
+  }
+  h3 {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+  h4 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+  }
+}
+
+/* Neo-Brutalist utility classes */
+@layer utilities {
+  /* Stat value typography */
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  /* Card title typography */
+  .card-title-text {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* Small text */
+  .text-small {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* Number/monospace text */
+  .text-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Alternating row backgrounds */
+  .row-even {
+    @apply bg-transparent;
+  }
+  .row-odd {
+    @apply bg-muted/30;
+  }
+
+  /* Neo-brutalist hover lift effect */
+  .hover-lift {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Status color accents for stat cards */
+  .accent-income {
+    border-left: 4px solid var(--success);
+  }
+  .accent-expense {
+    border-left: 4px solid var(--destructive);
+  }
+  .accent-balance {
+    border-left: 4px solid var(--primary);
+  }
+  .accent-neutral {
+    border-left: 4px solid var(--muted-foreground);
+  }
+
+  /* Card accent for income/expense indicators */
+  .accent-income .stat-value {
+    color: var(--success);
+  }
+  .accent-expense .stat-value {
+    color: var(--destructive);
+  }
+
+  /* Budget status colors */
+  .budget-good {
+    background-color: var(--success);
+  }
+  .budget-warning {
+    background-color: var(--warning);
+  }
+  .budget-danger {
+    background-color: var(--destructive);
+  }
+
+  /* Pulsing animation for urgent items */
+  @keyframes pulse-urgent {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .pulse-urgent {
+    animation: pulse-urgent 1.5s ease-in-out infinite;
   }
 }

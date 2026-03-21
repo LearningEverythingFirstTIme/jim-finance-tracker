@@ -101,47 +101,47 @@ export default function CategoriesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Categories</h1>
-        <p className="text-muted-foreground">Manage your income and expense categories</p>
+        <h1 className="text-3xl font-black tracking-tight">Categories</h1>
+        <p className="text-muted-foreground text-base font-medium">Manage your income and expense categories</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Expense Categories</CardTitle>
-              <CardDescription>{expenseCategories.length} categories</CardDescription>
+              <CardTitle className="text-lg">Expense Categories</CardTitle>
+              <CardDescription className="font-medium">{expenseCategories.length} categories</CardDescription>
             </div>
-            <Button size="sm" onClick={() => openAddDialog('expense')}>
+            <Button size="sm" onClick={() => openAddDialog('expense')} className="font-bold">
               <Plus className="h-4 w-4 mr-1" /> Add
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {expenseCategories.map((cat) => (
+            <div className="space-y-1">
+              {expenseCategories.map((cat, index) => (
                 <div
                   key={cat.id}
-                  className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50"
+                  className={`flex items-center justify-between p-3 rounded-xl border-3 border-border transition-all hover:-translate-y-0.5 hover:[box-shadow:var(--card-shadow)] ${index % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}
                 >
                   <div className="flex items-center gap-3">
                     <span
-                      className="w-8 h-8 rounded-full flex items-center justify-center"
+                      className="w-9 h-9 rounded-[8px] flex items-center justify-center border-2 border-border"
                       style={{ backgroundColor: cat.color + '20' }}
                     >
                       <DynamicIcon name={cat.icon} className="h-4 w-4" style={{ color: cat.color }} />
                     </span>
-                    <span className="font-medium">{cat.name}</span>
+                    <span className="font-bold">{cat.name}</span>
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => openEditDialog(cat)}>
+                    <Button variant="ghost" size="icon-sm" onClick={() => openEditDialog(cat)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
-                      size="icon"
+                      size="icon-sm"
                       onClick={() => setDeleteConfirm(cat.id)}
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <Trash2 className="h-4 w-4 text-[#e17055] dark:text-[#ff7675]" />
                     </Button>
                   </div>
                 </div>
@@ -153,39 +153,39 @@ export default function CategoriesPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Income Categories</CardTitle>
-              <CardDescription>{incomeCategories.length} categories</CardDescription>
+              <CardTitle className="text-lg">Income Categories</CardTitle>
+              <CardDescription className="font-medium">{incomeCategories.length} categories</CardDescription>
             </div>
-            <Button size="sm" onClick={() => openAddDialog('income')}>
+            <Button size="sm" onClick={() => openAddDialog('income')} className="font-bold">
               <Plus className="h-4 w-4 mr-1" /> Add
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {incomeCategories.map((cat) => (
+            <div className="space-y-1">
+              {incomeCategories.map((cat, index) => (
                 <div
                   key={cat.id}
-                  className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50"
+                  className={`flex items-center justify-between p-3 rounded-xl border-3 border-border transition-all hover:-translate-y-0.5 hover:[box-shadow:var(--card-shadow)] ${index % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}
                 >
                   <div className="flex items-center gap-3">
                     <span
-                      className="w-8 h-8 rounded-full flex items-center justify-center"
+                      className="w-9 h-9 rounded-[8px] flex items-center justify-center border-2 border-border"
                       style={{ backgroundColor: cat.color + '20' }}
                     >
                       <DynamicIcon name={cat.icon} className="h-4 w-4" style={{ color: cat.color }} />
                     </span>
-                    <span className="font-medium">{cat.name}</span>
+                    <span className="font-bold">{cat.name}</span>
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => openEditDialog(cat)}>
+                    <Button variant="ghost" size="icon-sm" onClick={() => openEditDialog(cat)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
-                      size="icon"
+                      size="icon-sm"
                       onClick={() => setDeleteConfirm(cat.id)}
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <Trash2 className="h-4 w-4 text-[#e17055] dark:text-[#ff7675]" />
                     </Button>
                   </div>
                 </div>
@@ -205,7 +205,7 @@ export default function CategoriesPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name" className="font-bold">Name</Label>
               <Input
                 id="name"
                 value={name}
@@ -215,14 +215,14 @@ export default function CategoriesPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Icon</Label>
-              <div className="grid grid-cols-10 gap-1 p-2 border rounded-lg max-h-40 overflow-y-auto">
+              <Label className="font-bold">Icon</Label>
+              <div className="grid grid-cols-10 gap-1 p-2 border-3 border-border rounded-xl max-h-40 overflow-y-auto bg-muted/20">
                 {ICON_NAMES.map((iconName) => (
                   <button
                     key={iconName}
                     type="button"
-                    className={`w-8 h-8 rounded flex items-center justify-center transition-all ${
-                      icon === iconName ? 'bg-primary/20 ring-2 ring-primary' : 'hover:bg-muted/50'
+                    className={`w-8 h-8 rounded-[6px] flex items-center justify-center transition-all ${
+                      icon === iconName ? 'bg-primary/20 ring-2 ring-primary border-2 border-primary' : 'hover:bg-muted/50 border-2 border-transparent'
                     }`}
                     onClick={() => setIcon(iconName)}
                     title={iconName}
@@ -234,14 +234,14 @@ export default function CategoriesPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Color</Label>
+              <Label className="font-bold">Color</Label>
               <div className="flex flex-wrap gap-2">
                 {COLOR_OPTIONS.map((c) => (
                   <button
                     key={c}
                     type="button"
-                    className={`w-8 h-8 rounded-full border-2 transition-transform ${
-                      color === c ? 'border-foreground scale-110' : 'border-transparent'
+                    className={`w-8 h-8 rounded-[6px] border-3 transition-transform ${
+                      color === c ? 'border-foreground scale-110 [box-shadow:var(--btn-shadow)]' : 'border-transparent hover:scale-105'
                     }`}
                     style={{ backgroundColor: c }}
                     onClick={() => setColor(c)}
@@ -251,10 +251,10 @@ export default function CategoriesPage() {
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="font-bold">
                 Cancel
               </Button>
-              <Button onClick={handleSubmit} disabled={submitting}>
+              <Button onClick={handleSubmit} disabled={submitting} className="font-bold">
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
               </Button>
             </div>
@@ -272,12 +272,13 @@ export default function CategoriesPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="font-bold">
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={() => deleteConfirm && handleDelete(deleteConfirm)}
+              className="font-bold"
             >
               Delete
             </Button>

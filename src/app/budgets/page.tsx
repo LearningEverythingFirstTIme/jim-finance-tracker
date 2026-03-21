@@ -63,15 +63,21 @@ const MONTHS = [
 ];
 
 function getProgressColor(percentage: number): string {
-  if (percentage < 60) return 'bg-green-500';
-  if (percentage < 85) return 'bg-yellow-500';
-  return 'bg-red-500';
+  if (percentage < 60) return 'bg-[#00b894] dark:bg-[#55efc4]';
+  if (percentage < 85) return 'bg-[#fdcb6e] dark:bg-[#ffeaa7]';
+  return 'bg-[#e17055] dark:bg-[#ff7675]';
+}
+
+function getProgressBorderColor(percentage: number): string {
+  if (percentage < 60) return 'border-[#00b894] dark:border-[#55efc4]';
+  if (percentage < 85) return 'border-[#fdcb6e] dark:border-[#ffeaa7]';
+  return 'border-[#e17055] dark:border-[#ff7675]';
 }
 
 function getStatusBadge(percentage: number, hasBudget: boolean) {
   if (!hasBudget) return <Badge variant="secondary">No Budget Set</Badge>;
-  if (percentage < 60) return <Badge className="bg-green-500 hover:bg-green-600">Under Budget</Badge>;
-  if (percentage < 85) return <Badge className="bg-yellow-500 hover:bg-yellow-600 text-black">Getting Close</Badge>;
+  if (percentage < 60) return <Badge className="bg-[#00b894] dark:bg-[#55efc4] text-white dark:text-[#1a1a2e] border-border">Under Budget</Badge>;
+  if (percentage < 85) return <Badge className="bg-[#fdcb6e] dark:bg-[#ffeaa7] text-[#2d3436] border-border">Getting Close</Badge>;
   return <Badge variant="destructive">Over Budget</Badge>;
 }
 
@@ -199,12 +205,12 @@ export default function BudgetsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Budgets</h1>
-          <p className="text-muted-foreground">Track your monthly spending limits</p>
+          <h1 className="text-3xl font-black tracking-tight">Budgets</h1>
+          <p className="text-muted-foreground text-base">Track your monthly spending limits</p>
         </div>
         <div className="flex items-center gap-2">
           <Select value={selectedMonth} onValueChange={(v) => v && setSelectedMonth(v)} items={Object.fromEntries(MONTHS.map(m => [m.value, m.label]))}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-44">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -213,19 +219,21 @@ export default function BudgetsPage() {
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={openAddDialog}>
+          <Button className="font-bold">
             <Plus className="h-4 w-4 mr-1" /> Add Budget
           </Button>
         </div>
       </div>
 
       {/* Overall Budget Card */}
-      <Card>
+      <Card className={overallBudget ? (overallPercentage >= 85 ? 'border-l-4 border-l-[#e17055] dark:border-l-[#ff7675]' : overallPercentage >= 60 ? 'border-l-4 border-l-[#fdcb6e] dark:border-l-[#ffeaa7]' : 'border-l-4 border-l-[#00b894] dark:border-l-[#55efc4]') : ''}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-primary" />
-              <CardTitle>Overall Monthly Budget</CardTitle>
+              <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+                <Wallet className="h-4 w-4 text-primary" />
+              </div>
+              <CardTitle className="text-lg">Overall Monthly Budget</CardTitle>
             </div>
             {overallBudget ? (
               <div className="flex items-center gap-2">
@@ -238,7 +246,7 @@ export default function BudgetsPage() {
               <Badge variant="secondary">No Budget Set</Badge>
             )}
           </div>
-          <CardDescription>
+          <CardDescription className="font-medium">
             {overallBudget
               ? `Budget: ${formatCurrency(overallBudget.amount)} | Spent: ${formatCurrency(totalSpent)} | Remaining: ${formatCurrency(Math.max(0, overallBudget.amount - totalSpent))}`
               : 'Set an overall budget to track your total monthly spending'}
@@ -246,29 +254,37 @@ export default function BudgetsPage() {
         </CardHeader>
         <CardContent>
           {overallBudget ? (
-            <div className="space-y-2">
-              <div className="h-4 bg-muted rounded-full overflow-hidden">
+            <div className="space-y-3">
+              {overallPercentage >= 85 && (
+                <div className="flex items-center gap-2 text-[#e17055] dark:text-[#ff7675] text-sm font-bold">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span className={overallPercentage >= 100 ? 'pulse-urgent' : ''}>
+                    {overallPercentage >= 100 ? 'Over budget!' : 'Approaching limit'}
+                  </span>
+                </div>
+              )}
+              <div className="h-4 bg-muted rounded-full overflow-hidden border-2 border-border">
                 <div
-                  className={`h-full transition-all ${getProgressColor(overallPercentage)}`}
+                  className={`h-full transition-all rounded-full ${getProgressColor(overallPercentage)}`}
                   style={{ width: `${Math.min(overallPercentage, 100)}%` }}
                 />
               </div>
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>{overallPercentage.toFixed(0)}%</span>
-                <span>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground font-medium">{overallPercentage.toFixed(0)}%</span>
+                <span className="font-medium">
                   {totalSpent > overallBudget.amount ? (
-                    <span className="text-red-500 font-medium">
+                    <span className="text-[#e17055] dark:text-[#ff7675] font-bold">
                       <AlertTriangle className="h-3 w-3 inline mr-1" />
                       Over by {formatCurrency(totalSpent - overallBudget.amount)}
                     </span>
                   ) : (
-                    <span>{formatCurrency(overallBudget.amount - totalSpent)} remaining</span>
+                    <span className="font-bold">{formatCurrency(overallBudget.amount - totalSpent)} remaining</span>
                   )}
                 </span>
               </div>
             </div>
           ) : (
-            <Button variant="outline" onClick={openAddDialog}>
+            <Button variant="outline" onClick={openAddDialog} className="font-bold">
               <Plus className="h-4 w-4 mr-1" /> Set Overall Budget
             </Button>
           )}
@@ -278,78 +294,82 @@ export default function BudgetsPage() {
       {/* Category Budgets */}
       <Card>
         <CardHeader>
-          <CardTitle>Category Budgets</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-lg">Category Budgets</CardTitle>
+          <CardDescription className="font-medium">
             {categoryBudgets.length} of {expenseCategories.length} categories have budgets set
           </CardDescription>
         </CardHeader>
         <CardContent>
           {expenseCategories.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <p>No expense categories yet</p>
+              <p className="font-medium">No expense categories yet</p>
               <p className="text-sm">Create categories first to set budgets</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {expenseCategories.map((cat) => {
+            <div className="space-y-3">
+              {expenseCategories.map((cat, index) => {
                 const budget = categoryBudgets.find((b) => b.categoryId === cat.id);
                 const spent = spendingByCategory.get(cat.id) || 0;
                 const percentage = budget ? Math.min((spent / budget.amount) * 100, 999) : 0;
+                const isOver = budget && spent > budget.amount;
 
                 return (
-                  <div key={cat.id} className="flex items-center gap-4 p-3 rounded-lg border">
+                  <div 
+                    key={cat.id} 
+                    className={`flex items-center gap-4 p-4 rounded-xl border-3 border-border transition-all hover:-translate-y-0.5 hover:[box-shadow:var(--card-shadow)] ${budget ? (percentage >= 85 ? getProgressBorderColor(percentage) : '') : ''} ${index % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}
+                  >
                     <div
-                      className="w-3 h-3 rounded-full flex-shrink-0"
+                      className="w-4 h-4 rounded-[4px] flex-shrink-0"
                       style={{ backgroundColor: cat.color }}
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium truncate">{cat.name}</span>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-bold truncate">{cat.name}</span>
                         {budget ? (
                           <div className="flex items-center gap-2">
                             {getStatusBadge(percentage, true)}
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditDialog(budget)}>
-                              <Pencil className="h-3 w-3" />
+                            <Button variant="ghost" size="icon-sm" onClick={() => openEditDialog(budget)}>
+                              <Pencil className="h-3.5 w-3.5" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteConfirm(budget.id)}>
-                              <Trash2 className="h-3 w-3 text-destructive" />
+                            <Button variant="ghost" size="icon-sm" onClick={() => setDeleteConfirm(budget.id)}>
+                              <Trash2 className="h-3.5 w-3.5 text-[#e17055] dark:text-[#ff7675]" />
                             </Button>
                           </div>
                         ) : (
-                          <Button variant="ghost" size="sm" onClick={() => {
+                          <Button variant="outline" size="sm" onClick={() => {
                             setCategoryId(cat.id);
                             setAmount('');
                             setRollover(false);
                             setEditingBudget(null);
                             setIsDialogOpen(true);
-                          }}>
+                          }} className="font-bold">
                             <Plus className="h-3 w-3 mr-1" /> Set Budget
                           </Button>
                         )}
                       </div>
                       {budget ? (
-                        <div className="space-y-1">
-                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="space-y-1.5">
+                          <div className="h-3 bg-muted rounded-full overflow-hidden border-2 border-border">
                             <div
-                              className={`h-full transition-all ${getProgressColor(percentage)}`}
+                              className={`h-full transition-all rounded-full ${getProgressColor(percentage)}`}
                               style={{ width: `${Math.min(percentage, 100)}%` }}
                             />
                           </div>
-                          <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>{formatCurrency(spent)} / {formatCurrency(budget.amount)}</span>
-                            <span>
-                              {spent > budget.amount ? (
-                                <span className="text-red-500">
+                          <div className="flex justify-between text-xs">
+                            <span className="font-medium">{formatCurrency(spent)} / {formatCurrency(budget.amount)}</span>
+                            <span className="font-medium">
+                              {isOver ? (
+                                <span className="text-[#e17055] dark:text-[#ff7675] font-bold">
                                   Over by {formatCurrency(spent - budget.amount)}
                                 </span>
                               ) : (
-                                <span>{formatCurrency(budget.amount - spent)} left</span>
+                                <span className="text-[#00b894] dark:text-[#55efc4] font-bold">{formatCurrency(budget.amount - spent)} left</span>
                               )}
                             </span>
                           </div>
                         </div>
                       ) : (
-                        <p className="text-xs text-muted-foreground">No budget set</p>
+                        <p className="text-xs text-muted-foreground font-medium">No budget set</p>
                       )}
                     </div>
                   </div>
@@ -375,26 +395,29 @@ export default function BudgetsPage() {
         return (
           <Card>
             <CardHeader>
-              <CardTitle>Budget vs. Actual</CardTitle>
+              <CardTitle className="text-lg">Budget vs. Actual</CardTitle>
               <CardDescription>How spending compares to your budgets this month</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-64">
+              <div className="h-64 border-2 border-border rounded-xl p-2 bg-muted/20">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="name" className="text-xs" tick={{ fontSize: 11 }} />
-                    <YAxis className="text-xs" tick={{ fontSize: 11 }} />
+                    <XAxis dataKey="name" className="text-xs font-bold" tick={{ fontSize: 11 }} />
+                    <YAxis className="text-xs font-bold" tick={{ fontSize: 11 }} />
                     <Tooltip
                       formatter={(value) => formatCurrency(Number(value))}
                       contentStyle={{
-                        backgroundColor: 'hsl(var(--popover))',
-                        border: '1px solid hsl(var(--border))',
+                        backgroundColor: 'var(--card)',
+                        border: '3px solid var(--border)',
+                        borderRadius: '10px',
+                        fontWeight: 'bold',
+                        boxShadow: 'var(--btn-shadow)'
                       }}
                     />
                     <Legend />
-                    <Bar dataKey="Budget" fill="#3b82f6" radius={[3, 3, 0, 0]} />
-                    <Bar dataKey="Actual" fill="#ef4444" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="Budget" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Actual" fill="#ef4444" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -414,9 +437,9 @@ export default function BudgetsPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Category</Label>
+              <Label className="font-bold">Category</Label>
               <Select value={categoryId} onValueChange={(v) => v && setCategoryId(v)} items={Object.fromEntries([['overall', 'Overall (All Expenses)'], ...expenseCategories.map(c => [c.id, c.name])])}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -429,7 +452,7 @@ export default function BudgetsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="amount">Budget Amount</Label>
+              <Label htmlFor="amount" className="font-bold">Budget Amount</Label>
               <Input
                 id="amount"
                 type="number"
@@ -441,9 +464,9 @@ export default function BudgetsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Month</Label>
+              <Label className="font-bold">Month</Label>
               <Select value={selectedMonth} onValueChange={(v) => v && setSelectedMonth(v)} items={Object.fromEntries(MONTHS.map(m => [m.value, m.label]))}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -454,7 +477,7 @@ export default function BudgetsPage() {
               </Select>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3 p-3 rounded-lg border-2 border-border cursor-pointer select-none hover:bg-muted/50 transition-colors" onClick={() => setRollover(!rollover)}>
               <input
                 type="checkbox"
                 id="rollover"
@@ -462,16 +485,14 @@ export default function BudgetsPage() {
                 onChange={(e) => setRollover(e.target.checked)}
                 className="h-4 w-4"
               />
-              <Label htmlFor="rollover" className="text-sm font-normal cursor-pointer">
-                Rollover unused budget to next month
-              </Label>
+              <Label htmlFor="rollover" className="cursor-pointer font-medium">Rollover unused budget to next month</Label>
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="font-bold">
                 Cancel
               </Button>
-              <Button onClick={handleSubmit} disabled={submitting}>
+              <Button onClick={handleSubmit} disabled={submitting} className="font-bold">
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
               </Button>
             </div>
@@ -489,12 +510,13 @@ export default function BudgetsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="font-bold">
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={() => deleteConfirm && handleDelete(deleteConfirm)}
+              className="font-bold"
             >
               Delete
             </Button>

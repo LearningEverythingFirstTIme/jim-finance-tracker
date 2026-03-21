@@ -162,65 +162,72 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{getGreeting()}</h1>
-          <p className="text-muted-foreground">Here&apos;s your financial overview</p>
+          <h1 className="text-3xl font-black tracking-tight">{getGreeting()}</h1>
+          <p className="text-muted-foreground text-base">Here&apos;s your financial overview</p>
         </div>
         <div 
-          className="cursor-pointer select-none" 
+          className="cursor-pointer select-none hover:scale-110 transition-transform" 
           onClick={() => setLogoClicks(c => c + 1)}
         >
-          <DollarSign className="h-8 w-8 text-primary" />
+          <div className="w-12 h-12 rounded-xl bg-primary border-3 border-border flex items-center justify-center [box-shadow:var(--btn-shadow)]">
+            <DollarSign className="h-7 w-7 text-white" />
+          </div>
         </div>
       </div>
 
       {showQuote && (
-        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center animate-pulse">
-          <Sparkles className="h-5 w-5 mx-auto mb-2 text-primary" />
-          <p className="text-sm italic">{FINANCE_QUOTES[Math.floor(Math.random() * FINANCE_QUOTES.length)]}</p>
-        </div>
+        <Card className="bg-primary/10 border-primary/30">
+          <CardContent className="flex items-center gap-3 py-4">
+            <Sparkles className="h-5 w-5 text-primary flex-shrink-0" />
+            <p className="text-sm italic font-medium">{FINANCE_QUOTES[Math.floor(Math.random() * FINANCE_QUOTES.length)]}</p>
+          </CardContent>
+        </Card>
       )}
 
       {expenseChange < -10 && (
-        <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 flex items-center gap-3">
-          <Trophy className="h-5 w-5 text-green-500" />
-          <p className="text-sm font-medium text-green-600 dark:text-green-400">
-            {expenseChange < -20 
-              ? "Incredible! You've cut spending by over 20% this month!"
-              : "Great job! Spending is down this month! Keep it up!"}
-          </p>
-        </div>
+        <Card className="bg-[#00b894]/10 border-[#00b894]/30 dark:bg-[#55efc4]/10 dark:border-[#55efc4]/30">
+          <CardContent className="flex items-center gap-3 py-4">
+            <Trophy className="h-5 w-5 text-[#00b894] flex-shrink-0" />
+            <p className="text-sm font-bold text-[#00b894] dark:text-[#55efc4]">
+              {expenseChange < -20 
+                ? "Incredible! You've cut spending by over 20% this month!"
+                : "Great job! Spending is down this month! Keep it up!"}
+            </p>
+          </CardContent>
+        </Card>
       )}
 
+      {/* Stat Cards with Colored Left Border Accents */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="accent-balance">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Net Balance</CardTitle>
-            <span className={stats.netBalance >= 0 ? 'text-green-500' : 'text-red-500'}>
-              {stats.netBalance >= 0 ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownLeft className="h-4 w-4" />}
+            <CardTitle className="text-sm font-bold">Net Balance</CardTitle>
+            <span className={stats.netBalance >= 0 ? 'text-[#00b894] dark:text-[#55efc4]' : 'text-[#e17055] dark:text-[#ff7675]'}>
+              {stats.netBalance >= 0 ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownLeft className="h-5 w-5" />}
             </span>
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${stats.netBalance >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+            <div className={`stat-value ${stats.netBalance >= 0 ? 'text-[#00b894] dark:text-[#55efc4]' : 'text-[#e17055] dark:text-[#ff7675]'}`}>
               {formatCurrency(stats.netBalance)}
             </div>
-            <p className="text-xs text-muted-foreground">All time</p>
+            <p className="text-xs text-muted-foreground mt-1 font-medium">All time</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="accent-expense">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Month Expenses</CardTitle>
+            <CardTitle className="text-sm font-bold">This Month Expenses</CardTitle>
             {expenseChange !== 0 && (
               expenseChange > 0 ? (
-                <TrendingUp className="h-4 w-4 text-red-500" />
+                <TrendingUp className="h-5 w-5 text-[#e17055] dark:text-[#ff7675]" />
               ) : (
-                <TrendingDown className="h-4 w-4 text-green-500" />
+                <TrendingDown className="h-5 w-5 text-[#00b894] dark:text-[#55efc4]" />
               )
             )}
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.thisMonthExpenses)}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="stat-value">{formatCurrency(stats.thisMonthExpenses)}</div>
+            <p className="text-xs text-muted-foreground mt-1 font-medium">
               {expenseChange === 0
                 ? 'Same as last month'
                 : `${expenseChange > 0 ? '+' : ''}${expenseChange.toFixed(0)}% from last month`}
@@ -228,20 +235,20 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="accent-income">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Month Income</CardTitle>
+            <CardTitle className="text-sm font-bold">This Month Income</CardTitle>
             {incomeChange !== 0 && (
               incomeChange > 0 ? (
-                <TrendingUp className="h-4 w-4 text-green-500" />
+                <TrendingUp className="h-5 w-5 text-[#00b894] dark:text-[#55efc4]" />
               ) : (
-                <TrendingDown className="h-4 w-4 text-red-500" />
+                <TrendingDown className="h-5 w-5 text-[#e17055] dark:text-[#ff7675]" />
               )
             )}
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.thisMonthIncome)}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="stat-value text-[#00b894] dark:text-[#55efc4]">{formatCurrency(stats.thisMonthIncome)}</div>
+            <p className="text-xs text-muted-foreground mt-1 font-medium">
               {incomeChange === 0
                 ? 'Same as last month'
                 : `${incomeChange > 0 ? '+' : ''}${incomeChange.toFixed(1)}% from last month`}
@@ -249,13 +256,13 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="accent-neutral">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Transactions</CardTitle>
+            <CardTitle className="text-sm font-bold">Transactions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.transactionCount}</div>
-            <p className="text-xs text-muted-foreground">Total recorded</p>
+            <div className="stat-value">{stats.transactionCount}</div>
+            <p className="text-xs text-muted-foreground mt-1 font-medium">Total recorded</p>
           </CardContent>
         </Card>
       </div>
@@ -265,11 +272,13 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-primary" />
+              <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+                <Wallet className="h-4 w-4 text-primary" />
+              </div>
               <CardTitle className="text-lg">Budget Status</CardTitle>
             </div>
             <Link href="/budgets">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="font-bold">
                 Manage <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
@@ -284,9 +293,9 @@ export default function DashboardPage() {
               if (!overallBudget) {
                 return (
                   <div className="text-center py-4 text-muted-foreground">
-                    <p>No budget set for this month</p>
+                    <p className="font-medium">No budget set for this month</p>
                     <Link href="/budgets">
-                      <Button variant="outline" size="sm" className="mt-2">
+                      <Button variant="outline" size="sm" className="mt-3 font-bold">
                         Set Budget
                       </Button>
                     </Link>
@@ -302,34 +311,34 @@ export default function DashboardPage() {
               return (
                 <div className="space-y-3">
                   {isOver && (
-                    <div className="flex items-center gap-2 text-red-500 text-sm">
+                    <div className="flex items-center gap-2 text-[#e17055] dark:text-[#ff7675] text-sm font-bold">
                       <AlertTriangle className="h-4 w-4" />
                       <span>Over budget by {formatCurrency(Math.abs(remaining))}</span>
                     </div>
                   )}
                   {isClose && (
-                    <div className="flex items-center gap-2 text-yellow-500 text-sm">
+                    <div className="flex items-center gap-2 text-[#fdcb6e] dark:text-[#ffeaa7] text-sm font-bold">
                       <AlertTriangle className="h-4 w-4" />
                       <span>Approaching budget limit</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Spent</span>
-                    <span className="font-medium">{formatCurrency(thisMonthExpenses)}</span>
+                    <span className="text-muted-foreground font-medium">Spent</span>
+                    <span className="font-bold">{formatCurrency(thisMonthExpenses)}</span>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div className="h-4 bg-muted rounded-full overflow-hidden border-2 border-border">
                     <div
-                      className={`h-full transition-all ${isOver ? 'bg-red-500' : isClose ? 'bg-yellow-500' : 'bg-green-500'}`}
+                      className={`h-full transition-all rounded-full ${isOver ? 'bg-[#e17055] dark:bg-[#ff7675]' : isClose ? 'bg-[#fdcb6e] dark:bg-[#ffeaa7]' : 'bg-[#00b894] dark:bg-[#55efc4]'}`}
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Budget</span>
-                    <span className="font-medium">{formatCurrency(overallBudget.amount)}</span>
+                    <span className="text-muted-foreground font-medium">Budget</span>
+                    <span className="font-bold">{formatCurrency(overallBudget.amount)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Remaining</span>
-                    <span className={`font-medium ${isOver ? 'text-red-500' : 'text-green-500'}`}>
+                    <span className="text-muted-foreground font-medium">Remaining</span>
+                    <span className={`font-bold ${isOver ? 'text-[#e17055] dark:text-[#ff7675]' : 'text-[#00b894] dark:text-[#55efc4]'}`}>
                       {formatCurrency(Math.max(0, remaining))}
                     </span>
                   </div>
@@ -342,11 +351,13 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-primary" />
+              <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+                <Target className="h-4 w-4 text-primary" />
+              </div>
               <CardTitle className="text-lg">Savings Goals</CardTitle>
             </div>
             <Link href="/goals">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="font-bold">
                 View All <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
@@ -354,9 +365,9 @@ export default function DashboardPage() {
           <CardContent>
             {goals.length === 0 ? (
               <div className="text-center py-4 text-muted-foreground">
-                <p>No savings goals yet</p>
+                <p className="font-medium">No savings goals yet</p>
                 <Link href="/goals">
-                  <Button variant="outline" size="sm" className="mt-2">
+                  <Button variant="outline" size="sm" className="mt-3 font-bold">
                     Create Goal
                   </Button>
                 </Link>
@@ -364,24 +375,24 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Total Saved</span>
-                  <span className="font-bold text-green-500">
+                  <span className="text-sm text-muted-foreground font-medium">Total Saved</span>
+                  <span className="font-bold text-[#00b894] dark:text-[#55efc4]">
                     {formatCurrency(goals.reduce((sum, g) => sum + g.currentAmount, 0))}
                   </span>
                 </div>
                 {goals.slice(0, 3).map((goal) => {
                   const percentage = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
                   return (
-                    <div key={goal.id} className="space-y-1">
+                    <div key={goal.id} className="space-y-1.5">
                       <div className="flex justify-between text-sm">
-                        <span className="truncate">{goal.name}</span>
-                        <span className="text-muted-foreground">
+                        <span className="truncate font-medium">{goal.name}</span>
+                        <span className="text-muted-foreground font-medium">
                           {formatCurrency(goal.currentAmount)} / {formatCurrency(goal.targetAmount)}
                         </span>
                       </div>
-                      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className="h-2 bg-muted rounded-full overflow-hidden border-2 border-border">
                         <div
-                          className="h-full transition-all"
+                          className="h-full transition-all rounded-full"
                           style={{ width: `${percentage}%`, backgroundColor: goal.color }}
                         />
                       </div>
@@ -395,17 +406,18 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>Quick Add</CardTitle>
-            <CardDescription>Log a transaction in seconds</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        {/* Quick Add Card with Orange Header */}
+        <Card className="lg:col-span-1 overflow-hidden">
+          <div className="bg-primary py-3 px-6 -mt-1 -mx-0 border-b-3 border-primary/80">
+            <CardTitle className="text-white">Quick Add</CardTitle>
+            <p className="text-white/80 text-sm font-medium">Log a transaction in seconds</p>
+          </div>
+          <CardContent className="space-y-4 pt-5">
             <div className="flex gap-2">
               <Button
                 variant={quickAddType === 'expense' ? 'destructive' : 'outline'}
                 size="sm"
-                className="flex-1"
+                className="flex-1 font-bold"
                 onClick={() => {
                   setQuickAddType('expense');
                   setQuickAddCategory('');
@@ -416,7 +428,7 @@ export default function DashboardPage() {
               <Button
                 variant={quickAddType === 'income' ? 'default' : 'outline'}
                 size="sm"
-                className="flex-1"
+                className="flex-1 font-bold"
                 onClick={() => {
                   setQuickAddType('income');
                   setQuickAddCategory('');
@@ -427,7 +439,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount</Label>
+              <Label htmlFor="amount" className="font-bold">Amount</Label>
               <Input
                 id="amount"
                 type="number"
@@ -439,9 +451,9 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Category</Label>
+              <Label className="font-bold">Category</Label>
               <Select value={quickAddCategory} onValueChange={(v) => v && setQuickAddCategory(v)} items={Object.fromEntries(filteredCategories.map(cat => [cat.id, cat.name]))}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -453,7 +465,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="note">Note (optional)</Label>
+              <Label htmlFor="note" className="font-bold">Note (optional)</Label>
               <Input
                 id="note"
                 placeholder="Add a note..."
@@ -465,14 +477,14 @@ export default function DashboardPage() {
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                className="flex-1"
+                className="flex-1 font-bold"
                 onClick={() => handleQuickAdd(true)}
                 disabled={quickAddSubmitting}
               >
                 {quickAddSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add Another'}
               </Button>
               <Button
-                className="flex-1"
+                className="flex-1 font-bold"
                 onClick={() => handleQuickAdd(false)}
                 disabled={quickAddSubmitting}
               >
@@ -482,19 +494,20 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
+        {/* Spending Chart with Border */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Spending by Category</CardTitle>
-            <CardDescription>This month's expense breakdown</CardDescription>
+            <CardTitle className="text-lg">Spending by Category</CardTitle>
+            <CardDescription>This month&apos;s expense breakdown</CardDescription>
           </CardHeader>
           <CardContent>
             {categoryBreakdown.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-                <p>No expenses this month yet</p>
+                <p className="font-medium">No expenses this month yet</p>
               </div>
             ) : (
               <div className="flex flex-col md:flex-row gap-6">
-                <div className="h-48 w-full md:w-48">
+                <div className="h-48 w-full md:w-48 border-2 border-border rounded-xl p-2 bg-muted/30">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -513,24 +526,30 @@ export default function DashboardPage() {
                       </Pie>
                       <Tooltip
                         formatter={(value) => formatCurrency(Number(value))}
-                        contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))' }}
+                        contentStyle={{ 
+                          backgroundColor: 'var(--card)', 
+                          border: '3px solid var(--border)',
+                          borderRadius: '10px',
+                          fontWeight: 'bold',
+                          boxShadow: 'var(--btn-shadow)'
+                        }}
                       />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
                 <div className="flex-1 space-y-2">
                   {topCategories.map((cat) => (
-                    <div key={cat.categoryId} className="flex items-center justify-between">
+                    <div key={cat.categoryId} className="flex items-center justify-between p-2 rounded-lg bg-muted/30 border-2 border-transparent hover:border-border transition-colors">
                       <div className="flex items-center gap-2">
                         <span
-                          className="w-3 h-3 rounded-full"
+                          className="w-3 h-3 rounded-[4px]"
                           style={{ backgroundColor: cat.categoryColor }}
                         />
-                        <span className="text-sm">{cat.categoryName}</span>
+                        <span className="text-sm font-medium">{cat.categoryName}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{formatCurrency(cat.total)}</span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-sm font-bold">{formatCurrency(cat.total)}</span>
+                        <span className="text-xs text-muted-foreground font-medium">
                           ({cat.percentage.toFixed(0)}%)
                         </span>
                       </div>
@@ -544,14 +563,15 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
+        {/* Recent Transactions with Alternating Rows */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Recent Transactions</CardTitle>
+              <CardTitle className="text-lg">Recent Transactions</CardTitle>
               <CardDescription>Your latest activity</CardDescription>
             </div>
             <Link href="/transactions">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="font-bold">
                 View All <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
@@ -559,15 +579,15 @@ export default function DashboardPage() {
           <CardContent>
             {recentTransactions.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <p>No transactions yet</p>
+                <p className="font-medium">No transactions yet</p>
                 <p className="text-sm">Add your first transaction above</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {recentTransactions.map((tx) => (
+              <div className="space-y-1">
+                {recentTransactions.map((tx, index) => (
                   <div
                     key={tx.id}
-                    className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50"
+                    className={`flex items-center justify-between p-3 rounded-lg border-2 border-transparent ${index % 2 === 1 ? 'bg-muted/30' : ''} hover:border-border transition-colors`}
                   >
                     <div className="flex items-center gap-3">
                       <span
@@ -575,15 +595,15 @@ export default function DashboardPage() {
                         style={{ backgroundColor: tx.categoryColor }}
                       />
                       <div>
-                        <p className="text-sm font-medium">{tx.note || tx.categoryName}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-sm font-bold">{tx.note || tx.categoryName}</p>
+                        <p className="text-xs text-muted-foreground font-medium">
                           {formatDateShort(tx.date)} &bull; {tx.categoryName}
                         </p>
                       </div>
                     </div>
                     <span
-                      className={`text-sm font-medium ${
-                        tx.type === 'income' ? 'text-green-500' : 'text-red-500'
+                      className={`text-sm font-bold ${
+                        tx.type === 'income' ? 'text-[#00b894] dark:text-[#55efc4]' : 'text-[#e17055] dark:text-[#ff7675]'
                       }`}
                     >
                       {tx.type === 'income' ? '+' : '-'}
@@ -596,14 +616,15 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
+        {/* Due Soon with Urgency Indicators */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Due Soon</CardTitle>
+              <CardTitle className="text-lg">Due Soon</CardTitle>
               <CardDescription>Upcoming reminders</CardDescription>
             </div>
             <Link href="/reminders">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="font-bold">
                 Manage <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
@@ -611,15 +632,17 @@ export default function DashboardPage() {
           <CardContent>
             {dueSoonReminders.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>No reminders due soon</p>
+                <div className="w-12 h-12 rounded-xl bg-muted/50 border-2 border-border flex items-center justify-center mx-auto mb-3">
+                  <Bell className="h-6 w-6 opacity-50" />
+                </div>
+                <p className="font-medium">No reminders due soon</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-1">
                 {dueSoonReminders.map((reminder) => (
                   <div
                     key={reminder.id}
-                    className="flex items-center justify-between p-2 rounded-lg bg-muted/50"
+                    className={`flex items-center justify-between p-3 rounded-lg border-2 border-transparent hover:border-border transition-colors ${reminder.daysUntil <= 1 ? 'bg-[#e17055]/10 dark:bg-[#ff7675]/10' : 'bg-muted/30'}`}
                   >
                     <div className="flex items-center gap-3">
                       <span
@@ -627,15 +650,20 @@ export default function DashboardPage() {
                         style={{ backgroundColor: reminder.categoryColor }}
                       />
                       <div>
-                        <p className="text-sm font-medium">{reminder.name}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-bold">{reminder.name}</p>
+                          {reminder.daysUntil === 0 && (
+                            <span className="w-2 h-2 rounded-full bg-[#e17055] dark:bg-[#ff7675] pulse-urgent" />
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground font-medium">
                           Due on day {reminder.dueDayOfMonth}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium">{formatCurrency(reminder.amount)}</p>
-                      <Badge variant={reminder.daysUntil <= 1 ? 'destructive' : 'secondary'}>
+                      <p className="text-sm font-bold">{formatCurrency(reminder.amount)}</p>
+                      <Badge variant={reminder.daysUntil <= 1 ? 'destructive' : reminder.daysUntil <= 3 ? 'warning' : 'secondary'}>
                         {reminder.daysUntil === 0
                           ? 'Today'
                           : reminder.daysUntil === 1

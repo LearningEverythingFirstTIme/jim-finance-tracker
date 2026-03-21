@@ -13,26 +13,28 @@ export default function SettingsPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">Manage your account and preferences</p>
+        <h1 className="text-3xl font-black tracking-tight">Settings</h1>
+        <p className="text-muted-foreground text-base font-medium">Manage your account and preferences</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+              <User className="h-4 w-4 text-primary" />
+            </div>
             Account
           </CardTitle>
-          <CardDescription>Your account information</CardDescription>
+          <CardDescription className="font-medium">Your account information</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between py-2 border-b">
+          <div className="flex items-center justify-between py-3 border-b-3 border-border">
             <div>
-              <p className="font-medium">Email</p>
-              <p className="text-sm text-muted-foreground">{user?.email}</p>
+              <p className="font-bold">Email</p>
+              <p className="text-sm text-muted-foreground font-medium">{user?.email}</p>
             </div>
           </div>
-          <Button variant="destructive" onClick={signOut} className="w-full">
+          <Button variant="destructive" onClick={signOut} className="w-full font-bold">
             <LogOut className="h-4 w-4 mr-2" />
             Sign Out
           </Button>
@@ -41,17 +43,19 @@ export default function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sun className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+              <Sun className="h-4 w-4 text-primary" />
+            </div>
             Appearance
           </CardTitle>
-          <CardDescription>Customize the app appearance</CardDescription>
+          <CardDescription className="font-medium">Customize the app appearance</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between py-2">
             <div>
-              <p className="font-medium">Theme</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="font-bold">Theme</p>
+              <p className="text-sm text-muted-foreground font-medium">
                 Choose between light and dark mode
               </p>
             </div>
@@ -60,6 +64,7 @@ export default function SettingsPage() {
                 variant={theme === 'light' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setTheme('light')}
+                className="font-bold"
               >
                 <Sun className="h-4 w-4 mr-1" /> Light
               </Button>
@@ -67,6 +72,7 @@ export default function SettingsPage() {
                 variant={theme === 'dark' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setTheme('dark')}
+                className="font-bold"
               >
                 <Moon className="h-4 w-4 mr-1" /> Dark
               </Button>
@@ -77,14 +83,14 @@ export default function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>About</CardTitle>
-          <CardDescription>App information</CardDescription>
+          <CardTitle className="text-lg">About</CardTitle>
+          <CardDescription className="font-medium">App information</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2 text-sm text-muted-foreground">
-            <p><strong>Jim&apos;s Finance Tracker</strong></p>
-            <p>Version 1.0.0</p>
-            <p>Built with Next.js, Firebase, and shadcn/ui</p>
+            <p className="font-bold text-foreground"><strong>Jim&apos;s Finance Tracker</strong></p>
+            <p className="font-medium">Version 1.0.0</p>
+            <p className="font-medium">Built with Next.js, Firebase, and shadcn/ui</p>
           </div>
         </CardContent>
       </Card>

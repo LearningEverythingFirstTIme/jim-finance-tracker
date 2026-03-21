@@ -159,11 +159,11 @@ export default function ReportsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Reports</h1>
-          <p className="text-muted-foreground">Monthly financial analysis</p>
+          <h1 className="text-3xl font-black tracking-tight">Reports</h1>
+          <p className="text-muted-foreground text-base font-medium">Monthly financial analysis</p>
         </div>
         <Select value={selectedMonth} onValueChange={(v) => v && setSelectedMonth(v)} items={Object.fromEntries(MONTH_OPTIONS.map((month: string) => { const [year, m] = month.split('-'); return [month, `${getMonthName(parseInt(m) - 1)} ${year}`]; }))}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-44">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -180,39 +180,39 @@ export default function ReportsPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="accent-income">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Income</CardTitle>
-            <ArrowUpRight className="h-4 w-4 text-green-500" />
+            <CardTitle className="text-sm font-bold">Total Income</CardTitle>
+            <ArrowUpRight className="h-5 w-5 text-[#00b894] dark:text-[#55efc4]" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-500">{formatCurrency(totalIncome)}</div>
+            <div className="stat-value text-[#00b894] dark:text-[#55efc4]">{formatCurrency(totalIncome)}</div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="accent-expense">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-            <ArrowDownLeft className="h-4 w-4 text-red-500" />
+            <CardTitle className="text-sm font-bold">Total Expenses</CardTitle>
+            <ArrowDownLeft className="h-5 w-5 text-[#e17055] dark:text-[#ff7675]" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-500">{formatCurrency(totalExpenses)}</div>
+            <div className="stat-value text-[#e17055] dark:text-[#ff7675]">{formatCurrency(totalExpenses)}</div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={totalIncome - totalExpenses >= 0 ? 'accent-income' : 'accent-expense'}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Net Balance</CardTitle>
+            <CardTitle className="text-sm font-bold">Net Balance</CardTitle>
             {totalIncome - totalExpenses >= 0 ? (
-              <TrendingUp className="h-4 w-4 text-green-500" />
+              <TrendingUp className="h-5 w-5 text-[#00b894] dark:text-[#55efc4]" />
             ) : (
-              <TrendingDown className="h-4 w-4 text-red-500" />
+              <TrendingDown className="h-5 w-5 text-[#e17055] dark:text-[#ff7675]" />
             )}
           </CardHeader>
           <CardContent>
             <div
-              className={`text-2xl font-bold ${
-                totalIncome - totalExpenses >= 0 ? 'text-green-500' : 'text-red-500'
+              className={`stat-value ${
+                totalIncome - totalExpenses >= 0 ? 'text-[#00b894] dark:text-[#55efc4]' : 'text-[#e17055] dark:text-[#ff7675]'
               }`}
             >
               {formatCurrency(totalIncome - totalExpenses)}
@@ -226,7 +226,7 @@ export default function ReportsPage() {
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
               <div>
-                <CardTitle>Income vs Expenses Trend</CardTitle>
+                <CardTitle className="text-lg">Income vs Expenses Trend</CardTitle>
                 <CardDescription>Compare income and spending over time</CardDescription>
               </div>
               <div className="flex items-center gap-2 text-sm flex-wrap">
@@ -240,7 +240,7 @@ export default function ReportsPage() {
                     return [m, `${getMonthName(parseInt(mo) - 1).slice(0, 3)} ${y}`];
                   }))}
                 >
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="w-36">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -254,7 +254,7 @@ export default function ReportsPage() {
                     })}
                   </SelectContent>
                 </Select>
-                <span className="text-muted-foreground">to</span>
+                <span className="text-muted-foreground font-medium">to</span>
                 <Select
                   value={trendEnd}
                   onValueChange={(v) => {
@@ -265,7 +265,7 @@ export default function ReportsPage() {
                     return [m, `${getMonthName(parseInt(mo) - 1).slice(0, 3)} ${y}`];
                   }))}
                 >
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="w-36">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -283,22 +283,25 @@ export default function ReportsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="h-64">
+            <div className="h-64 border-3 border-border rounded-xl p-2 bg-muted/20">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="month" className="text-xs" />
-                  <YAxis className="text-xs" />
-<Tooltip
-  formatter={(value) => formatCurrency(Number(value))}
-  contentStyle={{
-    backgroundColor: 'hsl(var(--popover))',
-    border: '1px solid hsl(var(--border))',
-  }}
-/>
+                  <XAxis dataKey="month" className="text-xs font-bold" tick={{ fontSize: 11 }} />
+                  <YAxis className="text-xs font-bold" tick={{ fontSize: 11 }} />
+                  <Tooltip
+                    formatter={(value) => formatCurrency(Number(value))}
+                    contentStyle={{
+                      backgroundColor: 'var(--card)',
+                      border: '3px solid var(--border)',
+                      borderRadius: '10px',
+                      fontWeight: 'bold',
+                      boxShadow: 'var(--btn-shadow)'
+                    }}
+                  />
                   <Legend />
-                  <Bar dataKey="income" name="Income" fill="#22c55e" />
-                  <Bar dataKey="expenses" name="Expenses" fill="#ef4444" />
+                  <Bar dataKey="income" name="Income" fill="#00b894" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="expenses" name="Expenses" fill="#e17055" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -307,17 +310,17 @@ export default function ReportsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Spending by Category</CardTitle>
+            <CardTitle className="text-lg">Spending by Category</CardTitle>
             <CardDescription>Where your money goes</CardDescription>
           </CardHeader>
           <CardContent>
             {categoryBreakdown.length === 0 ? (
-              <div className="flex items-center justify-center h-64 text-muted-foreground">
+              <div className="flex items-center justify-center h-64 text-muted-foreground font-medium">
                 No expenses this month
               </div>
             ) : (
               <div className="flex flex-col md:flex-row gap-6">
-                <div className="h-48 w-full md:w-48">
+                <div className="h-48 w-full md:w-48 border-3 border-border rounded-xl p-2 bg-muted/20">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -337,26 +340,29 @@ export default function ReportsPage() {
                       <Tooltip
                         formatter={(value) => formatCurrency(Number(value))}
                         contentStyle={{
-                          backgroundColor: 'hsl(var(--popover))',
-                          border: '1px solid hsl(var(--border))',
+                          backgroundColor: 'var(--card)',
+                          border: '3px solid var(--border)',
+                          borderRadius: '10px',
+                          fontWeight: 'bold',
+                          boxShadow: 'var(--btn-shadow)'
                         }}
                       />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
                 <div className="flex-1 space-y-2">
-                  {categoryBreakdown.slice(0, 5).map((cat) => (
-                    <div key={cat.categoryId} className="flex items-center justify-between">
+                  {categoryBreakdown.slice(0, 5).map((cat, index) => (
+                    <div key={cat.categoryId} className={`flex items-center justify-between p-2.5 rounded-lg border-2 border-transparent ${index % 2 === 1 ? 'bg-muted/30' : ''} hover:border-border transition-colors`}>
                       <div className="flex items-center gap-2">
                         <span
-                          className="w-3 h-3 rounded-full"
+                          className="w-3 h-3 rounded-[4px]"
                           style={{ backgroundColor: cat.categoryColor }}
                         />
-                        <span className="text-sm">{cat.categoryName}</span>
+                        <span className="text-sm font-bold">{cat.categoryName}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{formatCurrency(cat.total)}</span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-sm font-bold">{formatCurrency(cat.total)}</span>
+                        <span className="text-xs text-muted-foreground font-medium">
                           ({cat.percentage.toFixed(0)}%)
                         </span>
                       </div>
@@ -372,28 +378,28 @@ export default function ReportsPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Top Expenses</CardTitle>
+            <CardTitle className="text-lg">Top Expenses</CardTitle>
             <CardDescription>Largest transactions this month</CardDescription>
           </CardHeader>
           <CardContent>
             {topTransactions.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">No expenses this month</div>
+              <div className="text-center py-8 text-muted-foreground font-medium">No expenses this month</div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-1">
                 {topTransactions.map((tx, i) => (
-                  <div key={tx.id} className="flex items-center justify-between">
+                  <div key={tx.id} className={`flex items-center justify-between p-3 rounded-xl border-3 border-border ${i % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}>
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-muted-foreground w-4">{i + 1}.</span>
+                      <span className="text-sm font-black text-muted-foreground w-5">{i + 1}.</span>
                       <span
                         className="w-2 h-8 rounded-full"
                         style={{ backgroundColor: tx.categoryColor }}
                       />
                       <div>
-                        <p className="font-medium">{tx.note || tx.categoryName}</p>
-                        <p className="text-xs text-muted-foreground">{tx.categoryName}</p>
+                        <p className="font-bold">{tx.note || tx.categoryName}</p>
+                        <p className="text-xs text-muted-foreground font-medium">{tx.categoryName}</p>
                       </div>
                     </div>
-                    <span className="font-medium text-red-500">{formatCurrency(tx.amount)}</span>
+                    <span className="font-black text-[#e17055] dark:text-[#ff7675]">{formatCurrency(tx.amount)}</span>
                   </div>
                 ))}
               </div>
@@ -403,24 +409,27 @@ export default function ReportsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Spending by Day</CardTitle>
+            <CardTitle className="text-lg">Spending by Day</CardTitle>
             <CardDescription>Which days you spend the most</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-48">
+            <div className="h-48 border-3 border-border rounded-xl p-2 bg-muted/20">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={dayOfWeekData}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="day" className="text-xs" />
-                  <YAxis className="text-xs" />
-<Tooltip
-  formatter={(value) => formatCurrency(Number(value))}
-  contentStyle={{
-    backgroundColor: 'hsl(var(--popover))',
-    border: '1px solid hsl(var(--border))',
-  }}
-/>
-                  <Bar dataKey="amount" name="Spending" fill="#3b82f6" />
+                  <XAxis dataKey="day" className="text-xs font-bold" tick={{ fontSize: 11 }} />
+                  <YAxis className="text-xs font-bold" tick={{ fontSize: 11 }} />
+                  <Tooltip
+                    formatter={(value) => formatCurrency(Number(value))}
+                    contentStyle={{
+                      backgroundColor: 'var(--card)',
+                      border: '3px solid var(--border)',
+                      borderRadius: '10px',
+                      fontWeight: 'bold',
+                      boxShadow: 'var(--btn-shadow)'
+                    }}
+                  />
+                  <Bar dataKey="amount" name="Spending" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

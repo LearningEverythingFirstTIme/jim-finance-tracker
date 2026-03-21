@@ -145,10 +145,10 @@ export default function RemindersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Reminders</h1>
-          <p className="text-muted-foreground">Monthly bill reminders</p>
+          <h1 className="text-3xl font-black tracking-tight">Reminders</h1>
+          <p className="text-muted-foreground text-base font-medium">Monthly bill reminders</p>
         </div>
-        <Button onClick={openAddDialog}>
+        <Button onClick={openAddDialog} className="font-bold">
           <Plus className="h-4 w-4 mr-2" /> Add Reminder
         </Button>
       </div>
@@ -156,51 +156,60 @@ export default function RemindersPage() {
       {reminders.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-            <Bell className="h-12 w-12 mb-4 opacity-50" />
-            <p className="text-lg font-medium">No reminders yet</p>
-            <p className="text-sm">Add reminders for recurring monthly bills</p>
+            <div className="w-16 h-16 rounded-2xl bg-muted/50 border-3 border-border flex items-center justify-center mb-4 [box-shadow:var(--btn-shadow)]">
+              <Bell className="h-8 w-8 opacity-50" />
+            </div>
+            <p className="text-lg font-bold">No reminders yet</p>
+            <p className="text-sm font-medium">Add reminders for recurring monthly bills</p>
           </CardContent>
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {remindersWithDays.map((reminder) => (
-            <Card key={reminder.id} className="relative">
+            <Card 
+              key={reminder.id} 
+              className={`relative overflow-hidden ${reminder.daysUntil <= 1 ? 'border-l-4 border-l-[#e17055] dark:border-l-[#ff7675]' : reminder.daysUntil <= 7 ? 'border-l-4 border-l-[#fdcb6e] dark:border-l-[#ffeaa7]' : 'border-l-4 border-l-muted-foreground/30'}`}
+            >
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
                     <span
-                      className="w-3 h-3 rounded-full"
+                      className="w-3 h-3 rounded-[4px]"
                       style={{ backgroundColor: reminder.categoryColor }}
                     />
                     <CardTitle className="text-lg">{reminder.name}</CardTitle>
+                    {reminder.daysUntil === 0 && (
+                      <span className="w-2 h-2 rounded-full bg-[#e17055] dark:bg-[#ff7675] pulse-urgent" />
+                    )}
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => openEditDialog(reminder)}>
+                    <Button variant="ghost" size="icon-sm" onClick={() => openEditDialog(reminder)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
-                      size="icon"
+                      size="icon-sm"
                       onClick={() => setDeleteConfirm(reminder.id)}
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <Trash2 className="h-4 w-4 text-[#e17055] dark:text-[#ff7675]" />
                     </Button>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold mb-2">{formatCurrency(reminder.amount)}</div>
+                <div className="stat-value mb-2">{formatCurrency(reminder.amount)}</div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  <span>Due on day {reminder.dueDayOfMonth}</span>
+                  <span className="font-medium">Due on day {reminder.dueDayOfMonth}</span>
                   <Badge
                     variant={
                       reminder.daysUntil <= 1
                         ? 'destructive'
                         : reminder.daysUntil <= 7
-                        ? 'secondary'
-                        : 'outline'
+                        ? 'warning'
+                        : 'secondary'
                     }
+                    className="font-bold"
                   >
                     {reminder.daysUntil === 0
                       ? 'Today'
@@ -210,7 +219,7 @@ export default function RemindersPage() {
                   </Badge>
                 </div>
                 {reminder.note && (
-                  <p className="text-sm text-muted-foreground mt-2">{reminder.note}</p>
+                  <p className="text-sm text-muted-foreground mt-2 font-medium">{reminder.note}</p>
                 )}
               </CardContent>
             </Card>
@@ -228,7 +237,7 @@ export default function RemindersPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name" className="font-bold">Name *</Label>
               <Input
                 id="name"
                 value={name}
@@ -238,7 +247,7 @@ export default function RemindersPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount *</Label>
+              <Label htmlFor="amount" className="font-bold">Amount *</Label>
               <Input
                 id="amount"
                 type="number"
@@ -250,9 +259,9 @@ export default function RemindersPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Category *</Label>
+              <Label className="font-bold">Category *</Label>
               <Select value={categoryId} onValueChange={(v) => v && setCategoryId(v)} items={Object.fromEntries(expenseCategories.map(cat => [cat.id, cat.name]))}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -264,7 +273,7 @@ export default function RemindersPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="dueDay">Due Day of Month *</Label>
+              <Label htmlFor="dueDay" className="font-bold">Due Day of Month *</Label>
               <Input
                 id="dueDay"
                 type="number"
@@ -274,13 +283,13 @@ export default function RemindersPage() {
                 onChange={(e) => setDueDayOfMonth(e.target.value)}
                 placeholder="1-31"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground font-medium">
                 Day of the month this bill is due (1-31)
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="note">Note (optional)</Label>
+              <Label htmlFor="note" className="font-bold">Note (optional)</Label>
               <Input
                 id="note"
                 value={note}
@@ -290,10 +299,10 @@ export default function RemindersPage() {
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="font-bold">
                 Cancel
               </Button>
-              <Button onClick={handleSubmit} disabled={submitting}>
+              <Button onClick={handleSubmit} disabled={submitting} className="font-bold">
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
               </Button>
             </div>
@@ -310,12 +319,13 @@ export default function RemindersPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="font-bold">
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={() => deleteConfirm && handleDelete(deleteConfirm)}
+              className="font-bold"
             >
               Delete
             </Button>

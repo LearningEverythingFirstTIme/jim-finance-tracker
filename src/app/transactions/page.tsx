@@ -94,15 +94,15 @@ export default function TransactionsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Transactions</h1>
-          <p className="text-muted-foreground">{filteredTransactions.length} transactions</p>
+          <h1 className="text-3xl font-black tracking-tight">Transactions</h1>
+          <p className="text-muted-foreground text-base font-medium">{filteredTransactions.length} transactions</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center border rounded-lg overflow-hidden">
+          <div className="flex items-center border-3 border-border rounded-[10px] overflow-hidden bg-card [box-shadow:var(--btn-shadow)]">
             <Button
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
-              className="rounded-none"
+              className="rounded-none border-0"
               onClick={() => setViewMode('list')}
             >
               <List className="h-4 w-4" />
@@ -110,14 +110,14 @@ export default function TransactionsPage() {
             <Button
               variant={viewMode === 'calendar' ? 'default' : 'ghost'}
               size="sm"
-              className="rounded-none"
+              className="rounded-none border-0 border-l-3 border-l-border"
               onClick={() => setViewMode('calendar')}
             >
               <CalendarDays className="h-4 w-4" />
             </Button>
           </div>
           <Link href="/transactions/add">
-            <Button>
+            <Button className="font-bold">
               <Plus className="h-4 w-4 mr-2" /> Add Transaction
             </Button>
           </Link>
@@ -125,22 +125,26 @@ export default function TransactionsPage() {
       </div>
 
       {pendingRecurring.length > 0 && (
-        <div className="flex items-center justify-between p-4 rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-800">
-          <div className="flex items-center gap-3">
-            <RefreshCw className="h-5 w-5 text-blue-500 flex-shrink-0" />
-            <div>
-              <p className="font-medium text-sm">
-                {pendingRecurring.length} recurring transaction{pendingRecurring.length !== 1 ? 's' : ''} pending for this month
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {pendingRecurring.map((t) => t.note || t.categoryName).join(', ')}
-              </p>
+        <Card className="bg-[#3b82f6]/10 border-[#3b82f6]/30 dark:bg-[#3b82f6]/10 dark:border-[#3b82f6]/30">
+          <CardContent className="flex items-center justify-between py-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-[8px] bg-[#3b82f6]/20 flex items-center justify-center">
+                <RefreshCw className="h-5 w-5 text-[#3b82f6]" />
+              </div>
+              <div>
+                <p className="font-bold text-sm">
+                  {pendingRecurring.length} recurring transaction{pendingRecurring.length !== 1 ? 's' : ''} pending for this month
+                </p>
+                <p className="text-xs text-muted-foreground font-medium">
+                  {pendingRecurring.map((t) => t.note || t.categoryName).join(', ')}
+                </p>
+              </div>
             </div>
-          </div>
-          <Button size="sm" onClick={handleGenerateRecurring} disabled={generatingRecurring}>
-            {generatingRecurring ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Generate'}
-          </Button>
-        </div>
+            <Button size="sm" onClick={handleGenerateRecurring} disabled={generatingRecurring} className="font-bold">
+              {generatingRecurring ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Generate'}
+            </Button>
+          </CardContent>
+        </Card>
       )}
 
       {viewMode === 'calendar' && (
@@ -152,20 +156,20 @@ export default function TransactionsPage() {
       )}
 
       {viewMode === 'list' && <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row gap-4">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search transactions..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
+                className="pl-10"
               />
             </div>
             <div className="flex gap-2">
               <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as TransactionType | 'all')} items={{ all: 'All Types', income: 'Income', expense: 'Expense' }}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-36">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue />
                 </SelectTrigger>
@@ -176,7 +180,7 @@ export default function TransactionsPage() {
                 </SelectContent>
               </Select>
               <Select value={categoryFilter} onValueChange={(v) => v && setCategoryFilter(v)} items={{ all: 'All Categories', ...Object.fromEntries(categories.map(cat => [cat.id, cat.name])) }}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-44">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -192,45 +196,45 @@ export default function TransactionsPage() {
         <CardContent>
           {sortedDates.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <p>No transactions found</p>
+              <p className="font-bold">No transactions found</p>
             </div>
           ) : (
             <div className="space-y-6">
               {sortedDates.map((date) => (
                 <div key={date}>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-3">
-                    {formatDate(date)}
+                  <h3 className="text-sm font-bold text-muted-foreground mb-3 flex items-center gap-2">
+                    <span className="bg-muted px-2 py-1 rounded-[6px] border-2 border-border">{formatDate(date)}</span>
                   </h3>
-                  <div className="space-y-2">
-                    {groupedTransactions[date].map((tx) => (
+                  <div className="space-y-1">
+                    {groupedTransactions[date].map((tx, index) => (
                       <div
                         key={tx.id}
-                        className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+                        className={`flex items-center justify-between p-3 rounded-xl border-3 border-border transition-all hover:-translate-y-0.5 hover:[box-shadow:var(--card-shadow)] ${index % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}
                       >
                         <div className="flex items-center gap-3">
                           <span
-                            className="w-2 h-10 rounded-full"
+                            className="w-2 h-10 rounded-full flex-shrink-0"
                             style={{ backgroundColor: tx.categoryColor }}
                           />
                           <div>
-                            <p className="font-medium">{tx.note || tx.categoryName}</p>
+                            <p className="font-bold">{tx.note || tx.categoryName}</p>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Badge variant="secondary" className="text-xs">
+                              <Badge variant="secondary" className="text-xs font-bold">
                                 {tx.categoryName}
                               </Badge>
                               <Badge
-                                variant={tx.type === 'income' ? 'default' : 'outline'}
-                                className="text-xs"
+                                variant={tx.type === 'income' ? 'success' : 'outline'}
+                                className="text-xs font-bold"
                               >
                                 {tx.type}
                               </Badge>
                               {tx.isRecurring && (
-                                <Badge variant="outline" className="text-xs gap-1">
+                                <Badge variant="outline" className="text-xs gap-1 font-bold border-2 border-[#3b82f6] text-[#3b82f6]">
                                   <RefreshCw className="h-2.5 w-2.5" /> Recurring
                                 </Badge>
                               )}
                               {tx.recurringSourceId && (
-                                <Badge variant="outline" className="text-xs gap-1 text-blue-500 border-blue-300">
+                                <Badge variant="outline" className="text-xs gap-1 font-bold border-2 border-[#3b82f6] text-[#3b82f6]">
                                   <RefreshCw className="h-2.5 w-2.5" /> Auto
                                 </Badge>
                               )}
@@ -239,8 +243,8 @@ export default function TransactionsPage() {
                         </div>
                         <div className="flex items-center gap-4">
                           <span
-                            className={`text-lg font-semibold ${
-                              tx.type === 'income' ? 'text-green-500' : 'text-red-500'
+                            className={`text-lg font-black ${
+                              tx.type === 'income' ? 'text-[#00b894] dark:text-[#55efc4]' : 'text-[#e17055] dark:text-[#ff7675]'
                             }`}
                           >
                             {tx.type === 'income' ? '+' : '-'}
@@ -249,17 +253,17 @@ export default function TransactionsPage() {
                           <div className="flex gap-1">
                             <Button
                               variant="ghost"
-                              size="icon"
+                              size="icon-sm"
                               onClick={() => setEditTransaction(tx)}
                             >
                               <Pencil className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"
-                              size="icon"
+                              size="icon-sm"
                               onClick={() => setDeleteConfirm(tx.id)}
                             >
-                              <Trash2 className="h-4 w-4 text-destructive" />
+                              <Trash2 className="h-4 w-4 text-[#e17055] dark:text-[#ff7675]" />
                             </Button>
                           </div>
                         </div>
@@ -282,10 +286,10 @@ export default function TransactionsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="font-bold">
               Cancel
             </Button>
-            <Button variant="destructive" onClick={() => deleteConfirm && handleDelete(deleteConfirm)}>
+            <Button variant="destructive" onClick={() => deleteConfirm && handleDelete(deleteConfirm)} className="font-bold">
               Delete
             </Button>
           </div>
@@ -347,7 +351,7 @@ function EditTransactionDialog({
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Amount</label>
+            <label className="text-sm font-bold">Amount</label>
             <Input
               type="number"
               step="0.01"
@@ -356,19 +360,19 @@ function EditTransactionDialog({
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Note</label>
+            <label className="text-sm font-bold">Note</label>
             <Input value={note} onChange={(e) => setNote(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Date</label>
+            <label className="text-sm font-bold">Date</label>
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} className="font-bold">
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={loading}>
+          <Button onClick={handleSave} disabled={loading} className="font-bold">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
           </Button>
         </div>
@@ -426,7 +430,7 @@ function CalendarView({
             <Button variant="ghost" size="icon" onClick={prevMonth}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h2 className="font-semibold text-lg">{monthName}</h2>
+            <h2 className="font-bold text-lg">{monthName}</h2>
             <Button variant="ghost" size="icon" onClick={nextMonth}>
               <ArrowRight className="h-4 w-4" />
             </Button>
@@ -435,7 +439,7 @@ function CalendarView({
         <CardContent>
           <div className="grid grid-cols-7 gap-1 mb-2">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
-              <div key={d} className="text-center text-xs font-medium text-muted-foreground py-1">{d}</div>
+              <div key={d} className="text-center text-xs font-bold text-muted-foreground py-1">{d}</div>
             ))}
           </div>
           <div className="grid grid-cols-7 gap-1">
@@ -455,20 +459,20 @@ function CalendarView({
                   key={day}
                   onClick={() => setSelectedDay(isSelected ? null : dateStr)}
                   className={`
-                    relative p-1 rounded-lg text-center min-h-[56px] flex flex-col items-center justify-start gap-0.5
-                    transition-colors border
-                    ${isSelected ? 'border-primary bg-primary/10' : 'border-transparent hover:border-muted-foreground/30 hover:bg-muted/50'}
-                    ${isToday ? 'ring-2 ring-primary ring-offset-1' : ''}
+                    relative p-1 rounded-[8px] text-center min-h-[60px] flex flex-col items-center justify-start gap-0.5
+                    transition-all border-3
+                    ${isSelected ? 'border-primary bg-primary/10 [box-shadow:var(--btn-shadow)]' : 'border-transparent hover:border-border hover:bg-muted/50'}
+                    ${isToday ? 'ring-2 ring-primary ring-offset-1 ring-offset-background' : ''}
                   `}
                 >
-                  <span className={`text-sm font-medium ${isToday ? 'text-primary' : ''}`}>{day}</span>
+                  <span className={`text-sm font-bold ${isToday ? 'text-primary' : ''}`}>{day}</span>
                   {hasTxs && (
-                    <span className={`text-[10px] font-semibold leading-tight ${net >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    <span className={`text-[10px] font-black leading-tight ${net >= 0 ? 'text-[#00b894] dark:text-[#55efc4]' : 'text-[#e17055] dark:text-[#ff7675]'}`}>
                       {net >= 0 ? '+' : ''}{formatCurrency(net)}
                     </span>
                   )}
                   {hasTxs && (
-                    <span className="text-[9px] text-muted-foreground">{data.txs.length} tx{data.txs.length !== 1 ? 's' : ''}</span>
+                    <span className="text-[9px] text-muted-foreground font-medium">{data.txs.length} tx{data.txs.length !== 1 ? 's' : ''}</span>
                   )}
                 </button>
               );
@@ -481,27 +485,27 @@ function CalendarView({
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold">{formatDate(selectedDay)}</h3>
-              <Button variant="ghost" size="icon" onClick={() => setSelectedDay(null)}>
+              <h3 className="font-bold">{formatDate(selectedDay)}</h3>
+              <Button variant="ghost" size="icon-sm" onClick={() => setSelectedDay(null)}>
                 <X className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             {selectedDayTxs.length === 0 ? (
-              <p className="text-center py-4 text-muted-foreground text-sm">No transactions</p>
+              <p className="text-center py-4 text-muted-foreground text-sm font-medium">No transactions</p>
             ) : (
-              <div className="space-y-2">
-                {selectedDayTxs.map((tx) => (
-                  <div key={tx.id} className="flex items-center justify-between p-3 rounded-lg border">
+              <div className="space-y-1">
+                {selectedDayTxs.map((tx, index) => (
+                  <div key={tx.id} className={`flex items-center justify-between p-3 rounded-xl border-3 border-border ${index % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}>
                     <div className="flex items-center gap-3">
                       <span className="w-2 h-8 rounded-full" style={{ backgroundColor: tx.categoryColor }} />
                       <div>
-                        <p className="font-medium text-sm">{tx.note || tx.categoryName}</p>
-                        <p className="text-xs text-muted-foreground">{tx.categoryName}</p>
+                        <p className="font-bold text-sm">{tx.note || tx.categoryName}</p>
+                        <p className="text-xs text-muted-foreground font-medium">{tx.categoryName}</p>
                       </div>
                     </div>
-                    <span className={`font-semibold ${tx.type === 'income' ? 'text-green-500' : 'text-red-500'}`}>
+                    <span className={`font-black ${tx.type === 'income' ? 'text-[#00b894] dark:text-[#55efc4]' : 'text-[#e17055] dark:text-[#ff7675]'}`}>
                       {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
                     </span>
                   </div>

@@ -43,16 +43,16 @@ const GOAL_COLORS = [
   '#14b8a6', '#06b6d4', '#6366f1', '#d946ef', '#ef4444', '#84cc16',
 ];
 
-// Circular progress ring component
-function CircularProgress({ percentage, color, size = 80 }: { percentage: number; color: string; size?: number }) {
-  const strokeWidth = 8;
+// Circular progress ring component with thicker stroke
+function CircularProgress({ percentage, color, size = 88 }: { percentage: number; color: string; size?: number }) {
+  const strokeWidth = 10;
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (Math.min(percentage, 100) / 100) * circumference;
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
+      <svg width={size} height={size} className="-rotate-90 [filter:drop-shadow(2px_2px_0px_var(--border))]">
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -76,7 +76,7 @@ function CircularProgress({ percentage, color, size = 80 }: { percentage: number
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-sm font-bold">{Math.min(percentage, 100).toFixed(0)}%</span>
+        <span className="text-base font-black">{Math.min(percentage, 100).toFixed(0)}%</span>
       </div>
     </div>
   );
@@ -95,8 +95,6 @@ function getMonthsToCompletion(goal: SavingsGoal): number | null {
   const remaining = goal.targetAmount - goal.currentAmount;
   if (remaining <= 0) return 0;
   
-  // Estimate based on average monthly contribution
-  // We'll use a simple heuristic: assume current pace continues
   const daysSinceCreation = Math.max(1, Math.floor((Date.now() - goal.createdAt.getTime()) / (1000 * 60 * 60 * 24)));
   const dailyRate = goal.currentAmount / daysSinceCreation;
   const dailyTarget = remaining / Math.max(dailyRate, 0.01);
@@ -225,7 +223,6 @@ export default function GoalsPage() {
 
     setSubmittingContribution(true);
     try {
-      // Add contribution and update goal amount
       await addContribution(input, async (goalId, delta) => {
         const g = goals.find((gg) => gg.id === goalId);
         if (g) {
@@ -277,48 +274,48 @@ export default function GoalsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Savings Goals</h1>
-          <p className="text-muted-foreground">Track progress toward your financial goals</p>
+          <h1 className="text-3xl font-black tracking-tight">Savings Goals</h1>
+          <p className="text-muted-foreground text-base">Track progress toward your financial goals</p>
         </div>
-        <Button onClick={openAddGoalDialog}>
+        <Button onClick={openAddGoalDialog} className="font-bold">
           <Plus className="h-4 w-4 mr-1" /> New Goal
         </Button>
       </div>
 
       {/* Quick Stats Summary */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="accent-income">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Saved</CardTitle>
+            <CardTitle className="text-sm font-bold">Total Saved</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-500">{formatCurrency(totalSaved)}</div>
-            <p className="text-xs text-muted-foreground">Across all goals</p>
+            <div className="stat-value text-[#00b894] dark:text-[#55efc4]">{formatCurrency(totalSaved)}</div>
+            <p className="text-xs text-muted-foreground mt-1 font-medium">Across all goals</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Active Goals</CardTitle>
+            <CardTitle className="text-sm font-bold">Active Goals</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{goals.length}</div>
-            <p className="text-xs text-muted-foreground">Savings targets</p>
+            <div className="stat-value">{goals.length}</div>
+            <p className="text-xs text-muted-foreground mt-1 font-medium">Savings targets</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Closest to Goal</CardTitle>
+            <CardTitle className="text-sm font-bold">Closest to Goal</CardTitle>
           </CardHeader>
           <CardContent>
             {closestToCompletion ? (
               <>
-                <div className="text-lg font-bold truncate">{closestToCompletion.name}</div>
-                <p className="text-xs text-muted-foreground">
+                <div className="text-lg font-black truncate">{closestToCompletion.name}</div>
+                <p className="text-xs text-muted-foreground font-medium">
                   {((closestToCompletion.currentAmount / closestToCompletion.targetAmount) * 100).toFixed(0)}% complete
                 </p>
               </>
             ) : (
-              <div className="text-sm text-muted-foreground">No goals yet</div>
+              <div className="text-sm text-muted-foreground font-medium">No goals yet</div>
             )}
           </CardContent>
         </Card>
@@ -328,10 +325,12 @@ export default function GoalsPage() {
       {goals.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-            <Target className="h-12 w-12 mb-4 opacity-50" />
-            <p className="text-lg font-medium">No savings goals yet</p>
+            <div className="w-16 h-16 rounded-2xl bg-muted/50 border-3 border-border flex items-center justify-center mb-4 [box-shadow:var(--btn-shadow)]">
+              <Target className="h-8 w-8 opacity-50" />
+            </div>
+            <p className="text-lg font-bold">No savings goals yet</p>
             <p className="text-sm mb-4">Create your first goal to start tracking</p>
-            <Button onClick={openAddGoalDialog}>
+            <Button onClick={openAddGoalDialog} className="font-bold">
               <Plus className="h-4 w-4 mr-1" /> Create Goal
             </Button>
           </CardContent>
@@ -346,36 +345,29 @@ export default function GoalsPage() {
             const isExpanded = expandedGoal === goal.id;
 
             return (
-              <Card key={goal.id} className="relative overflow-hidden">
-                <div
-                  className="absolute top-0 left-0 h-1 transition-all"
-                  style={{ 
-                    width: `${Math.min(percentage, 100)}%`, 
-                    backgroundColor: goal.color 
-                  }}
-                />
+              <Card key={goal.id} className="relative overflow-hidden" style={{ borderTop: `4px solid ${goal.color}` }}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                        className="w-10 h-10 rounded-[8px] flex items-center justify-center border-2 border-border"
                         style={{ backgroundColor: goal.color + '20' }}
                       >
                         <DynamicIcon name={goal.icon} className="h-5 w-5" style={{ color: goal.color }} />
                       </div>
                       <div>
                         <CardTitle className="text-lg">{goal.name}</CardTitle>
-                        <CardDescription>
+                        <CardDescription className="font-medium">
                           {formatCurrency(goal.currentAmount)} of {formatCurrency(goal.targetAmount)}
                         </CardDescription>
                       </div>
                     </div>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditGoalDialog(goal)}>
+                      <Button variant="ghost" size="icon-sm" onClick={() => openEditGoalDialog(goal)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDeleteConfirm(goal.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
+                      <Button variant="ghost" size="icon-sm" onClick={() => setDeleteConfirm(goal.id)}>
+                        <Trash2 className="h-4 w-4 text-[#e17055] dark:text-[#ff7675]" />
                       </Button>
                     </div>
                   </div>
@@ -385,18 +377,18 @@ export default function GoalsPage() {
                     <CircularProgress percentage={percentage} color={goal.color} />
                     <div className="flex-1 space-y-2">
                       {/* Progress bar */}
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div className="h-3 bg-muted rounded-full overflow-hidden border-2 border-border">
                         <div
-                          className="h-full transition-all"
+                          className="h-full transition-all rounded-full"
                           style={{ 
                             width: `${Math.min(percentage, 100)}%`, 
                             backgroundColor: goal.color 
                           }}
                         />
                       </div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm text-muted-foreground font-medium">
                         {percentage >= 100 ? (
-                          <span className="text-green-500 font-medium">Goal reached! 🎉</span>
+                          <span className="text-[#00b894] dark:text-[#55efc4] font-bold">Goal reached! 🎉</span>
                         ) : (
                           <span>{formatCurrency(goal.targetAmount - goal.currentAmount)} to go</span>
                         )}
@@ -407,20 +399,20 @@ export default function GoalsPage() {
                   {/* Projection and Deadline */}
                   <div className="flex flex-wrap gap-3 text-sm">
                     {monthsRemaining !== null && percentage < 100 && (
-                      <div className="flex items-center gap-1 text-muted-foreground">
+                      <div className="flex items-center gap-1.5 text-muted-foreground bg-muted/50 px-2 py-1 rounded-[6px]">
                         <TrendingUp className="h-4 w-4" />
-                        <span>~{monthsRemaining} months at current pace</span>
+                        <span className="font-medium">~{monthsRemaining} months at current pace</span>
                       </div>
                     )}
                     {daysUntilDeadline !== null && (
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-[6px]">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         {daysUntilDeadline < 0 ? (
-                          <span className="text-red-500">Deadline passed</span>
+                          <span className="text-[#e17055] dark:text-[#ff7675] font-bold">Deadline passed</span>
                         ) : daysUntilDeadline === 0 ? (
-                          <span className="text-yellow-500">Due today</span>
+                          <span className="text-[#fdcb6e] dark:text-[#ffeaa7] font-bold">Due today</span>
                         ) : (
-                          <span className={daysUntilDeadline <= 30 ? 'text-yellow-500' : ''}>
+                          <span className={`font-medium ${daysUntilDeadline <= 30 ? 'text-[#fdcb6e] dark:text-[#ffeaa7]' : ''}`}>
                             {daysUntilDeadline} days left
                           </span>
                         )}
@@ -432,7 +424,7 @@ export default function GoalsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full"
+                    className="w-full font-bold"
                     onClick={() => openContributionDialog(goal.id)}
                   >
                     <Plus className="h-4 w-4 mr-1" /> Add Contribution
@@ -442,31 +434,30 @@ export default function GoalsPage() {
                   {goalContributions.length > 0 && (
                     <div>
                       <button
-                        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground font-medium"
                         onClick={() => setExpandedGoal(isExpanded ? null : goal.id)}
                       >
                         {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                         {goalContributions.length} contribution{goalContributions.length !== 1 ? 's' : ''}
                       </button>
                       {isExpanded && (
-                        <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
-                          {goalContributions.map((c) => (
+                        <div className="mt-2 space-y-1 max-h-48 overflow-y-auto">
+                          {goalContributions.map((c, index) => (
                             <div
                               key={c.id}
-                              className="flex items-center justify-between p-2 rounded bg-muted/50 text-sm"
+                              className={`flex items-center justify-between p-2.5 rounded-lg text-sm border-2 border-transparent ${index % 2 === 1 ? 'bg-muted/30' : ''} hover:border-border transition-colors`}
                             >
                               <div>
-                                <span className="font-medium text-green-500">+{formatCurrency(c.amount)}</span>
-                                <span className="text-muted-foreground ml-2">{formatDate(c.date)}</span>
+                                <span className="font-bold text-[#00b894] dark:text-[#55efc4]">+{formatCurrency(c.amount)}</span>
+                                <span className="text-muted-foreground ml-2 font-medium">{formatDate(c.date)}</span>
                                 {c.note && <span className="text-muted-foreground ml-2">• {c.note}</span>}
                               </div>
                               <Button
                                 variant="ghost"
-                                size="icon"
-                                className="h-6 w-6"
+                                size="icon-xs"
                                 onClick={() => handleDeleteContribution(c.id, c.goalId, c.amount)}
                               >
-                                <Trash2 className="h-3 w-3 text-destructive" />
+                                <Trash2 className="h-3 w-3 text-[#e17055] dark:text-[#ff7675]" />
                               </Button>
                             </div>
                           ))}
@@ -492,7 +483,7 @@ export default function GoalsPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="goalName">Goal Name</Label>
+              <Label htmlFor="goalName" className="font-bold">Goal Name</Label>
               <Input
                 id="goalName"
                 value={goalName}
@@ -502,7 +493,7 @@ export default function GoalsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="targetAmount">Target Amount</Label>
+              <Label htmlFor="targetAmount" className="font-bold">Target Amount</Label>
               <Input
                 id="targetAmount"
                 type="number"
@@ -514,14 +505,14 @@ export default function GoalsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Icon</Label>
-              <div className="grid grid-cols-10 gap-1 p-2 border rounded-lg max-h-32 overflow-y-auto">
+              <Label className="font-bold">Icon</Label>
+              <div className="grid grid-cols-10 gap-1 p-2 border-3 border-border rounded-xl max-h-32 overflow-y-auto bg-muted/20">
                 {GOAL_ICONS.map((iconName) => (
                   <button
                     key={iconName}
                     type="button"
-                    className={`w-8 h-8 rounded flex items-center justify-center transition-all ${
-                      goalIcon === iconName ? 'bg-primary/20 ring-2 ring-primary' : 'hover:bg-muted/50'
+                    className={`w-8 h-8 rounded-[6px] flex items-center justify-center transition-all ${
+                      goalIcon === iconName ? 'bg-primary/20 ring-2 ring-primary border-2 border-primary' : 'hover:bg-muted/50 border-2 border-transparent'
                     }`}
                     onClick={() => setGoalIcon(iconName)}
                     title={iconName}
@@ -533,14 +524,14 @@ export default function GoalsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Color</Label>
+              <Label className="font-bold">Color</Label>
               <div className="flex flex-wrap gap-2">
                 {GOAL_COLORS.map((c) => (
                   <button
                     key={c}
                     type="button"
-                    className={`w-8 h-8 rounded-full border-2 transition-transform ${
-                      goalColor === c ? 'border-foreground scale-110' : 'border-transparent'
+                    className={`w-8 h-8 rounded-[6px] border-3 transition-transform ${
+                      goalColor === c ? 'border-foreground scale-110 [box-shadow:var(--btn-shadow)]' : 'border-transparent hover:scale-105'
                     }`}
                     style={{ backgroundColor: c }}
                     onClick={() => setGoalColor(c)}
@@ -550,7 +541,7 @@ export default function GoalsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="deadline">Deadline (optional)</Label>
+              <Label htmlFor="deadline" className="font-bold">Deadline (optional)</Label>
               <Input
                 id="deadline"
                 type="date"
@@ -560,10 +551,10 @@ export default function GoalsPage() {
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setIsGoalDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsGoalDialogOpen(false)} className="font-bold">
                 Cancel
               </Button>
-              <Button onClick={handleGoalSubmit} disabled={submittingGoal}>
+              <Button onClick={handleGoalSubmit} disabled={submittingGoal} className="font-bold">
                 {submittingGoal ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
               </Button>
             </div>
@@ -582,7 +573,7 @@ export default function GoalsPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="contributionAmount">Amount</Label>
+              <Label htmlFor="contributionAmount" className="font-bold">Amount</Label>
               <Input
                 id="contributionAmount"
                 type="number"
@@ -594,7 +585,7 @@ export default function GoalsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contributionDate">Date</Label>
+              <Label htmlFor="contributionDate" className="font-bold">Date</Label>
               <Input
                 id="contributionDate"
                 type="date"
@@ -604,7 +595,7 @@ export default function GoalsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contributionNote">Note (optional)</Label>
+              <Label htmlFor="contributionNote" className="font-bold">Note (optional)</Label>
               <Input
                 id="contributionNote"
                 placeholder="e.g., Monthly savings"
@@ -614,10 +605,10 @@ export default function GoalsPage() {
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setIsContributionDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsContributionDialogOpen(false)} className="font-bold">
                 Cancel
               </Button>
-              <Button onClick={handleContributionSubmit} disabled={submittingContribution}>
+              <Button onClick={handleContributionSubmit} disabled={submittingContribution} className="font-bold">
                 {submittingContribution ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add'}
               </Button>
             </div>
@@ -635,12 +626,13 @@ export default function GoalsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="font-bold">
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={() => deleteConfirm && handleDeleteGoal(deleteConfirm)}
+              className="font-bold"
             >
               Delete
             </Button>

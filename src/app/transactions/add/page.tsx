@@ -100,19 +100,19 @@ export default function AddTransactionPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">Add Transaction</h1>
-          <p className="text-muted-foreground">Log a new transaction</p>
+          <h1 className="text-3xl font-black tracking-tight">Add Transaction</h1>
+          <p className="text-muted-foreground text-base font-medium">Log a new transaction</p>
         </div>
       </div>
 
       <Card>
         <form onSubmit={handleSubmit}>
-          <CardHeader>
+          <CardHeader className="pb-4">
             <div className="flex gap-2">
               <Button
                 type="button"
                 variant={type === 'expense' ? 'destructive' : 'outline'}
-                className="flex-1"
+                className="flex-1 font-bold"
                 onClick={() => {
                   setType('expense');
                   setCategoryId('');
@@ -123,7 +123,7 @@ export default function AddTransactionPage() {
               <Button
                 type="button"
                 variant={type === 'income' ? 'default' : 'outline'}
-                className="flex-1"
+                className="flex-1 font-bold"
                 onClick={() => {
                   setType('income');
                   setCategoryId('');
@@ -135,7 +135,7 @@ export default function AddTransactionPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount *</Label>
+              <Label htmlFor="amount" className="font-bold">Amount *</Label>
               <Input
                 id="amount"
                 type="number"
@@ -150,9 +150,9 @@ export default function AddTransactionPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Category *</Label>
+              <Label className="font-bold">Category *</Label>
               <Select value={categoryId} onValueChange={(v) => v && setCategoryId(v)} items={Object.fromEntries(filteredCategories.map(cat => [cat.id, cat.name]))}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -164,7 +164,7 @@ export default function AddTransactionPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
+              <Label htmlFor="date" className="font-bold">Date</Label>
               <Input
                 id="date"
                 type="date"
@@ -174,7 +174,7 @@ export default function AddTransactionPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="note">Note (optional)</Label>
+              <Label htmlFor="note" className="font-bold">Note (optional)</Label>
               <Input
                 id="note"
                 placeholder="Add a note..."
@@ -184,25 +184,30 @@ export default function AddTransactionPage() {
               />
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer select-none" onClick={() => setIsRecurring(!isRecurring)}>
+            <div 
+              className="flex items-center gap-3 p-4 rounded-xl border-3 border-border cursor-pointer select-none hover:bg-muted/50 transition-colors" 
+              onClick={() => setIsRecurring(!isRecurring)}
+            >
               <input
                 type="checkbox"
                 id="isRecurring"
                 checked={isRecurring}
                 onChange={(e) => setIsRecurring(e.target.checked)}
-                className="h-4 w-4"
+                className="h-5 w-5"
               />
-              <RefreshCw className="h-4 w-4 text-muted-foreground" />
+              <div className="w-8 h-8 rounded-[6px] bg-[#3b82f6]/20 flex items-center justify-center">
+                <RefreshCw className="h-4 w-4 text-[#3b82f6]" />
+              </div>
               <div>
-                <Label htmlFor="isRecurring" className="cursor-pointer font-medium">Recurring monthly</Label>
-                <p className="text-xs text-muted-foreground">Auto-generate this transaction each month on the same day</p>
+                <Label htmlFor="isRecurring" className="cursor-pointer font-bold">Recurring monthly</Label>
+                <p className="text-xs text-muted-foreground font-medium">Auto-generate this transaction each month on the same day</p>
               </div>
             </div>
 
             <div className="flex gap-2 pt-4">
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full font-bold"
                 disabled={loading}
               >
                 {loading ? (

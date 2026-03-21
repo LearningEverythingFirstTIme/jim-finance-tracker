@@ -52,13 +52,17 @@ export function Navigation() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b-2 border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b-3 border-border bg-background/95 backdrop-blur [box-shadow:var(--nav-shadow)]">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex h-14 items-center justify-between">
-            <div className="flex items-center gap-6">
-              <Link href="/dashboard" className="flex items-center gap-2 font-extrabold tracking-tight text-foreground">
-                <DollarSign className="h-5 w-5 text-primary" />
-                <span className="hidden sm:inline">Jim&apos;s Finance</span>
+          <div className="flex h-16 items-center justify-between">
+            <div className="flex items-center gap-8">
+              <Link href="/dashboard" className="flex items-center gap-2.5 group">
+                <div className="w-8 h-8 rounded-[8px] bg-primary border-2 border-border flex items-center justify-center [box-shadow:var(--btn-shadow)] group-hover:-translate-y-0.5 group-hover:[box-shadow:var(--btn-shadow-hover)] transition-all duration-100">
+                  <DollarSign className="h-5 w-5 text-white" />
+                </div>
+                <span className="text-lg font-black tracking-tight text-foreground">
+                  Jim&apos;s Finance
+                </span>
               </Link>
 
               <div className="hidden md:flex items-center gap-1">
@@ -71,8 +75,8 @@ export function Navigation() {
                         variant={isActive ? 'default' : 'ghost'}
                         size="sm"
                         className={cn(
-                          'gap-2',
-                          !isActive && 'border-transparent shadow-none hover:border-transparent'
+                          'gap-2 font-bold',
+                          !isActive && 'hover:bg-muted'
                         )}
                       >
                         <Icon className="h-4 w-4" />
@@ -123,7 +127,7 @@ export function Navigation() {
 
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden" onClick={() => setMobileMenuOpen(false)}>
-          <div className="fixed top-14 left-0 right-0 border-b-2 border-border bg-background p-4" onClick={(e) => e.stopPropagation()}>
+          <div className="fixed top-16 left-0 right-0 border-b-3 border-border bg-card p-4 [box-shadow:var(--card-shadow)]" onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-col gap-2">
               {NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
@@ -133,8 +137,8 @@ export function Navigation() {
                     <Button
                       variant={isActive ? 'default' : 'ghost'}
                       className={cn(
-                        'w-full justify-start gap-2',
-                        !isActive && 'border-transparent shadow-none hover:border-transparent'
+                        'w-full justify-start gap-2 font-bold',
+                        !isActive && 'hover:bg-muted'
                       )}
                     >
                       <Icon className="h-4 w-4" />
