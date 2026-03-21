@@ -257,7 +257,7 @@ export default function RemindersPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {expenseCategories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
+                    <SelectItem key={cat.id} value={cat.id} textValue={cat.name}>
                       <span className="flex items-center gap-2">
                         <span
                           className="w-3 h-3 rounded-full"

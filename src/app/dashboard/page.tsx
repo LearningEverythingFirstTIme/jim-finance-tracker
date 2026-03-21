@@ -176,7 +176,7 @@ export default function DashboardPage() {
       {expenseChange < -10 && (
         <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 flex items-center gap-3">
           <Trophy className="h-5 w-5 text-green-500" />
-          <p className="text-sm font-medium text-green-700">
+          <p className="text-sm font-medium text-green-600 dark:text-green-400">
             {expenseChange < -20 
               ? "Incredible! You've cut spending by over 20% this month!"
               : "Great job! Spending is down this month! Keep it up!"}
@@ -305,7 +305,7 @@ export default function DashboardPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {filteredCategories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
+                    <SelectItem key={cat.id} value={cat.id} textValue={cat.name}>
                       <span className="flex items-center gap-2">
                         <span
                           className="w-3 h-3 rounded-full"
