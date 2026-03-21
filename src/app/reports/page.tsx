@@ -28,17 +28,48 @@ import { useTransactions } from '@/hooks/useTransactions';
 import { formatCurrency, getCurrentMonth, getMonthRange, getMonthName } from '@/lib/format';
 import type { CategoryBreakdown } from '@/types';
 
-const LAST_6_MONTHS = Array.from({ length: 6 }, (_, i) => {
-  const date = new Date();
-  date.setMonth(date.getMonth() - i);
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-}).reverse();
+// Generate a list of the last N months relative to today
+function getRecentMonths(count: number): string[] {
+  return Array.from({ length: count }, (_, i) => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - i);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  }).reverse();
+}
+
+// Build a list of the last 24 months as options for the range selectors
+const MONTH_OPTIONS = getRecentMonths(24);
+
+function getMonthsBetween(start: string, end: string): string[] {
+  const result: string[] = [];
+  const [sy, sm] = start.split('-').map(Number);
+  const [ey, em] = end.split('-').map(Number);
+  let y = sy, m = sm;
+  while (y < ey || (y === ey && m <= em)) {
+    result.push(`${y}-${String(m).padStart(2, '0')}`);
+    m++;
+    if (m > 12) { m = 1; y++; }
+  }
+  return result;
+}
 
 export default function ReportsPage() {
   const { transactions, loading } = useTransactions();
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
 
-  const monthlyData = LAST_6_MONTHS.map((month) => {
+  // Trend chart range
+  const defaultTrendEnd = getCurrentMonth();
+  const defaultTrendStart = (() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - 5);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  })();
+  const [trendStart, setTrendStart] = useState(defaultTrendStart);
+  const [trendEnd, setTrendEnd] = useState(defaultTrendEnd);
+
+  const trendMonths = getMonthsBetween(trendStart, trendEnd);
+
+  const monthlyData = trendMonths.map((month) => {
     const range = getMonthRange(month);
     const monthTransactions = transactions.filter(
       (t) => t.date >= range.start && t.date <= range.end
@@ -131,12 +162,12 @@ export default function ReportsPage() {
           <h1 className="text-2xl font-bold">Reports</h1>
           <p className="text-muted-foreground">Monthly financial analysis</p>
         </div>
-        <Select value={selectedMonth} onValueChange={(v) => v && setSelectedMonth(v)} items={Object.fromEntries(LAST_6_MONTHS.map(month => { const [year, m] = month.split('-'); return [month, `${getMonthName(parseInt(m) - 1)} ${year}`]; }))}>
+        <Select value={selectedMonth} onValueChange={(v) => v && setSelectedMonth(v)} items={Object.fromEntries(MONTH_OPTIONS.map((month: string) => { const [year, m] = month.split('-'); return [month, `${getMonthName(parseInt(m) - 1)} ${year}`]; }))}>
           <SelectTrigger className="w-40">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {LAST_6_MONTHS.map((month) => {
+            {MONTH_OPTIONS.map((month: string) => {
               const [year, m] = month.split('-');
               return (
                 <SelectItem key={month} value={month}>
@@ -193,8 +224,63 @@ export default function ReportsPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>6-Month Trend</CardTitle>
-            <CardDescription>Income vs Expenses over time</CardDescription>
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+              <div>
+                <CardTitle>Income vs Expenses Trend</CardTitle>
+                <CardDescription>Compare income and spending over time</CardDescription>
+              </div>
+              <div className="flex items-center gap-2 text-sm flex-wrap">
+                <Select
+                  value={trendStart}
+                  onValueChange={(v) => {
+                    if (v && v <= trendEnd) setTrendStart(v);
+                  }}
+                  items={Object.fromEntries(MONTH_OPTIONS.map((m) => {
+                    const [y, mo] = m.split('-');
+                    return [m, `${getMonthName(parseInt(mo) - 1).slice(0, 3)} ${y}`];
+                  }))}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MONTH_OPTIONS.filter((m) => m <= trendEnd).map((m) => {
+                      const [y, mo] = m.split('-');
+                      return (
+                        <SelectItem key={m} value={m}>
+                          {getMonthName(parseInt(mo) - 1)} {y}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+                <span className="text-muted-foreground">to</span>
+                <Select
+                  value={trendEnd}
+                  onValueChange={(v) => {
+                    if (v && v >= trendStart) setTrendEnd(v);
+                  }}
+                  items={Object.fromEntries(MONTH_OPTIONS.map((m) => {
+                    const [y, mo] = m.split('-');
+                    return [m, `${getMonthName(parseInt(mo) - 1).slice(0, 3)} ${y}`];
+                  }))}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MONTH_OPTIONS.filter((m) => m >= trendStart).map((m) => {
+                      const [y, mo] = m.split('-');
+                      return (
+                        <SelectItem key={m} value={m}>
+                          {getMonthName(parseInt(mo) - 1)} {y}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="h-64">

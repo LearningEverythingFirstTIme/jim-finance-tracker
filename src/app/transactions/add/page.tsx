@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Plus, Minus } from 'lucide-react';
+import { ArrowLeft, Loader2, Plus, Minus, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useCategories } from '@/hooks/useCategories';
 import { useTransactions } from '@/hooks/useTransactions';
@@ -31,6 +31,7 @@ export default function AddTransactionPage() {
   const [categoryId, setCategoryId] = useState('');
   const [note, setNote] = useState('');
   const [date, setDate] = useState(getTodayDate());
+  const [isRecurring, setIsRecurring] = useState(false);
   const [loading, setLoading] = useState(false);
   const [addAnother, setAddAnother] = useState(false);
 
@@ -64,6 +65,7 @@ export default function AddTransactionPage() {
           categoryId,
           note: note || category.name,
           date,
+          isRecurring,
         },
         category.id,
         category.name,
@@ -86,6 +88,7 @@ export default function AddTransactionPage() {
         setAmount('');
         setNote('');
         setCategoryId('');
+        setIsRecurring(false);
       } else {
         router.push('/transactions');
       }
@@ -187,6 +190,21 @@ export default function AddTransactionPage() {
                 onChange={(e) => setNote(e.target.value)}
                 maxLength={200}
               />
+            </div>
+
+            <div className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer select-none" onClick={() => setIsRecurring(!isRecurring)}>
+              <input
+                type="checkbox"
+                id="isRecurring"
+                checked={isRecurring}
+                onChange={(e) => setIsRecurring(e.target.checked)}
+                className="h-4 w-4"
+              />
+              <RefreshCw className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <Label htmlFor="isRecurring" className="cursor-pointer font-medium">Recurring monthly</Label>
+                <p className="text-xs text-muted-foreground">Auto-generate this transaction each month on the same day</p>
+              </div>
             </div>
 
             <div className="flex gap-2 pt-4">

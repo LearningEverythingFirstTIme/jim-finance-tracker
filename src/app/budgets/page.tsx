@@ -30,6 +30,16 @@ import {
   CheckCircle2,
   Minus,
 } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 import { useBudgets } from '@/hooks/useBudgets';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
@@ -349,6 +359,49 @@ export default function BudgetsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Budget vs. Actual Chart */}
+      {categoryBudgets.length > 0 && (() => {
+        const chartData = categoryBudgets.map((b) => {
+          const spent = spendingByCategory.get(b.categoryId!) || 0;
+          return {
+            name: b.categoryName ?? 'Unknown',
+            Budget: b.amount,
+            Actual: spent,
+            color: b.categoryColor ?? '#888',
+          };
+        });
+
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Budget vs. Actual</CardTitle>
+              <CardDescription>How spending compares to your budgets this month</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="name" className="text-xs" tick={{ fontSize: 11 }} />
+                    <YAxis className="text-xs" tick={{ fontSize: 11 }} />
+                    <Tooltip
+                      formatter={(value) => formatCurrency(Number(value))}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--popover))',
+                        border: '1px solid hsl(var(--border))',
+                      }}
+                    />
+                    <Legend />
+                    <Bar dataKey="Budget" fill="#3b82f6" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="Actual" fill="#ef4444" radius={[3, 3, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Add/Edit Budget Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

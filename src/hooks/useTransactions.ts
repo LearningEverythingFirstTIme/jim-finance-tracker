@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/components/auth-provider';
 import { collection, addDoc, updateDoc, deleteDoc, query, onSnapshot, doc } from 'firebase/firestore';
 import { getClientDb } from '@/lib/firebase/client';
+import { getMonthRange, getTodayDate } from '@/lib/format';
 import type { Transaction, TransactionInput } from '@/types';
 
 export function useTransactions() {
@@ -39,6 +40,8 @@ export function useTransactions() {
           date: d.date,
           createdAt: d.createdAt?.toDate?.() || new Date(),
           updatedAt: d.updatedAt?.toDate?.() || new Date(),
+          isRecurring: d.isRecurring || false,
+          recurringSourceId: d.recurringSourceId || undefined,
         });
       });
       setTransactions(data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
@@ -58,6 +61,7 @@ export function useTransactions() {
       categoryId,
       categoryName,
       categoryColor,
+      isRecurring: input.isRecurring || false,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -84,11 +88,63 @@ export function useTransactions() {
     await deleteDoc(doc(db, 'users', user.uid, 'transactions', id));
   }, [user]);
 
+  // Returns recurring source transactions that have no generated copy for the given month yet
+  const getPendingRecurring = useCallback((month: string): Transaction[] => {
+    const { start, end } = getMonthRange(month);
+    const sources = transactions.filter((t) => t.isRecurring && !t.recurringSourceId);
+    const generatedSourceIds = new Set(
+      transactions
+        .filter((t) => t.recurringSourceId && t.date >= start && t.date <= end)
+        .map((t) => t.recurringSourceId!)
+    );
+    return sources.filter((t) => !generatedSourceIds.has(t.id));
+  }, [transactions]);
+
+  // Auto-generates copies of recurring transactions for the given month
+  const generateRecurringForMonth = useCallback(async (month: string) => {
+    if (!user) throw new Error('Not authenticated');
+    const pending = getPendingRecurring(month);
+    if (pending.length === 0) return 0;
+
+    const [year, monthNum] = month.split('-').map(Number);
+    const lastDayOfMonth = new Date(year, monthNum, 0).getDate();
+    const today = getTodayDate();
+    const db = getClientDb();
+
+    let count = 0;
+    for (const source of pending) {
+      const sourceDay = parseInt(source.date.split('-')[2]);
+      const day = Math.min(sourceDay, lastDayOfMonth);
+      const newDate = `${month}-${String(day).padStart(2, '0')}`;
+      // Only generate if the date is not in the future
+      if (newDate <= today) {
+        await addDoc(collection(db, 'users', user.uid, 'transactions'), {
+          userId: user.uid,
+          amount: source.amount,
+          type: source.type,
+          categoryId: source.categoryId,
+          categoryName: source.categoryName,
+          categoryColor: source.categoryColor,
+          note: source.note,
+          date: newDate,
+          isRecurring: false,
+          recurringSourceId: source.id,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        count++;
+      }
+    }
+    return count;
+  }, [user, getPendingRecurring]);
+
   return {
     transactions,
     loading,
     addTransaction,
     updateTransaction,
     deleteTransaction,
+    getPendingRecurring,
+    generateRecurringForMonth,
   };
 }

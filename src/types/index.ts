@@ -22,6 +22,8 @@ export type Transaction = {
   date: string;
   createdAt: Date;
   updatedAt: Date;
+  isRecurring?: boolean;
+  recurringSourceId?: string; // ID of the source recurring transaction (set on auto-generated copies)
 };
 
 export type Reminder = {
@@ -72,6 +74,7 @@ export type TransactionInput = {
   categoryId: string;
   note: string;
   date: string;
+  isRecurring?: boolean;
 };
 
 export type CategoryInput = {

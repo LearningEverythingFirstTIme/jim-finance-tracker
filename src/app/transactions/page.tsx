@@ -20,15 +20,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus, Search, Filter, Loader2, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Search, Filter, Loader2, Pencil, Trash2, RefreshCw, CalendarDays, List, ArrowLeft, ArrowRight, X } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
-import { formatCurrency, formatDate, getTodayDate } from '@/lib/format';
+import { formatCurrency, formatDate, formatDateShort, getTodayDate, getCurrentMonth, getMonthRange } from '@/lib/format';
 import { toast } from 'sonner';
 import type { Transaction, TransactionType } from '@/types';
 
 export default function TransactionsPage() {
-  const { transactions, loading, deleteTransaction, updateTransaction } = useTransactions();
+  const { transactions, loading, deleteTransaction, updateTransaction, getPendingRecurring, generateRecurringForMonth } = useTransactions();
   const { categories } = useCategories();
 
   const [search, setSearch] = useState('');
@@ -36,6 +36,12 @@ export default function TransactionsPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [generatingRecurring, setGeneratingRecurring] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [calendarMonth, setCalendarMonth] = useState(getCurrentMonth());
+
+  const currentMonth = getCurrentMonth();
+  const pendingRecurring = getPendingRecurring(currentMonth);
 
   const filteredTransactions = transactions.filter((tx) => {
     const matchesSearch =
@@ -64,6 +70,18 @@ export default function TransactionsPage() {
     }
   };
 
+  const handleGenerateRecurring = async () => {
+    setGeneratingRecurring(true);
+    try {
+      const count = await generateRecurringForMonth(currentMonth);
+      toast.success(`Generated ${count} recurring transaction${count !== 1 ? 's' : ''}`);
+    } catch {
+      toast.error('Failed to generate recurring transactions');
+    } finally {
+      setGeneratingRecurring(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -79,14 +97,61 @@ export default function TransactionsPage() {
           <h1 className="text-2xl font-bold">Transactions</h1>
           <p className="text-muted-foreground">{filteredTransactions.length} transactions</p>
         </div>
-        <Link href="/transactions/add">
-          <Button>
-            <Plus className="h-4 w-4 mr-2" /> Add Transaction
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center border rounded-lg overflow-hidden">
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              className="rounded-none"
+              onClick={() => setViewMode('list')}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'calendar' ? 'default' : 'ghost'}
+              size="sm"
+              className="rounded-none"
+              onClick={() => setViewMode('calendar')}
+            >
+              <CalendarDays className="h-4 w-4" />
+            </Button>
+          </div>
+          <Link href="/transactions/add">
+            <Button>
+              <Plus className="h-4 w-4 mr-2" /> Add Transaction
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      <Card>
+      {pendingRecurring.length > 0 && (
+        <div className="flex items-center justify-between p-4 rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-800">
+          <div className="flex items-center gap-3">
+            <RefreshCw className="h-5 w-5 text-blue-500 flex-shrink-0" />
+            <div>
+              <p className="font-medium text-sm">
+                {pendingRecurring.length} recurring transaction{pendingRecurring.length !== 1 ? 's' : ''} pending for this month
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {pendingRecurring.map((t) => t.note || t.categoryName).join(', ')}
+              </p>
+            </div>
+          </div>
+          <Button size="sm" onClick={handleGenerateRecurring} disabled={generatingRecurring}>
+            {generatingRecurring ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Generate'}
+          </Button>
+        </div>
+      )}
+
+      {viewMode === 'calendar' && (
+        <CalendarView
+          transactions={transactions}
+          month={calendarMonth}
+          onMonthChange={setCalendarMonth}
+        />
+      )}
+
+      {viewMode === 'list' && <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
@@ -159,6 +224,16 @@ export default function TransactionsPage() {
                               >
                                 {tx.type}
                               </Badge>
+                              {tx.isRecurring && (
+                                <Badge variant="outline" className="text-xs gap-1">
+                                  <RefreshCw className="h-2.5 w-2.5" /> Recurring
+                                </Badge>
+                              )}
+                              {tx.recurringSourceId && (
+                                <Badge variant="outline" className="text-xs gap-1 text-blue-500 border-blue-300">
+                                  <RefreshCw className="h-2.5 w-2.5" /> Auto
+                                </Badge>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -196,7 +271,7 @@ export default function TransactionsPage() {
             </div>
           )}
         </CardContent>
-      </Card>
+      </Card>}
 
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <DialogContent>
@@ -299,5 +374,143 @@ function EditTransactionDialog({
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function CalendarView({
+  transactions,
+  month,
+  onMonthChange,
+}: {
+  transactions: Transaction[];
+  month: string;
+  onMonthChange: (month: string) => void;
+}) {
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+
+  const [year, monthNum] = month.split('-').map(Number);
+  const firstDayOfMonth = new Date(year, monthNum - 1, 1).getDay();
+  const daysInMonth = new Date(year, monthNum, 0).getDate();
+
+  const prevMonth = () => {
+    const d = new Date(year, monthNum - 2, 1);
+    onMonthChange(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+    setSelectedDay(null);
+  };
+
+  const nextMonth = () => {
+    const d = new Date(year, monthNum, 1);
+    onMonthChange(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+    setSelectedDay(null);
+  };
+
+  // Compute daily totals
+  const dailyData: Record<string, { income: number; expenses: number; txs: Transaction[] }> = {};
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${month}-${String(d).padStart(2, '0')}`;
+    const dayTxs = transactions.filter((t) => t.date === dateStr);
+    const income = dayTxs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+    const expenses = dayTxs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+    dailyData[dateStr] = { income, expenses, txs: dayTxs };
+  }
+
+  const selectedDayTxs = selectedDay ? (dailyData[selectedDay]?.txs ?? []) : [];
+  const monthName = new Date(year, monthNum - 1, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const today = getTodayDate();
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <Button variant="ghost" size="icon" onClick={prevMonth}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h2 className="font-semibold text-lg">{monthName}</h2>
+            <Button variant="ghost" size="icon" onClick={nextMonth}>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-7 gap-1 mb-2">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
+              <div key={d} className="text-center text-xs font-medium text-muted-foreground py-1">{d}</div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-1">
+            {Array.from({ length: firstDayOfMonth }).map((_, i) => (
+              <div key={`empty-${i}`} />
+            ))}
+            {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => {
+              const dateStr = `${month}-${String(day).padStart(2, '0')}`;
+              const data = dailyData[dateStr];
+              const net = data.income - data.expenses;
+              const hasTxs = data.txs.length > 0;
+              const isToday = dateStr === today;
+              const isSelected = dateStr === selectedDay;
+
+              return (
+                <button
+                  key={day}
+                  onClick={() => setSelectedDay(isSelected ? null : dateStr)}
+                  className={`
+                    relative p-1 rounded-lg text-center min-h-[56px] flex flex-col items-center justify-start gap-0.5
+                    transition-colors border
+                    ${isSelected ? 'border-primary bg-primary/10' : 'border-transparent hover:border-muted-foreground/30 hover:bg-muted/50'}
+                    ${isToday ? 'ring-2 ring-primary ring-offset-1' : ''}
+                  `}
+                >
+                  <span className={`text-sm font-medium ${isToday ? 'text-primary' : ''}`}>{day}</span>
+                  {hasTxs && (
+                    <span className={`text-[10px] font-semibold leading-tight ${net >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {net >= 0 ? '+' : ''}{formatCurrency(net)}
+                    </span>
+                  )}
+                  {hasTxs && (
+                    <span className="text-[9px] text-muted-foreground">{data.txs.length} tx{data.txs.length !== 1 ? 's' : ''}</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {selectedDay && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold">{formatDate(selectedDay)}</h3>
+              <Button variant="ghost" size="icon" onClick={() => setSelectedDay(null)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {selectedDayTxs.length === 0 ? (
+              <p className="text-center py-4 text-muted-foreground text-sm">No transactions</p>
+            ) : (
+              <div className="space-y-2">
+                {selectedDayTxs.map((tx) => (
+                  <div key={tx.id} className="flex items-center justify-between p-3 rounded-lg border">
+                    <div className="flex items-center gap-3">
+                      <span className="w-2 h-8 rounded-full" style={{ backgroundColor: tx.categoryColor }} />
+                      <div>
+                        <p className="font-medium text-sm">{tx.note || tx.categoryName}</p>
+                        <p className="text-xs text-muted-foreground">{tx.categoryName}</p>
+                      </div>
+                    </div>
+                    <span className={`font-semibold ${tx.type === 'income' ? 'text-green-500' : 'text-red-500'}`}>
+                      {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }
