@@ -305,7 +305,7 @@ export default function DashboardPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {filteredCategories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id} textValue={cat.name}>
+                    <SelectItem key={cat.id} value={cat.id} label={cat.name}>
                       <span className="flex items-center gap-2">
                         <span
                           className="w-3 h-3 rounded-full"

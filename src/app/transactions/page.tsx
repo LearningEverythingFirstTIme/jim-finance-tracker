@@ -117,7 +117,7 @@ export default function TransactionsPage() {
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
                   {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id} textValue={cat.name}>
+                    <SelectItem key={cat.id} value={cat.id} label={cat.name}>
                       {cat.name}
                     </SelectItem>
                   ))}
