@@ -134,14 +134,14 @@ function SortablePanelChip({ id }: { id: PanelId }) {
         transition: transition ?? undefined,
       }}
       className={cn(
-        'flex items-center gap-4 p-4 bg-card rounded-xl border-2 border-border [box-shadow:var(--card-shadow)] cursor-grab active:cursor-grabbing select-none transition-[opacity,transform,box-shadow] duration-100 [touch-action:none]',
+        'flex items-center gap-4 p-4 bg-card rounded-xl border border-border [box-shadow:var(--card-shadow)] cursor-grab active:cursor-grabbing select-none transition-[opacity,transform,box-shadow] duration-100 [touch-action:none]',
         isDragging && 'opacity-50 [box-shadow:var(--card-shadow-hover)] scale-[1.02] z-50'
       )}
       {...attributes}
       {...listeners}
     >
       <GripVertical className="h-5 w-5 text-muted-foreground shrink-0" />
-      <div className="w-9 h-9 rounded-lg bg-primary/10 border-2 border-border flex items-center justify-center shrink-0">
+      <div className="w-9 h-9 rounded-lg bg-primary/10 border border-border flex items-center justify-center shrink-0">
         <Icon className="h-4 w-4 text-primary" />
       </div>
       <span className="font-bold">{PANEL_LABELS[id]}</span>
@@ -346,7 +346,7 @@ export default function DashboardPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-sm bg-primary/20 flex items-center justify-center">
               <Wallet className="h-4 w-4 text-primary" />
             </div>
             <CardTitle className="text-lg">Budget Status</CardTitle>
@@ -376,13 +376,13 @@ export default function DashboardPage() {
             return (
               <div className="space-y-3">
                 {isOver && (
-                  <div className="flex items-center gap-2 text-[#e17055] dark:text-[#ff7675] text-sm font-bold">
+                  <div className="flex items-center gap-2 text-[var(--destructive)] text-sm font-bold">
                     <AlertTriangle className="h-4 w-4" />
                     <span>Over budget by {formatCurrency(Math.abs(remaining))}</span>
                   </div>
                 )}
                 {isClose && (
-                  <div className="flex items-center gap-2 text-[#fdcb6e] dark:text-[#ffeaa7] text-sm font-bold">
+                  <div className="flex items-center gap-2 text-[var(--warning)] text-sm font-bold">
                     <AlertTriangle className="h-4 w-4" />
                     <span>Approaching budget limit</span>
                   </div>
@@ -391,14 +391,14 @@ export default function DashboardPage() {
                   <span className="text-muted-foreground font-medium">Spent</span>
                   <span className="font-bold">{formatCurrency(thisMonthExpenses)}</span>
                 </div>
-                <div className="h-4 bg-muted rounded-full overflow-hidden border-2 border-border">
+                <div className="h-4 bg-muted rounded-full overflow-hidden border border-border">
                   <div
                     className={`h-full transition-all rounded-full ${
                       isOver
-                        ? 'bg-[#e17055] dark:bg-[#ff7675]'
+                        ? 'bg-[var(--destructive)]'
                         : isClose
-                        ? 'bg-[#fdcb6e] dark:bg-[#ffeaa7]'
-                        : 'bg-[#00b894] dark:bg-[#55efc4]'
+                        ? 'bg-[var(--warning)]'
+                        : 'bg-[var(--success)]'
                     }`}
                     style={{ width: `${percentage}%` }}
                   />
@@ -409,7 +409,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground font-medium">Remaining</span>
-                  <span className={`font-bold ${isOver ? 'text-[#e17055] dark:text-[#ff7675]' : 'text-[#00b894] dark:text-[#55efc4]'}`}>
+                  <span className={`font-bold ${isOver ? 'text-[var(--destructive)]' : 'text-[var(--success)]'}`}>
                     {formatCurrency(Math.max(0, remaining))}
                   </span>
                 </div>
@@ -425,7 +425,7 @@ export default function DashboardPage() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-sm bg-primary/20 flex items-center justify-center">
             <Target className="h-4 w-4 text-primary" />
           </div>
           <CardTitle className="text-lg">Savings Goals</CardTitle>
@@ -450,7 +450,7 @@ export default function DashboardPage() {
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground font-medium">Total Saved</span>
-              <span className="font-bold text-[#00b894] dark:text-[#55efc4]">
+              <span className="font-bold text-[var(--success)]">
                 {formatCurrency(goals.reduce((sum, g) => sum + g.currentAmount, 0))}
               </span>
             </div>
@@ -464,7 +464,7 @@ export default function DashboardPage() {
                       {formatCurrency(goal.currentAmount)} / {formatCurrency(goal.targetAmount)}
                     </span>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden border-2 border-border">
+                  <div className="h-2 bg-muted rounded-full overflow-hidden border border-border">
                     <div
                       className="h-full transition-all rounded-full"
                       style={{ width: `${percentage}%`, backgroundColor: goal.color }}
@@ -587,7 +587,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="flex flex-col md:flex-row gap-6">
-            <div className="h-48 w-full md:w-48 border-2 border-border rounded-xl p-2 bg-muted/30">
+            <div className="h-48 w-full md:w-48 border border-border rounded-xl p-2 bg-muted/30">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -621,7 +621,7 @@ export default function DashboardPage() {
               {topCategories.map((cat) => (
                 <div
                   key={cat.categoryId}
-                  className="flex items-center justify-between p-2 rounded-lg bg-muted/30 border-2 border-transparent hover:border-border transition-colors"
+                  className="flex items-center justify-between p-2 rounded-lg bg-muted/30 border border-transparent hover:border-border transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <span
@@ -669,7 +669,7 @@ export default function DashboardPage() {
             {recentTransactions.map((tx, index) => (
               <div
                 key={tx.id}
-                className={`flex items-center justify-between p-3 rounded-lg border-2 border-transparent ${
+                className={`flex items-center justify-between p-3 rounded-lg border border-transparent ${
                   index % 2 === 1 ? 'bg-muted/30' : ''
                 } hover:border-border transition-colors`}
               >
@@ -688,8 +688,8 @@ export default function DashboardPage() {
                 <span
                   className={`text-sm font-bold ${
                     tx.type === 'income'
-                      ? 'text-[#00b894] dark:text-[#55efc4]'
-                      : 'text-[#e17055] dark:text-[#ff7675]'
+                      ? 'text-[var(--success)]'
+                      : 'text-[var(--destructive)]'
                   }`}
                 >
                   {tx.type === 'income' ? '+' : '-'}
@@ -719,7 +719,7 @@ export default function DashboardPage() {
       <CardContent>
         {dueSoonReminders.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            <div className="w-12 h-12 rounded-xl bg-muted/50 border-2 border-border flex items-center justify-center mx-auto mb-3">
+            <div className="w-12 h-12 rounded-xl bg-muted/50 border border-border flex items-center justify-center mx-auto mb-3">
               <Bell className="h-6 w-6 opacity-50" />
             </div>
             <p className="font-medium">No reminders due soon</p>
@@ -729,8 +729,8 @@ export default function DashboardPage() {
             {dueSoonReminders.map((reminder) => (
               <div
                 key={reminder.id}
-                className={`flex items-center justify-between p-3 rounded-lg border-2 border-transparent hover:border-border transition-colors ${
-                  reminder.daysUntil <= 1 ? 'bg-[#e17055]/10 dark:bg-[#ff7675]/10' : 'bg-muted/30'
+                className={`flex items-center justify-between p-3 rounded-lg border border-transparent hover:border-border transition-colors ${
+                  reminder.daysUntil <= 1 ? 'bg-[var(--destructive)]/10' : 'bg-muted/30'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -742,7 +742,7 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-bold">{reminder.name}</p>
                       {reminder.daysUntil === 0 && (
-                        <span className="w-2 h-2 rounded-full bg-[#e17055] dark:bg-[#ff7675] pulse-urgent" />
+                        <span className="w-2 h-2 rounded-full bg-[var(--destructive)] pulse-urgent" />
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground font-medium">
@@ -794,15 +794,15 @@ export default function DashboardPage() {
     // Flame color intensity scales with streak
     const flameColor =
       currentStreak === 0  ? 'text-muted-foreground' :
-      currentStreak <= 3   ? 'text-[#fdcb6e] dark:text-[#ffeaa7]' :
+      currentStreak <= 3   ? 'text-[var(--warning)]' :
       currentStreak <= 13  ? 'text-[#ff6b35] dark:text-[#ff8c5a]' :
-                             'text-[#e17055] dark:text-[#ff7675]';
+                             'text-[var(--destructive)]';
 
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-sm bg-primary/20 flex items-center justify-center">
               <Flame className="h-4 w-4 text-primary" />
             </div>
             <CardTitle className="text-lg">Spending Streak</CardTitle>
@@ -855,17 +855,17 @@ export default function DashboardPage() {
                       <div key={day.date} className="flex flex-col items-center gap-1 flex-1">
                         <div
                           className={[
-                            'w-full h-7 rounded-md border-2 flex items-center justify-center transition-all',
+                            'w-full h-7 rounded-md border flex items-center justify-center transition-all',
                             day.under
-                              ? 'bg-[#00b894]/20 border-[#00b894] dark:bg-[#55efc4]/20 dark:border-[#55efc4]'
-                              : 'bg-[#e17055]/20 border-[#e17055] dark:bg-[#ff7675]/20 dark:border-[#ff7675]',
+                              ? 'bg-[var(--success)]/20 border-[var(--success)]'
+                              : 'bg-[var(--destructive)]/20 border-[var(--destructive)]',
                             day.isToday ? 'ring-2 ring-primary ring-offset-1 scale-110' : '',
                           ].join(' ')}
                           title={`${day.date}: ${formatCurrency(day.spent)}`}
                         >
                           {day.under
-                            ? <Check className="h-3 w-3 text-[#00b894] dark:text-[#55efc4]" />
-                            : <X className="h-3 w-3 text-[#e17055] dark:text-[#ff7675]" />
+                            ? <Check className="h-3 w-3 text-[var(--success)]" />
+                            : <X className="h-3 w-3 text-[var(--destructive)]" />
                           }
                         </div>
                         <span className="text-[10px] text-muted-foreground font-medium">
@@ -879,16 +879,16 @@ export default function DashboardPage() {
 
               {/* Best streak comparison */}
               {bestStreak30d > currentStreak && (
-                <div className="flex items-center justify-between text-sm bg-muted/50 rounded-lg border-2 border-border px-3 py-2">
+                <div className="flex items-center justify-between text-sm bg-muted/50 rounded-lg border border-border px-3 py-2">
                   <span className="text-muted-foreground font-medium">Best (last 30 days)</span>
                   <span className="font-bold flex items-center gap-1">
-                    <Trophy className="h-3.5 w-3.5 text-[#fdcb6e]" />
+                    <Trophy className="h-3.5 w-3.5 text-[var(--warning)]" />
                     {bestStreak30d} days
                   </span>
                 </div>
               )}
               {bestStreak30d > 0 && bestStreak30d === currentStreak && currentStreak >= 7 && (
-                <div className="flex items-center gap-2 text-sm font-bold text-[#00b894] dark:text-[#55efc4]">
+                <div className="flex items-center gap-2 text-sm font-bold text-[var(--success)]">
                   <Trophy className="h-4 w-4 shrink-0" />
                   <span>This is your best streak in 30 days!</span>
                 </div>
@@ -914,7 +914,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-sm bg-primary/20 flex items-center justify-center">
                 <Activity className="h-4 w-4 text-primary" />
               </div>
               <CardTitle className="text-lg">Spending Forecast</CardTitle>
@@ -959,16 +959,16 @@ export default function DashboardPage() {
     const isWarning = !isOver && referenceAmount > 0 && projectedPct >= 80;
 
     const barColor = isOver
-      ? 'bg-[#e17055] dark:bg-[#ff7675]'
+      ? 'bg-[var(--destructive)]'
       : isWarning
-      ? 'bg-[#fdcb6e] dark:bg-[#ffeaa7]'
-      : 'bg-[#00b894] dark:bg-[#55efc4]';
+      ? 'bg-[var(--warning)]'
+      : 'bg-[var(--success)]';
 
     const statusColor = isOver
-      ? 'text-[#e17055] dark:text-[#ff7675]'
+      ? 'text-[var(--destructive)]'
       : isWarning
-      ? 'text-[#fdcb6e] dark:text-[#ffeaa7]'
-      : 'text-[#00b894] dark:text-[#55efc4]';
+      ? 'text-[var(--warning)]'
+      : 'text-[var(--success)]';
 
     const statusMessage = isOver
       ? `${formatCurrency(projectedTotal - referenceAmount)} over ${referenceLabel} by month end`
@@ -980,7 +980,7 @@ export default function DashboardPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-sm bg-primary/20 flex items-center justify-center">
               <Activity className="h-4 w-4 text-primary" />
             </div>
             <CardTitle className="text-lg">Spending Forecast</CardTitle>
@@ -1004,7 +1004,7 @@ export default function DashboardPage() {
           {referenceAmount > 0 && (
             <div className="space-y-1.5">
               {/* Bar track */}
-              <div className="relative h-4 bg-muted rounded-full overflow-hidden border-2 border-border">
+              <div className="relative h-4 bg-muted rounded-full overflow-hidden border border-border">
                 {/* Projected fill (lighter) */}
                 <div
                   className={`absolute inset-y-0 left-0 rounded-full opacity-30 ${barColor}`}
@@ -1025,13 +1025,13 @@ export default function DashboardPage() {
 
           {/* Mini stats row */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-muted/50 rounded-lg border-2 border-border p-3">
+            <div className="bg-muted/50 rounded-lg border border-border p-3">
               <p className="text-xs text-muted-foreground font-medium">Daily rate</p>
               <p className="font-bold text-base font-variant-numeric tabular-nums mt-0.5">
                 {formatCurrency(dailyRate)}
               </p>
             </div>
-            <div className="bg-muted/50 rounded-lg border-2 border-border p-3">
+            <div className="bg-muted/50 rounded-lg border border-border p-3">
               <p className="text-xs text-muted-foreground font-medium">Est. remaining</p>
               <p className="font-bold text-base tabular-nums mt-0.5">
                 {formatCurrency(projectedAdditional)}
@@ -1106,7 +1106,7 @@ export default function DashboardPage() {
             className="cursor-pointer select-none hover:scale-110 transition-transform"
             onClick={() => { void trigger(30); setLogoClicks((c) => c + 1); }}
           >
-            <div className="w-12 h-12 rounded-xl bg-primary border-3 border-border flex items-center justify-center [box-shadow:var(--btn-shadow)]">
+            <div className="w-12 h-12 rounded-xl bg-primary border border-border flex items-center justify-center [box-shadow:var(--btn-shadow)]">
               <DollarSign className="h-7 w-7 text-white" />
             </div>
           </div>
@@ -1126,10 +1126,10 @@ export default function DashboardPage() {
       )}
 
       {expenseChange < -10 && (
-        <Card className="bg-[#00b894]/10 border-[#00b894]/30 dark:bg-[#55efc4]/10 dark:border-[#55efc4]/30">
+        <Card className="bg-[var(--success)]/10 border-[var(--success)]/30">
           <CardContent className="flex items-center gap-3 py-4">
-            <Trophy className="h-5 w-5 text-[#00b894] flex-shrink-0" />
-            <p className="text-sm font-bold text-[#00b894] dark:text-[#55efc4]">
+            <Trophy className="h-5 w-5 text-[var(--success)] flex-shrink-0" />
+            <p className="text-sm font-bold text-[var(--success)]">
               {expenseChange < -20
                 ? "Incredible! You've cut spending by over 20% this month!"
                 : "Great job! Spending is down this month! Keep it up!"}
@@ -1143,12 +1143,12 @@ export default function DashboardPage() {
         <Card className="accent-balance">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-bold">Net Balance</CardTitle>
-            <span className={stats.netBalance >= 0 ? 'text-[#00b894] dark:text-[#55efc4]' : 'text-[#e17055] dark:text-[#ff7675]'}>
+            <span className={stats.netBalance >= 0 ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}>
               {stats.netBalance >= 0 ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownLeft className="h-5 w-5" />}
             </span>
           </CardHeader>
           <CardContent>
-            <div className={`stat-value ${stats.netBalance >= 0 ? 'text-[#00b894] dark:text-[#55efc4]' : 'text-[#e17055] dark:text-[#ff7675]'}`}>
+            <div className={`stat-value ${stats.netBalance >= 0 ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
               {formatCurrency(stats.netBalance)}
             </div>
             <p className="text-xs text-muted-foreground mt-1 font-medium">All time</p>
@@ -1160,8 +1160,8 @@ export default function DashboardPage() {
             <CardTitle className="text-sm font-bold">This Month Expenses</CardTitle>
             {expenseChange !== 0 && (
               expenseChange > 0
-                ? <TrendingUp className="h-5 w-5 text-[#e17055] dark:text-[#ff7675]" />
-                : <TrendingDown className="h-5 w-5 text-[#00b894] dark:text-[#55efc4]" />
+                ? <TrendingUp className="h-5 w-5 text-[var(--destructive)]" />
+                : <TrendingDown className="h-5 w-5 text-[var(--success)]" />
             )}
           </CardHeader>
           <CardContent>
@@ -1179,12 +1179,12 @@ export default function DashboardPage() {
             <CardTitle className="text-sm font-bold">This Month Income</CardTitle>
             {incomeChange !== 0 && (
               incomeChange > 0
-                ? <TrendingUp className="h-5 w-5 text-[#00b894] dark:text-[#55efc4]" />
-                : <TrendingDown className="h-5 w-5 text-[#e17055] dark:text-[#ff7675]" />
+                ? <TrendingUp className="h-5 w-5 text-[var(--success)]" />
+                : <TrendingDown className="h-5 w-5 text-[var(--destructive)]" />
             )}
           </CardHeader>
           <CardContent>
-            <div className="stat-value text-[#00b894] dark:text-[#55efc4]">{formatCurrency(stats.thisMonthIncome)}</div>
+            <div className="stat-value text-[var(--success)]">{formatCurrency(stats.thisMonthIncome)}</div>
             <p className="text-xs text-muted-foreground mt-1 font-medium">
               {incomeChange === 0
                 ? 'Same as last month'
@@ -1208,9 +1208,9 @@ export default function DashboardPage() {
       {isEditing ? (
         <div className="space-y-4">
           {/* Edit banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-primary/10 border-2 border-primary/40 rounded-xl [box-shadow:var(--card-shadow)]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-primary/10 border border-primary/40 rounded-xl [box-shadow:var(--card-shadow)]">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-primary/20 border-2 border-primary/40 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-primary/20 border border-primary/40 flex items-center justify-center shrink-0">
                 <LayoutGrid className="h-5 w-5 text-primary" />
               </div>
               <div>

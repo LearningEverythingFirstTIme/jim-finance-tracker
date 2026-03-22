@@ -185,20 +185,20 @@ export default function ReportsPage() {
         <Card className="accent-income">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-bold">Total Income</CardTitle>
-            <ArrowUpRight className="h-5 w-5 text-[#00b894] dark:text-[#55efc4]" />
+            <ArrowUpRight className="h-5 w-5 text-[var(--success)]" />
           </CardHeader>
           <CardContent>
-            <div className="stat-value text-[#00b894] dark:text-[#55efc4]">{formatCurrency(totalIncome)}</div>
+            <div className="stat-value text-[var(--success)]">{formatCurrency(totalIncome)}</div>
           </CardContent>
         </Card>
 
         <Card className="accent-expense">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-bold">Total Expenses</CardTitle>
-            <ArrowDownLeft className="h-5 w-5 text-[#e17055] dark:text-[#ff7675]" />
+            <ArrowDownLeft className="h-5 w-5 text-[var(--destructive)]" />
           </CardHeader>
           <CardContent>
-            <div className="stat-value text-[#e17055] dark:text-[#ff7675]">{formatCurrency(totalExpenses)}</div>
+            <div className="stat-value text-[var(--destructive)]">{formatCurrency(totalExpenses)}</div>
           </CardContent>
         </Card>
 
@@ -206,15 +206,15 @@ export default function ReportsPage() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-bold">Net Balance</CardTitle>
             {totalIncome - totalExpenses >= 0 ? (
-              <TrendingUp className="h-5 w-5 text-[#00b894] dark:text-[#55efc4]" />
+              <TrendingUp className="h-5 w-5 text-[var(--success)]" />
             ) : (
-              <TrendingDown className="h-5 w-5 text-[#e17055] dark:text-[#ff7675]" />
+              <TrendingDown className="h-5 w-5 text-[var(--destructive)]" />
             )}
           </CardHeader>
           <CardContent>
             <div
               className={`stat-value ${
-                totalIncome - totalExpenses >= 0 ? 'text-[#00b894] dark:text-[#55efc4]' : 'text-[#e17055] dark:text-[#ff7675]'
+                totalIncome - totalExpenses >= 0 ? 'text-[var(--success)]' : 'text-[var(--destructive)]'
               }`}
             >
               {formatCurrency(totalIncome - totalExpenses)}
@@ -287,7 +287,7 @@ export default function ReportsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="h-64 border-3 border-border rounded-xl p-2 bg-muted/20">
+            <div className="h-64 border border-border rounded-xl p-2 bg-muted/20">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
@@ -304,8 +304,8 @@ export default function ReportsPage() {
                     }}
                   />
                   <Legend />
-                  <Bar dataKey="income" name="Income" fill="#00b894" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="expenses" name="Expenses" fill="#e17055" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="income" name="Income" fill="var(--success)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="expenses" name="Expenses" fill="var(--destructive)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -324,7 +324,7 @@ export default function ReportsPage() {
               </div>
             ) : (
               <div className="flex flex-col md:flex-row gap-6">
-                <div className="h-48 w-full md:w-48 border-3 border-border rounded-xl p-2 bg-muted/20">
+                <div className="h-48 w-full md:w-48 border border-border rounded-xl p-2 bg-muted/20">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -356,7 +356,7 @@ export default function ReportsPage() {
                 </div>
                 <div className="flex-1 space-y-2">
                   {categoryBreakdown.slice(0, 5).map((cat, index) => (
-                    <div key={cat.categoryId} className={`flex items-center justify-between p-2.5 rounded-lg border-2 border-transparent ${index % 2 === 1 ? 'bg-muted/30' : ''} hover:border-border transition-colors`}>
+                    <div key={cat.categoryId} className={`flex items-center justify-between p-2.5 rounded-lg border border-transparent ${index % 2 === 1 ? 'bg-muted/30' : ''} hover:border-border transition-colors`}>
                       <div className="flex items-center gap-2">
                         <span
                           className="w-3 h-3 rounded-[4px]"
@@ -391,7 +391,7 @@ export default function ReportsPage() {
             ) : (
               <div className="space-y-1">
                 {topTransactions.map((tx, i) => (
-                  <div key={tx.id} className={`flex items-center justify-between p-3 rounded-xl border-3 border-border ${i % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}>
+                  <div key={tx.id} className={`flex items-center justify-between p-3 rounded-xl border border-border ${i % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}>
                     <div className="flex items-center gap-3">
                       <span className="text-sm font-black text-muted-foreground w-5">{i + 1}.</span>
                       <span
@@ -403,7 +403,7 @@ export default function ReportsPage() {
                         <p className="text-xs text-muted-foreground font-medium">{tx.categoryName}</p>
                       </div>
                     </div>
-                    <span className="font-black text-[#e17055] dark:text-[#ff7675]">{formatCurrency(tx.amount)}</span>
+                    <span className="font-black text-[var(--destructive)]">{formatCurrency(tx.amount)}</span>
                   </div>
                 ))}
               </div>
@@ -417,7 +417,7 @@ export default function ReportsPage() {
             <CardDescription>Which days you spend the most</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-48 border-3 border-border rounded-xl p-2 bg-muted/20">
+            <div className="h-48 border border-border rounded-xl p-2 bg-muted/20">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={dayOfWeekData}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
@@ -433,7 +433,7 @@ export default function ReportsPage() {
                       boxShadow: 'var(--btn-shadow)'
                     }}
                   />
-                  <Bar dataKey="amount" name="Spending" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="amount" name="Spending" fill="var(--primary)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

@@ -64,21 +64,21 @@ const MONTHS = [
 ];
 
 function getProgressColor(percentage: number): string {
-  if (percentage < 60) return 'bg-[#00b894] dark:bg-[#55efc4]';
-  if (percentage < 85) return 'bg-[#fdcb6e] dark:bg-[#ffeaa7]';
-  return 'bg-[#e17055] dark:bg-[#ff7675]';
+  if (percentage < 60) return 'bg-[var(--success)]';
+  if (percentage < 85) return 'bg-[var(--warning)]';
+  return 'bg-[var(--destructive)]';
 }
 
 function getProgressBorderColor(percentage: number): string {
-  if (percentage < 60) return 'border-[#00b894] dark:border-[#55efc4]';
-  if (percentage < 85) return 'border-[#fdcb6e] dark:border-[#ffeaa7]';
-  return 'border-[#e17055] dark:border-[#ff7675]';
+  if (percentage < 60) return 'border-[var(--success)]';
+  if (percentage < 85) return 'border-[var(--warning)]';
+  return 'border-[var(--destructive)]';
 }
 
 function getStatusBadge(percentage: number, hasBudget: boolean) {
   if (!hasBudget) return <Badge variant="secondary">No Budget Set</Badge>;
-  if (percentage < 60) return <Badge className="bg-[#00b894] dark:bg-[#55efc4] text-white dark:text-[#1a1a2e] border-border">Under Budget</Badge>;
-  if (percentage < 85) return <Badge className="bg-[#fdcb6e] dark:bg-[#ffeaa7] text-[#2d3436] border-border">Getting Close</Badge>;
+  if (percentage < 60) return <Badge className="bg-[var(--success)] text-white border-border">Under Budget</Badge>;
+  if (percentage < 85) return <Badge className="bg-[var(--warning)] text-[#1a120b] border-border">Getting Close</Badge>;
   return <Badge variant="destructive">Over Budget</Badge>;
 }
 
@@ -231,11 +231,11 @@ export default function BudgetsPage() {
       </div>
 
       {/* Overall Budget Card */}
-      <Card className={overallBudget ? (overallPercentage >= 85 ? 'border-l-4 border-l-[#e17055] dark:border-l-[#ff7675]' : overallPercentage >= 60 ? 'border-l-4 border-l-[#fdcb6e] dark:border-l-[#ffeaa7]' : 'border-l-4 border-l-[#00b894] dark:border-l-[#55efc4]') : ''}>
+      <Card className={overallBudget ? (overallPercentage >= 85 ? 'border-l-4 border-l-[var(--destructive)]' : overallPercentage >= 60 ? 'border-l-4 border-l-[var(--warning)]' : 'border-l-4 border-l-[var(--success)]') : ''}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-sm bg-primary/20 flex items-center justify-center">
                 <Wallet className="h-4 w-4 text-primary" />
               </div>
               <CardTitle className="text-lg">Overall Monthly Budget</CardTitle>
@@ -261,14 +261,14 @@ export default function BudgetsPage() {
           {overallBudget ? (
             <div className="space-y-3">
               {overallPercentage >= 85 && (
-                <div className="flex items-center gap-2 text-[#e17055] dark:text-[#ff7675] text-sm font-bold">
+                <div className="flex items-center gap-2 text-[var(--destructive)] text-sm font-bold">
                   <AlertTriangle className="h-4 w-4" />
                   <span className={overallPercentage >= 100 ? 'pulse-urgent' : ''}>
                     {overallPercentage >= 100 ? 'Over budget!' : 'Approaching limit'}
                   </span>
                 </div>
               )}
-              <div className="h-4 bg-muted rounded-full overflow-hidden border-2 border-border">
+              <div className="h-4 bg-muted rounded-full overflow-hidden border border-border">
                 <div
                   className={`h-full transition-all rounded-full ${getProgressColor(overallPercentage)}`}
                   style={{ width: `${Math.min(overallPercentage, 100)}%` }}
@@ -278,7 +278,7 @@ export default function BudgetsPage() {
                 <span className="text-muted-foreground font-medium">{overallPercentage.toFixed(0)}%</span>
                 <span className="font-medium">
                   {totalSpent > overallBudget.amount ? (
-                    <span className="text-[#e17055] dark:text-[#ff7675] font-bold">
+                    <span className="text-[var(--destructive)] font-bold">
                       <AlertTriangle className="h-3 w-3 inline mr-1" />
                       Over by {formatCurrency(totalSpent - overallBudget.amount)}
                     </span>
@@ -321,7 +321,7 @@ export default function BudgetsPage() {
                 return (
                   <div 
                     key={cat.id} 
-                    className={`flex items-center gap-4 p-4 rounded-xl border-3 border-border transition-all hover:-translate-y-0.5 hover:[box-shadow:var(--card-shadow)] ${budget ? (percentage >= 85 ? getProgressBorderColor(percentage) : '') : ''} ${index % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}
+                    className={`flex items-center gap-4 p-4 rounded-xl border border-border transition-all hover:-translate-y-0.5 hover:[box-shadow:var(--card-shadow)] ${budget ? (percentage >= 85 ? getProgressBorderColor(percentage) : '') : ''} ${index % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}
                   >
                     <div
                       className="w-4 h-4 rounded-[4px] flex-shrink-0"
@@ -337,7 +337,7 @@ export default function BudgetsPage() {
                               <Pencil className="h-3.5 w-3.5" />
                             </Button>
                             <Button variant="ghost" size="icon-sm" onClick={() => setDeleteConfirm(budget.id)}>
-                              <Trash2 className="h-3.5 w-3.5 text-[#e17055] dark:text-[#ff7675]" />
+                              <Trash2 className="h-3.5 w-3.5 text-[var(--destructive)]" />
                             </Button>
                           </div>
                         ) : (
@@ -354,7 +354,7 @@ export default function BudgetsPage() {
                       </div>
                       {budget ? (
                         <div className="space-y-1.5">
-                          <div className="h-3 bg-muted rounded-full overflow-hidden border-2 border-border">
+                          <div className="h-3 bg-muted rounded-full overflow-hidden border border-border">
                             <div
                               className={`h-full transition-all rounded-full ${getProgressColor(percentage)}`}
                               style={{ width: `${Math.min(percentage, 100)}%` }}
@@ -364,11 +364,11 @@ export default function BudgetsPage() {
                             <span className="font-medium">{formatCurrency(spent)} / {formatCurrency(budget.amount)}</span>
                             <span className="font-medium">
                               {isOver ? (
-                                <span className="text-[#e17055] dark:text-[#ff7675] font-bold">
+                                <span className="text-[var(--destructive)] font-bold">
                                   Over by {formatCurrency(spent - budget.amount)}
                                 </span>
                               ) : (
-                                <span className="text-[#00b894] dark:text-[#55efc4] font-bold">{formatCurrency(budget.amount - spent)} left</span>
+                                <span className="text-[var(--success)] font-bold">{formatCurrency(budget.amount - spent)} left</span>
                               )}
                             </span>
                           </div>
@@ -404,7 +404,7 @@ export default function BudgetsPage() {
               <CardDescription>How spending compares to your budgets this month</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-64 border-2 border-border rounded-xl p-2 bg-muted/20">
+              <div className="h-64 border border-border rounded-xl p-2 bg-muted/20">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
@@ -421,8 +421,8 @@ export default function BudgetsPage() {
                       }}
                     />
                     <Legend />
-                    <Bar dataKey="Budget" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="Actual" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Budget" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Actual" fill="var(--destructive)" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -482,7 +482,7 @@ export default function BudgetsPage() {
               </Select>
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-lg border-2 border-border cursor-pointer select-none hover:bg-muted/50 transition-colors" onClick={() => { void trigger("nudge"); setRollover(!rollover); }}>
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-border cursor-pointer select-none hover:bg-muted/50 transition-colors" onClick={() => { void trigger("nudge"); setRollover(!rollover); }}>
               <input
                 type="checkbox"
                 id="rollover"

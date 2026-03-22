@@ -126,11 +126,11 @@ export default function CategoriesPage() {
               {expenseCategories.map((cat, index) => (
                 <div
                   key={cat.id}
-                  className={`flex items-center justify-between p-3 rounded-xl border-3 border-border transition-all hover:-translate-y-0.5 hover:[box-shadow:var(--card-shadow)] ${index % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}
+                  className={`flex items-center justify-between p-3 rounded-xl border border-border transition-all hover:-translate-y-0.5 hover:[box-shadow:var(--card-shadow)] ${index % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}
                 >
                   <div className="flex items-center gap-3">
                     <span
-                      className="w-9 h-9 rounded-[8px] flex items-center justify-center border-2 border-border"
+                      className="w-9 h-9 rounded-md flex items-center justify-center border border-border"
                       style={{ backgroundColor: cat.color + '20' }}
                     >
                       <DynamicIcon name={cat.icon} className="h-4 w-4" style={{ color: cat.color }} />
@@ -146,7 +146,7 @@ export default function CategoriesPage() {
                       size="icon-sm"
                       onClick={() => setDeleteConfirm(cat.id)}
                     >
-                      <Trash2 className="h-4 w-4 text-[#e17055] dark:text-[#ff7675]" />
+                      <Trash2 className="h-4 w-4 text-[var(--destructive)]" />
                     </Button>
                   </div>
                 </div>
@@ -170,11 +170,11 @@ export default function CategoriesPage() {
               {incomeCategories.map((cat, index) => (
                 <div
                   key={cat.id}
-                  className={`flex items-center justify-between p-3 rounded-xl border-3 border-border transition-all hover:-translate-y-0.5 hover:[box-shadow:var(--card-shadow)] ${index % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}
+                  className={`flex items-center justify-between p-3 rounded-xl border border-border transition-all hover:-translate-y-0.5 hover:[box-shadow:var(--card-shadow)] ${index % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}
                 >
                   <div className="flex items-center gap-3">
                     <span
-                      className="w-9 h-9 rounded-[8px] flex items-center justify-center border-2 border-border"
+                      className="w-9 h-9 rounded-md flex items-center justify-center border border-border"
                       style={{ backgroundColor: cat.color + '20' }}
                     >
                       <DynamicIcon name={cat.icon} className="h-4 w-4" style={{ color: cat.color }} />
@@ -190,7 +190,7 @@ export default function CategoriesPage() {
                       size="icon-sm"
                       onClick={() => setDeleteConfirm(cat.id)}
                     >
-                      <Trash2 className="h-4 w-4 text-[#e17055] dark:text-[#ff7675]" />
+                      <Trash2 className="h-4 w-4 text-[var(--destructive)]" />
                     </Button>
                   </div>
                 </div>
@@ -221,13 +221,13 @@ export default function CategoriesPage() {
 
             <div className="space-y-2">
               <Label className="font-bold">Icon</Label>
-              <div className="grid grid-cols-10 gap-1 p-2 border-3 border-border rounded-xl max-h-40 overflow-y-auto bg-muted/20">
+              <div className="grid grid-cols-10 gap-1 p-2 border border-border rounded-xl max-h-40 overflow-y-auto bg-muted/20">
                 {ICON_NAMES.map((iconName) => (
                   <button
                     key={iconName}
                     type="button"
-                    className={`w-8 h-8 rounded-[6px] flex items-center justify-center transition-all ${
-                      icon === iconName ? 'bg-primary/20 ring-2 ring-primary border-2 border-primary' : 'hover:bg-muted/50 border-2 border-transparent'
+                    className={`w-8 h-8 rounded-sm flex items-center justify-center transition-all ${
+                      icon === iconName ? 'bg-primary/20 ring-2 ring-primary border border-primary' : 'hover:bg-muted/50 border border-transparent'
                     }`}
                     onClick={() => { void trigger(30); setIcon(iconName); }}
                     title={iconName}
@@ -245,7 +245,7 @@ export default function CategoriesPage() {
                   <button
                     key={c}
                     type="button"
-                    className={`w-8 h-8 rounded-[6px] border-3 transition-transform ${
+                    className={`w-8 h-8 rounded-sm border transition-transform ${
                       color === c ? 'border-foreground scale-110 [box-shadow:var(--btn-shadow)]' : 'border-transparent hover:scale-105'
                     }`}
                     style={{ backgroundColor: c }}

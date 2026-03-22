@@ -102,7 +102,7 @@ export default function TransactionsPage() {
           <p className="text-muted-foreground text-base font-medium">{filteredTransactions.length} transactions</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center border-3 border-border rounded-[10px] overflow-hidden bg-card [box-shadow:var(--btn-shadow)]">
+          <div className="flex items-center border border-border rounded-lg overflow-hidden bg-card [box-shadow:var(--btn-shadow)]">
             <Button
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
@@ -129,11 +129,11 @@ export default function TransactionsPage() {
       </div>
 
       {pendingRecurring.length > 0 && (
-        <Card className="bg-[#3b82f6]/10 border-[#3b82f6]/30 dark:bg-[#3b82f6]/10 dark:border-[#3b82f6]/30">
+        <Card className="bg-primary/10 border-primary/30">
           <CardContent className="flex items-center justify-between py-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-[8px] bg-[#3b82f6]/20 flex items-center justify-center">
-                <RefreshCw className="h-5 w-5 text-[#3b82f6]" />
+              <div className="w-10 h-10 rounded-md bg-primary/20 flex items-center justify-center">
+                <RefreshCw className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="font-bold text-sm">
@@ -207,13 +207,13 @@ export default function TransactionsPage() {
               {sortedDates.map((date) => (
                 <div key={date}>
                   <h3 className="text-sm font-bold text-muted-foreground mb-3 flex items-center gap-2">
-                    <span className="bg-muted px-2 py-1 rounded-[6px] border-2 border-border">{formatDate(date)}</span>
+                    <span className="bg-muted px-2 py-1 rounded-sm border border-border">{formatDate(date)}</span>
                   </h3>
                   <div className="space-y-1">
                     {groupedTransactions[date].map((tx, index) => (
                       <div
                         key={tx.id}
-                        className={`flex items-center justify-between p-3 rounded-xl border-3 border-border transition-all hover:-translate-y-0.5 hover:[box-shadow:var(--card-shadow)] ${index % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}
+                        className={`flex items-center justify-between p-3 rounded-xl border border-border transition-all hover:-translate-y-0.5 hover:[box-shadow:var(--card-shadow)] ${index % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}
                       >
                         <div className="flex items-center gap-3">
                           <span
@@ -233,12 +233,12 @@ export default function TransactionsPage() {
                                 {tx.type}
                               </Badge>
                               {tx.isRecurring && (
-                                <Badge variant="outline" className="text-xs gap-1 font-bold border-2 border-[#3b82f6] text-[#3b82f6]">
+                                <Badge variant="outline" className="text-xs gap-1 font-bold border border-primary text-primary">
                                   <RefreshCw className="h-2.5 w-2.5" /> Recurring
                                 </Badge>
                               )}
                               {tx.recurringSourceId && (
-                                <Badge variant="outline" className="text-xs gap-1 font-bold border-2 border-[#3b82f6] text-[#3b82f6]">
+                                <Badge variant="outline" className="text-xs gap-1 font-bold border border-primary text-primary">
                                   <RefreshCw className="h-2.5 w-2.5" /> Auto
                                 </Badge>
                               )}
@@ -248,7 +248,7 @@ export default function TransactionsPage() {
                         <div className="flex items-center gap-4">
                           <span
                             className={`text-lg font-black ${
-                              tx.type === 'income' ? 'text-[#00b894] dark:text-[#55efc4]' : 'text-[#e17055] dark:text-[#ff7675]'
+                              tx.type === 'income' ? 'text-[var(--success)]' : 'text-[var(--destructive)]'
                             }`}
                           >
                             {tx.type === 'income' ? '+' : '-'}
@@ -267,7 +267,7 @@ export default function TransactionsPage() {
                               size="icon-sm"
                               onClick={() => setDeleteConfirm(tx.id)}
                             >
-                              <Trash2 className="h-4 w-4 text-[#e17055] dark:text-[#ff7675]" />
+                              <Trash2 className="h-4 w-4 text-[var(--destructive)]" />
                             </Button>
                           </div>
                         </div>
@@ -466,15 +466,15 @@ function CalendarView({
                   key={day}
                   onClick={() => { void trigger(30); setSelectedDay(isSelected ? null : dateStr); }}
                   className={`
-                    relative p-1 rounded-[8px] text-center min-h-[60px] flex flex-col items-center justify-start gap-0.5
-                    transition-all border-3
+                    relative p-1 rounded-md text-center min-h-[60px] flex flex-col items-center justify-start gap-0.5
+                    transition-all border
                     ${isSelected ? 'border-primary bg-primary/10 [box-shadow:var(--btn-shadow)]' : 'border-transparent hover:border-border hover:bg-muted/50'}
                     ${isToday ? 'ring-2 ring-primary ring-offset-1 ring-offset-background' : ''}
                   `}
                 >
                   <span className={`text-sm font-bold ${isToday ? 'text-primary' : ''}`}>{day}</span>
                   {hasTxs && (
-                    <span className={`text-[10px] font-black leading-tight ${net >= 0 ? 'text-[#00b894] dark:text-[#55efc4]' : 'text-[#e17055] dark:text-[#ff7675]'}`}>
+                    <span className={`text-[10px] font-black leading-tight ${net >= 0 ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
                       {net >= 0 ? '+' : ''}{formatCurrency(net)}
                     </span>
                   )}
@@ -504,7 +504,7 @@ function CalendarView({
             ) : (
               <div className="space-y-1">
                 {selectedDayTxs.map((tx, index) => (
-                  <div key={tx.id} className={`flex items-center justify-between p-3 rounded-xl border-3 border-border ${index % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}>
+                  <div key={tx.id} className={`flex items-center justify-between p-3 rounded-xl border border-border ${index % 2 === 1 ? 'bg-muted/20' : 'bg-card'}`}>
                     <div className="flex items-center gap-3">
                       <span className="w-2 h-8 rounded-full" style={{ backgroundColor: tx.categoryColor }} />
                       <div>
@@ -512,7 +512,7 @@ function CalendarView({
                         <p className="text-xs text-muted-foreground font-medium">{tx.categoryName}</p>
                       </div>
                     </div>
-                    <span className={`font-black ${tx.type === 'income' ? 'text-[#00b894] dark:text-[#55efc4]' : 'text-[#e17055] dark:text-[#ff7675]'}`}>
+                    <span className={`font-black ${tx.type === 'income' ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
                       {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
                     </span>
                   </div>

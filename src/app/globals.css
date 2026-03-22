@@ -9,7 +9,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-heading);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,152 +49,152 @@
 }
 
 :root {
-  /* Backgrounds — warm yellow-white (NEO-BRUTALIST) */
-  --background: #fffbe6;
-  --foreground: #2d3436;
-  --card: #ffffff;
-  --card-foreground: #2d3436;
-  --popover: #ffffff;
-  --popover-foreground: #2d3436;
+  /* Backgrounds — deep espresso */
+  --background: #1a120b;
+  --foreground: #f5f0e1;
+  --card: #2c1e12;
+  --card-foreground: #f5f0e1;
+  --popover: #2c1e12;
+  --popover-foreground: #f5f0e1;
 
-  /* Primary — vivid orange accent */
-  --primary: #ff6b35;
-  --primary-foreground: #ffffff;
+  /* Primary — forest green */
+  --primary: #2d4a2d;
+  --primary-foreground: #f5f0e1;
 
-  /* Secondary — warm light grey */
-  --secondary: #f5f5f0;
-  --secondary-foreground: #2d3436;
+  /* Secondary — warm walnut mid */
+  --secondary: #3d2b1f;
+  --secondary-foreground: #ede4cc;
 
-  /* Muted */
-  --muted: #f5f5f0;
-  --muted-foreground: #636e72;
+  /* Muted — walnut */
+  --muted: #3d2b1f;
+  --muted-foreground: #8a7d6b;
 
-  /* Accent — electric purple */
-  --accent: #6c5ce7;
-  --accent-foreground: #ffffff;
+  /* Accent — honey gold */
+  --accent: #d4a843;
+  --accent-foreground: #1a120b;
 
   /* Semantic colors */
-  --success: #00b894;
-  --warning: #fdcb6e;
-  --destructive: #e17055;
+  --success: #4a7a4a;
+  --warning: #d4a843;
+  --destructive: #c87941;
 
-  /* Borders — NEAR-BLACK always */
-  --border: #2d3436;
-  --input: #f5f5f0;
-  --ring: #ff6b35;
+  /* Borders — subtle honey tones */
+  --border: rgba(212, 168, 67, 0.15);
+  --input: #3d2b1f;
+  --ring: #d4a843;
 
-  /* Charts — distinct vibrant colors */
-  --chart-1: #ff6b35;
-  --chart-2: #6c5ce7;
-  --chart-3: #00b894;
-  --chart-4: #fdcb6e;
-  --chart-5: #e17055;
+  /* Charts — warm, earthy palette */
+  --chart-1: #d4a843;
+  --chart-2: #4a7a4a;
+  --chart-3: #c87941;
+  --chart-4: #6b4c3b;
+  --chart-5: #b8922e;
 
-  /* Border radius — neo-brutalist rounded */
-  --radius: 12px;
+  /* Border radius — soft and refined */
+  --radius: 8px;
 
-  /* Neo-Brutalist shadows — LARGE offset, hard edge, no blur */
-  --btn-shadow: 4px 4px 0px #2d3436;
-  --btn-shadow-hover: 6px 6px 0px #2d3436;
-  --btn-shadow-active: 1px 1px 0px #2d3436;
-  --card-shadow: 6px 6px 0px #2d3436;
-  --card-shadow-hover: 8px 8px 0px #2d3436;
-  --nav-shadow: 0 4px 0px #2d3436;
-  --dialog-shadow: 8px 8px 0px #2d3436;
+  /* Soft diffused shadows */
+  --btn-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --btn-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --btn-shadow-active: 0 1px 4px rgba(0, 0, 0, 0.2);
+  --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --nav-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  --dialog-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 
   /* Sidebar */
-  --sidebar: #fffbe6;
-  --sidebar-foreground: #2d3436;
-  --sidebar-primary: #ff6b35;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f5f5f0;
-  --sidebar-accent-foreground: #2d3436;
-  --sidebar-border: #2d3436;
-  --sidebar-ring: #ff6b35;
+  --sidebar: #1a120b;
+  --sidebar-foreground: #f5f0e1;
+  --sidebar-primary: #2d4a2d;
+  --sidebar-primary-foreground: #f5f0e1;
+  --sidebar-accent: #3d2b1f;
+  --sidebar-accent-foreground: #f5f0e1;
+  --sidebar-border: rgba(212, 168, 67, 0.15);
+  --sidebar-ring: #d4a843;
 }
 
 .dark {
-  /* Backgrounds — deep navy-charcoal */
-  --background: #1a1a2e;
-  --foreground: #f5f5f5;
-  --card: #25253e;
-  --card-foreground: #f5f5f5;
-  --popover: #25253e;
-  --popover-foreground: #f5f5f5;
+  /* Backgrounds — slightly deeper espresso for dark mode */
+  --background: #140e08;
+  --foreground: #f5f0e1;
+  --card: #241810;
+  --card-foreground: #f5f0e1;
+  --popover: #241810;
+  --popover-foreground: #f5f0e1;
 
-  /* Primary — brighter orange for dark bg */
-  --primary: #ff8c5a;
-  --primary-foreground: #ffffff;
+  /* Primary — slightly brighter forest */
+  --primary: #3d6b3d;
+  --primary-foreground: #f5f0e1;
 
-  --secondary: #2d2d4a;
-  --secondary-foreground: #f5f5f5;
+  --secondary: #3d2b1f;
+  --secondary-foreground: #ede4cc;
 
-  --muted: #2d2d4a;
-  --muted-foreground: #b2bec3;
+  --muted: #3d2b1f;
+  --muted-foreground: #8a7d6b;
 
-  /* Accent — lighter purple */
-  --accent: #a29bfe;
-  --accent-foreground: #1a1a2e;
+  /* Accent — brighter honey for dark bg */
+  --accent: #e0b84f;
+  --accent-foreground: #140e08;
 
-  /* Semantic colors — brighter for dark bg */
-  --success: #55efc4;
-  --warning: #ffeaa7;
-  --destructive: #ff7675;
+  /* Semantic colors */
+  --success: #5a9a5a;
+  --warning: #e0b84f;
+  --destructive: #d4854d;
 
-  /* Borders — visible purple-gray */
-  --border: #4a4a6a;
-  --input: #2d2d4a;
-  --ring: #ff8c5a;
+  /* Borders */
+  --border: rgba(212, 168, 67, 0.12);
+  --input: #3d2b1f;
+  --ring: #e0b84f;
 
   /* Charts */
-  --chart-1: #ff8c5a;
-  --chart-2: #a29bfe;
-  --chart-3: #55efc4;
-  --chart-4: #ffeaa7;
-  --chart-5: #ff7675;
+  --chart-1: #e0b84f;
+  --chart-2: #5a9a5a;
+  --chart-3: #d4854d;
+  --chart-4: #8a6b55;
+  --chart-5: #c89e3a;
 
-  /* Dark mode shadows — darker for depth */
-  --btn-shadow: 4px 4px 0px #0a0a15;
-  --btn-shadow-hover: 6px 6px 0px #0a0a15;
-  --btn-shadow-active: 1px 1px 0px #0a0a15;
-  --card-shadow: 6px 6px 0px #0a0a15;
-  --card-shadow-hover: 8px 8px 0px #0a0a15;
-  --nav-shadow: 0 4px 0px #0a0a15;
-  --dialog-shadow: 8px 8px 0px #0a0a15;
+  /* Shadows — darker for depth */
+  --btn-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --btn-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --btn-shadow-active: 0 1px 4px rgba(0, 0, 0, 0.3);
+  --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --nav-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  --dialog-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 
-  --sidebar: #1a1a2e;
-  --sidebar-foreground: #f5f5f5;
-  --sidebar-primary: #ff8c5a;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #2d2d4a;
-  --sidebar-accent-foreground: #f5f5f5;
-  --sidebar-border: #4a4a6a;
-  --sidebar-ring: #ff8c5a;
+  --sidebar: #140e08;
+  --sidebar-foreground: #f5f0e1;
+  --sidebar-primary: #3d6b3d;
+  --sidebar-primary-foreground: #f5f0e1;
+  --sidebar-accent: #3d2b1f;
+  --sidebar-accent-foreground: #f5f0e1;
+  --sidebar-border: rgba(212, 168, 67, 0.1);
+  --sidebar-ring: #e0b84f;
 }
 
-/* Mobile: reduce shadow offsets by ~40% */
+/* Mobile: reduce shadow intensity */
 @media (max-width: 640px) {
   :root {
-    --btn-shadow: 2px 2px 0px #2d3436;
-    --btn-shadow-hover: 3px 3px 0px #2d3436;
-    --btn-shadow-active: 1px 1px 0px #2d3436;
-    --card-shadow: 4px 4px 0px #2d3436;
-    --card-shadow-hover: 5px 5px 0px #2d3436;
-    --nav-shadow: 0 2px 0px #2d3436;
-    --dialog-shadow: 5px 5px 0px #2d3436;
+    --btn-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    --btn-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --btn-shadow-active: 0 1px 2px rgba(0, 0, 0, 0.15);
+    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --nav-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
+    --dialog-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   }
   .dark {
-    --btn-shadow: 2px 2px 0px #0a0a15;
-    --btn-shadow-hover: 3px 3px 0px #0a0a15;
-    --btn-shadow-active: 1px 1px 0px #0a0a15;
-    --card-shadow: 4px 4px 0px #0a0a15;
-    --card-shadow-hover: 5px 5px 0px #0a0a15;
-    --nav-shadow: 0 2px 0px #0a0a15;
-    --dialog-shadow: 5px 5px 0px #0a0a15;
+    --btn-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    --btn-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --btn-shadow-active: 0 1px 2px rgba(0, 0, 0, 0.25);
+    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --nav-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+    --dialog-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   }
 }
 
-/* Background dot grid pattern */
+/* Subtle noise texture overlay */
 body::before {
   content: '';
   position: fixed;
@@ -202,9 +202,27 @@ body::before {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: radial-gradient(circle, currentColor 0.5px, transparent 0.5px);
-  background-size: 24px 24px;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Subtle horizontal ruled lines */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 120px,
+    rgba(212, 168, 67, 0.015) 120px,
+    rgba(212, 168, 67, 0.015) 121px
+  );
   pointer-events: none;
   z-index: -1;
 }
@@ -217,39 +235,54 @@ body::before {
     @apply bg-background text-foreground;
     font-size: 15px;
     line-height: 1.6;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(45, 74, 45, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(107, 76, 59, 0.06) 0%, transparent 50%),
+      linear-gradient(180deg, var(--background) 0%, #140e08 100%);
   }
   html {
     @apply font-sans;
   }
-  /* Neo-Brutalist typography — BOLD and impactful */
+  /* Refined serif typography */
   h1 {
     font-size: 36px;
-    font-weight: 900;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
   }
   h2 {
     font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
   }
   h3 {
     font-size: 20px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
   }
   h4 {
     font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -0.015em;
-    line-height: 1.3;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    line-height: 1.35;
   }
 }
 
-/* Neo-Brutalist utility classes */
 @layer utilities {
+  /* Semantic color utilities */
+  .text-success { color: var(--success); }
+  .text-destructive { color: var(--destructive); }
+  .text-warning { color: var(--warning); }
+  .text-accent { color: var(--accent); }
+  .bg-success { background-color: var(--success); }
+  .bg-destructive { background-color: var(--destructive); }
+  .bg-warning { background-color: var(--warning); }
+  .border-success { border-color: var(--success); }
+  .border-destructive { border-color: var(--destructive); }
+  .border-warning { border-color: var(--warning); }
+
   /* Stat value typography */
   .stat-value {
     font-size: 28px;
@@ -284,9 +317,9 @@ body::before {
     @apply bg-muted/30;
   }
 
-  /* Neo-brutalist hover lift effect */
+  /* Hover lift effect */
   .hover-lift {
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
   .hover-lift:hover {
     transform: translateY(-2px);
@@ -294,16 +327,16 @@ body::before {
 
   /* Status color accents for stat cards */
   .accent-income {
-    border-left: 4px solid var(--success);
+    border-left: 3px solid var(--success);
   }
   .accent-expense {
-    border-left: 4px solid var(--destructive);
+    border-left: 3px solid var(--destructive);
   }
   .accent-balance {
-    border-left: 4px solid var(--primary);
+    border-left: 3px solid var(--accent);
   }
   .accent-neutral {
-    border-left: 4px solid var(--muted-foreground);
+    border-left: 3px solid var(--muted-foreground);
   }
 
   /* Card accent for income/expense indicators */
@@ -332,5 +365,14 @@ body::before {
   }
   .pulse-urgent {
     animation: pulse-urgent 1.5s ease-in-out infinite;
+  }
+
+  /* Fade in animation */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease backwards;
   }
 }

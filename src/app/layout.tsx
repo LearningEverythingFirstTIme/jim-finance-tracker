@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Playfair_Display, Lora } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -9,9 +9,16 @@ import { Navigation } from "@/components/navigation";
 import { Toaster } from "@/components/ui/sonner";
 import { PwaRegister } from "@/components/pwa-register";
 
-const inter = Inter({
-  variable: "--font-inter",
+const playfair = Playfair_Display({
+  variable: "--font-heading",
   subsets: ["latin"],
+  weight: ["400", "600", "700", "800", "900"],
+});
+
+const lora = Lora({
+  variable: "--font-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -32,8 +39,8 @@ export const metadata: Metadata = {
 // Separate Viewport export (required by Next.js 13+ for themeColor)
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ff6b35" },
-    { media: "(prefers-color-scheme: dark)",  color: "#ff8c5a" },
+    { media: "(prefers-color-scheme: light)", color: "#1a120b" },
+    { media: "(prefers-color-scheme: dark)",  color: "#140e08" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -47,7 +54,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${playfair.variable} ${lora.variable} font-sans antialiased`}>
         <ThemeProvider>
           <HapticsProvider>
             <AuthProvider>

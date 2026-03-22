@@ -22,7 +22,7 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-sm bg-primary/20 flex items-center justify-center">
               <User className="h-4 w-4 text-primary" />
             </div>
             Account
@@ -30,7 +30,7 @@ export default function SettingsPage() {
           <CardDescription className="font-medium">Your account information</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between py-3 border-b-3 border-border">
+          <div className="flex items-center justify-between py-3 border-b border-border">
             <div>
               <p className="font-bold">Email</p>
               <p className="text-sm text-muted-foreground font-medium">{user?.email}</p>
@@ -46,7 +46,7 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <div className="w-8 h-8 rounded-[6px] bg-primary/20 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-sm bg-primary/20 flex items-center justify-center">
               <Sun className="h-4 w-4 text-primary" />
             </div>
             Appearance

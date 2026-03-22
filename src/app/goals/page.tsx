@@ -296,7 +296,7 @@ export default function GoalsPage() {
             <CardTitle className="text-sm font-bold">Total Saved</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="stat-value text-[#00b894] dark:text-[#55efc4]">{formatCurrency(totalSaved)}</div>
+            <div className="stat-value text-[var(--success)]">{formatCurrency(totalSaved)}</div>
             <p className="text-xs text-muted-foreground mt-1 font-medium">Across all goals</p>
           </CardContent>
         </Card>
@@ -332,7 +332,7 @@ export default function GoalsPage() {
       {goals.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-            <div className="w-16 h-16 rounded-2xl bg-muted/50 border-3 border-border flex items-center justify-center mb-4 [box-shadow:var(--btn-shadow)]">
+            <div className="w-16 h-16 rounded-xl bg-muted/50 border border-border flex items-center justify-center mb-4 [box-shadow:var(--btn-shadow)]">
               <Target className="h-8 w-8 opacity-50" />
             </div>
             <p className="text-lg font-bold">No savings goals yet</p>
@@ -357,7 +357,7 @@ export default function GoalsPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div
-                        className="w-10 h-10 rounded-[8px] flex items-center justify-center border-2 border-border"
+                        className="w-10 h-10 rounded-md flex items-center justify-center border border-border"
                         style={{ backgroundColor: goal.color + '20' }}
                       >
                         <DynamicIcon name={goal.icon} className="h-5 w-5" style={{ color: goal.color }} />
@@ -374,7 +374,7 @@ export default function GoalsPage() {
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="icon-sm" onClick={() => setDeleteConfirm(goal.id)}>
-                        <Trash2 className="h-4 w-4 text-[#e17055] dark:text-[#ff7675]" />
+                        <Trash2 className="h-4 w-4 text-[var(--destructive)]" />
                       </Button>
                     </div>
                   </div>
@@ -384,7 +384,7 @@ export default function GoalsPage() {
                     <CircularProgress percentage={percentage} color={goal.color} />
                     <div className="flex-1 space-y-2">
                       {/* Progress bar */}
-                      <div className="h-3 bg-muted rounded-full overflow-hidden border-2 border-border">
+                      <div className="h-3 bg-muted rounded-full overflow-hidden border border-border">
                         <div
                           className="h-full transition-all rounded-full"
                           style={{ 
@@ -395,7 +395,7 @@ export default function GoalsPage() {
                       </div>
                       <div className="text-sm text-muted-foreground font-medium">
                         {percentage >= 100 ? (
-                          <span className="text-[#00b894] dark:text-[#55efc4] font-bold">Goal reached! 🎉</span>
+                          <span className="text-[var(--success)] font-bold">Goal reached! 🎉</span>
                         ) : (
                           <span>{formatCurrency(goal.targetAmount - goal.currentAmount)} to go</span>
                         )}
@@ -406,20 +406,20 @@ export default function GoalsPage() {
                   {/* Projection and Deadline */}
                   <div className="flex flex-wrap gap-3 text-sm">
                     {monthsRemaining !== null && percentage < 100 && (
-                      <div className="flex items-center gap-1.5 text-muted-foreground bg-muted/50 px-2 py-1 rounded-[6px]">
+                      <div className="flex items-center gap-1.5 text-muted-foreground bg-muted/50 px-2 py-1 rounded-sm">
                         <TrendingUp className="h-4 w-4" />
                         <span className="font-medium">~{monthsRemaining} months at current pace</span>
                       </div>
                     )}
                     {daysUntilDeadline !== null && (
-                      <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-[6px]">
+                      <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-sm">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         {daysUntilDeadline < 0 ? (
-                          <span className="text-[#e17055] dark:text-[#ff7675] font-bold">Deadline passed</span>
+                          <span className="text-[var(--destructive)] font-bold">Deadline passed</span>
                         ) : daysUntilDeadline === 0 ? (
-                          <span className="text-[#fdcb6e] dark:text-[#ffeaa7] font-bold">Due today</span>
+                          <span className="text-[var(--warning)] font-bold">Due today</span>
                         ) : (
-                          <span className={`font-medium ${daysUntilDeadline <= 30 ? 'text-[#fdcb6e] dark:text-[#ffeaa7]' : ''}`}>
+                          <span className={`font-medium ${daysUntilDeadline <= 30 ? 'text-[var(--warning)]' : ''}`}>
                             {daysUntilDeadline} days left
                           </span>
                         )}
@@ -452,10 +452,10 @@ export default function GoalsPage() {
                           {goalContributions.map((c, index) => (
                             <div
                               key={c.id}
-                              className={`flex items-center justify-between p-2.5 rounded-lg text-sm border-2 border-transparent ${index % 2 === 1 ? 'bg-muted/30' : ''} hover:border-border transition-colors`}
+                              className={`flex items-center justify-between p-2.5 rounded-lg text-sm border border-transparent ${index % 2 === 1 ? 'bg-muted/30' : ''} hover:border-border transition-colors`}
                             >
                               <div>
-                                <span className="font-bold text-[#00b894] dark:text-[#55efc4]">+{formatCurrency(c.amount)}</span>
+                                <span className="font-bold text-[var(--success)]">+{formatCurrency(c.amount)}</span>
                                 <span className="text-muted-foreground ml-2 font-medium">{formatDate(c.date)}</span>
                                 {c.note && <span className="text-muted-foreground ml-2">• {c.note}</span>}
                               </div>
@@ -464,7 +464,7 @@ export default function GoalsPage() {
                                 size="icon-xs"
                                 onClick={() => handleDeleteContribution(c.id, c.goalId, c.amount)}
                               >
-                                <Trash2 className="h-3 w-3 text-[#e17055] dark:text-[#ff7675]" />
+                                <Trash2 className="h-3 w-3 text-[var(--destructive)]" />
                               </Button>
                             </div>
                           ))}
@@ -513,13 +513,13 @@ export default function GoalsPage() {
 
             <div className="space-y-2">
               <Label className="font-bold">Icon</Label>
-              <div className="grid grid-cols-10 gap-1 p-2 border-3 border-border rounded-xl max-h-32 overflow-y-auto bg-muted/20">
+              <div className="grid grid-cols-10 gap-1 p-2 border border-border rounded-xl max-h-32 overflow-y-auto bg-muted/20">
                 {GOAL_ICONS.map((iconName) => (
                   <button
                     key={iconName}
                     type="button"
-                    className={`w-8 h-8 rounded-[6px] flex items-center justify-center transition-all ${
-                      goalIcon === iconName ? 'bg-primary/20 ring-2 ring-primary border-2 border-primary' : 'hover:bg-muted/50 border-2 border-transparent'
+                    className={`w-8 h-8 rounded-sm flex items-center justify-center transition-all ${
+                      goalIcon === iconName ? 'bg-primary/20 ring-2 ring-primary border border-primary' : 'hover:bg-muted/50 border border-transparent'
                     }`}
                     onClick={() => { void trigger(30); setGoalIcon(iconName); }}
                     title={iconName}
@@ -537,7 +537,7 @@ export default function GoalsPage() {
                   <button
                     key={c}
                     type="button"
-                    className={`w-8 h-8 rounded-[6px] border-3 transition-transform ${
+                    className={`w-8 h-8 rounded-sm border transition-transform ${
                       goalColor === c ? 'border-foreground scale-110 [box-shadow:var(--btn-shadow)]' : 'border-transparent hover:scale-105'
                     }`}
                     style={{ backgroundColor: c }}

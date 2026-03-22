@@ -191,7 +191,7 @@ export default function AddTransactionPage() {
             </div>
 
             <div 
-              className="flex items-center gap-3 p-4 rounded-xl border-3 border-border cursor-pointer select-none hover:bg-muted/50 transition-colors" 
+              className="flex items-center gap-3 p-4 rounded-xl border border-border cursor-pointer select-none hover:bg-muted/50 transition-colors" 
               onClick={() => setIsRecurring(!isRecurring)}
             >
               <input
@@ -201,8 +201,8 @@ export default function AddTransactionPage() {
                 onChange={(e) => setIsRecurring(e.target.checked)}
                 className="h-5 w-5"
               />
-              <div className="w-8 h-8 rounded-[6px] bg-[#3b82f6]/20 flex items-center justify-center">
-                <RefreshCw className="h-4 w-4 text-[#3b82f6]" />
+              <div className="w-8 h-8 rounded-sm bg-primary/20 flex items-center justify-center">
+                <RefreshCw className="h-4 w-4 text-primary" />
               </div>
               <div>
                 <Label htmlFor="isRecurring" className="cursor-pointer font-bold">Recurring monthly</Label>

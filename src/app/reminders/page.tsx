@@ -161,7 +161,7 @@ export default function RemindersPage() {
       {reminders.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-            <div className="w-16 h-16 rounded-2xl bg-muted/50 border-3 border-border flex items-center justify-center mb-4 [box-shadow:var(--btn-shadow)]">
+            <div className="w-16 h-16 rounded-xl bg-muted/50 border border-border flex items-center justify-center mb-4 [box-shadow:var(--btn-shadow)]">
               <Bell className="h-8 w-8 opacity-50" />
             </div>
             <p className="text-lg font-bold">No reminders yet</p>
@@ -173,7 +173,7 @@ export default function RemindersPage() {
           {remindersWithDays.map((reminder) => (
             <Card 
               key={reminder.id} 
-              className={`relative overflow-hidden ${reminder.daysUntil <= 1 ? 'border-l-4 border-l-[#e17055] dark:border-l-[#ff7675]' : reminder.daysUntil <= 7 ? 'border-l-4 border-l-[#fdcb6e] dark:border-l-[#ffeaa7]' : 'border-l-4 border-l-muted-foreground/30'}`}
+              className={`relative overflow-hidden ${reminder.daysUntil <= 1 ? 'border-l-4 border-l-[var(--destructive)]' : reminder.daysUntil <= 7 ? 'border-l-4 border-l-[var(--warning)]' : 'border-l-4 border-l-muted-foreground/30'}`}
             >
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
@@ -184,7 +184,7 @@ export default function RemindersPage() {
                     />
                     <CardTitle className="text-lg">{reminder.name}</CardTitle>
                     {reminder.daysUntil === 0 && (
-                      <span className="w-2 h-2 rounded-full bg-[#e17055] dark:bg-[#ff7675] pulse-urgent" />
+                      <span className="w-2 h-2 rounded-full bg-[var(--destructive)] pulse-urgent" />
                     )}
                   </div>
                   <div className="flex gap-1">
@@ -196,7 +196,7 @@ export default function RemindersPage() {
                       size="icon-sm"
                       onClick={() => setDeleteConfirm(reminder.id)}
                     >
-                      <Trash2 className="h-4 w-4 text-[#e17055] dark:text-[#ff7675]" />
+                      <Trash2 className="h-4 w-4 text-[var(--destructive)]" />
                     </Button>
                   </div>
                 </div>
