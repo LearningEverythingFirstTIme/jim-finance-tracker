@@ -1,10 +1,12 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { Auth, getAuth } from 'firebase/auth';
 import { Firestore, getFirestore } from 'firebase/firestore';
+import { FirebaseStorage, getStorage } from 'firebase/storage';
 
 let app: FirebaseApp | undefined;
 let auth: Auth | undefined;
 let db: Firestore | undefined;
+let storage: FirebaseStorage | undefined;
 
 function initializeFirebase() {
   if (app) return;
@@ -21,6 +23,7 @@ function initializeFirebase() {
   app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getFirestore(app);
+  storage = getStorage(app);
 }
 
 if (typeof window !== 'undefined') {
@@ -43,4 +46,12 @@ export function getClientDb(): Firestore {
   return db!;
 }
 
-export { app, auth, db };
+export function getClientStorage(): FirebaseStorage {
+  if (typeof window === 'undefined') {
+    throw new Error('Storage can only be used on the client');
+  }
+  initializeFirebase();
+  return storage!;
+}
+
+export { app, auth, db, storage };

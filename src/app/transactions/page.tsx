@@ -21,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus, Search, Filter, Loader2, Pencil, Trash2, RefreshCw, CalendarDays, List, ArrowLeft, ArrowRight, X } from 'lucide-react';
+import { Plus, Search, Filter, Loader2, Pencil, Trash2, RefreshCw, CalendarDays, List, ArrowLeft, ArrowRight, X, ImageIcon, Download, Camera } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
 import { formatCurrency, formatDate, formatDateShort, getTodayDate, getCurrentMonth, getMonthRange } from '@/lib/format';
@@ -41,6 +41,7 @@ export default function TransactionsPage() {
   const [generatingRecurring, setGeneratingRecurring] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [calendarMonth, setCalendarMonth] = useState(getCurrentMonth());
+  const [receiptLightbox, setReceiptLightbox] = useState<{ url: string; note: string } | null>(null);
 
   const currentMonth = getCurrentMonth();
   const pendingRecurring = getPendingRecurring(currentMonth);
@@ -62,9 +63,9 @@ export default function TransactionsPage() {
 
   const sortedDates = Object.keys(groupedTransactions).sort((a, b) => b.localeCompare(a));
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, receiptPath?: string | null) => {
     try {
-      await deleteTransaction(id);
+      await deleteTransaction(id, receiptPath);
       void trigger([100, 50, 100]);
       toast.success('Transaction deleted');
       setDeleteConfirm(null);
@@ -255,6 +256,16 @@ export default function TransactionsPage() {
                             {formatCurrency(tx.amount)}
                           </span>
                           <div className="flex gap-1">
+                            {tx.receiptUrl && (
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                onClick={() => { void trigger(30); setReceiptLightbox({ url: tx.receiptUrl!, note: tx.note || tx.categoryName }); }}
+                                title="View receipt"
+                              >
+                                <ImageIcon className="h-4 w-4 text-primary" />
+                              </Button>
+                            )}
                             <Button
                               variant="ghost"
                               size="icon-sm"
@@ -293,9 +304,56 @@ export default function TransactionsPage() {
             <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="font-bold">
               Cancel
             </Button>
-            <Button variant="destructive" onClick={() => deleteConfirm && handleDelete(deleteConfirm)} className="font-bold">
+            <Button variant="destructive" onClick={() => {
+              const tx = transactions.find(t => t.id === deleteConfirm);
+              if (deleteConfirm) handleDelete(deleteConfirm, tx?.receiptPath);
+            }} className="font-bold">
               Delete
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Receipt Lightbox */}
+      <Dialog open={!!receiptLightbox} onOpenChange={() => setReceiptLightbox(null)}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-border">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Receipt Image</DialogTitle>
+          </DialogHeader>
+          <div className="relative w-full h-full flex flex-col items-center justify-center p-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 text-white hover:bg-white/20 z-10"
+              onClick={() => setReceiptLightbox(null)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+            {receiptLightbox && (
+              <>
+                <img
+                  src={receiptLightbox.url}
+                  alt={`Receipt for ${receiptLightbox.note}`}
+                  className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg"
+                />
+                <Button
+                  variant="secondary"
+                  className="mt-4 font-bold"
+                  onClick={() => {
+                    const a = document.createElement('a');
+                    a.href = receiptLightbox.url;
+                    a.download = `receipt-${receiptLightbox.note.replace(/\s+/g, '-').toLowerCase()}.jpg`;
+                    a.target = '_blank';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Receipt
+                </Button>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
@@ -303,10 +361,19 @@ export default function TransactionsPage() {
       <EditTransactionDialog
         transaction={editTransaction}
         onClose={() => setEditTransaction(null)}
-        onSave={async (data) => {
+        onSave={async (data, receiptFile, deleteReceiptFlag) => {
           if (!editTransaction) return;
           try {
-            await updateTransaction(editTransaction.id, data);
+            await updateTransaction(
+              editTransaction.id,
+              data,
+              undefined,
+              undefined,
+              undefined,
+              receiptFile,
+              deleteReceiptFlag,
+              editTransaction.receiptPath
+            );
             toast.success('Transaction updated');
             setEditTransaction(null);
           } catch {
@@ -325,23 +392,75 @@ function EditTransactionDialog({
 }: {
   transaction: Transaction | null;
   onClose: () => void;
-  onSave: (data: { amount: number; note: string; date: string }) => Promise<void>;
+  onSave: (data: { amount: number; note: string; date: string }, receiptFile?: File | null, deleteReceipt?: boolean) => Promise<void>;
 }) {
   const [amount, setAmount] = useState(transaction?.amount.toString() || '');
   const [note, setNote] = useState(transaction?.note || '');
   const [date, setDate] = useState(transaction?.date || getTodayDate());
   const [loading, setLoading] = useState(false);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(transaction?.receiptUrl || null);
+  const [deleteReceipt, setDeleteReceipt] = useState(false);
+
+  // Reset state when transaction changes
+  useState(() => {
+    if (transaction) {
+      setAmount(transaction.amount.toString());
+      setNote(transaction.note);
+      setDate(transaction.date);
+      setReceiptFile(null);
+      setReceiptPreview(transaction.receiptUrl || null);
+      setDeleteReceipt(false);
+    }
+  });
 
   if (!transaction) return null;
+
+  const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!['image/jpeg', 'image/png'].includes(file.type)) {
+        toast.error('Only JPEG and PNG images are allowed');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('File size must be under 10MB');
+        return;
+      }
+      setReceiptFile(file);
+      setDeleteReceipt(false);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setReceiptPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveReceipt = () => {
+    setReceiptFile(null);
+    setReceiptPreview(null);
+    setDeleteReceipt(true);
+  };
+
+  const handleKeepReceipt = () => {
+    setReceiptFile(null);
+    setReceiptPreview(transaction.receiptUrl || null);
+    setDeleteReceipt(false);
+  };
 
   const handleSave = async () => {
     setLoading(true);
     try {
-      await onSave({
-        amount: parseFloat(amount),
-        note,
-        date,
-      });
+      await onSave(
+        {
+          amount: parseFloat(amount),
+          note,
+          date,
+        },
+        receiptFile,
+        deleteReceipt
+      );
     } finally {
       setLoading(false);
     }
@@ -370,6 +489,89 @@ function EditTransactionDialog({
           <div className="space-y-2">
             <label className="text-sm font-bold">Date</label>
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </div>
+          
+          {/* Receipt Section */}
+          <div className="space-y-2">
+            <label className="text-sm font-bold">Receipt</label>
+            {receiptPreview ? (
+              <div className="space-y-2">
+                <div className="relative inline-block">
+                  <img
+                    src={receiptPreview}
+                    alt="Receipt preview"
+                    className="w-20 h-20 object-cover rounded-lg border border-border"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  {transaction.receiptUrl && !deleteReceipt && receiptPreview === transaction.receiptUrl && (
+                    <>
+                      <label
+                        htmlFor="edit-receipt"
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium cursor-pointer border border-border hover:bg-muted/50 transition-colors"
+                      >
+                        <Camera className="h-3 w-3" />
+                        Replace
+                      </label>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRemoveReceipt}
+                        className="text-destructive border-destructive hover:bg-destructive/10"
+                      >
+                        <X className="h-3 w-3 mr-1" />
+                        Remove
+                      </Button>
+                    </>
+                  )}
+                  {deleteReceipt && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleKeepReceipt}
+                    >
+                      Keep receipt
+                    </Button>
+                  )}
+                  {receiptFile && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleKeepReceipt}
+                    >
+                      Keep original
+                    </Button>
+                  )}
+                </div>
+                <input
+                  id="edit-receipt"
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  capture="environment"
+                  onChange={handleReceiptChange}
+                  className="hidden"
+                />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <label
+                  htmlFor="edit-receipt-new"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed border-border cursor-pointer hover:bg-muted/50 transition-colors"
+                >
+                  <Camera className="h-4 w-4" />
+                  <span className="text-sm font-medium">Add receipt photo</span>
+                </label>
+                <input
+                  id="edit-receipt-new"
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  capture="environment"
+                  onChange={handleReceiptChange}
+                  className="hidden"
+                />
+                <p className="text-xs text-muted-foreground">JPEG or PNG, max 10MB</p>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex justify-end gap-2">
