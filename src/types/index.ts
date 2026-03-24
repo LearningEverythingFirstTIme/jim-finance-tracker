@@ -24,8 +24,6 @@ export type Transaction = {
   updatedAt: Date;
   isRecurring?: boolean;
   recurringSourceId?: string; // ID of the source recurring transaction (set on auto-generated copies)
-  receiptUrl?: string | null; // Download URL for the receipt image
-  receiptPath?: string | null; // Storage path for deletion
 };
 
 export type Reminder = {

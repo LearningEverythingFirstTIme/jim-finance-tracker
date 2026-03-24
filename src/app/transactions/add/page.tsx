@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Plus, Minus, RefreshCw, Camera, X } from 'lucide-react';
+import { ArrowLeft, Loader2, Plus, Minus, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useCategories } from '@/hooks/useCategories';
 import { useTransactions } from '@/hooks/useTransactions';
@@ -34,36 +34,9 @@ export default function AddTransactionPage() {
   const [note, setNote] = useState('');
   const [date, setDate] = useState(getTodayDate());
   const [isRecurring, setIsRecurring] = useState(false);
-  const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const filteredCategories = getCategoriesByType(type);
-
-  const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        toast.error('Only JPEG and PNG images are allowed');
-        return;
-      }
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error('File size must be under 10MB');
-        return;
-      }
-      setReceiptFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setReceiptPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const clearReceipt = () => {
-    setReceiptFile(null);
-    setReceiptPreview(null);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,8 +70,7 @@ export default function AddTransactionPage() {
         },
         category.id,
         category.name,
-        category.color,
-        receiptFile || undefined
+        category.color
       );
       
       void trigger("success");
@@ -216,47 +188,6 @@ export default function AddTransactionPage() {
                 onChange={(e) => setNote(e.target.value)}
                 maxLength={200}
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="receipt" className="font-bold">Receipt (optional)</Label>
-              {receiptPreview ? (
-                <div className="relative inline-block">
-                  <img
-                    src={receiptPreview}
-                    alt="Receipt preview"
-                    className="w-24 h-24 object-cover rounded-lg border border-border"
-                  />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon-sm"
-                    className="absolute -top-2 -right-2 h-6 w-6"
-                    onClick={clearReceipt}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <label
-                    htmlFor="receipt"
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed border-border cursor-pointer hover:bg-muted/50 transition-colors"
-                  >
-                    <Camera className="h-4 w-4" />
-                    <span className="text-sm font-medium">Add receipt photo</span>
-                  </label>
-                  <input
-                    id="receipt"
-                    type="file"
-                    accept="image/jpeg,image/png"
-                    capture="environment"
-                    onChange={handleReceiptChange}
-                    className="hidden"
-                  />
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground">JPEG or PNG, max 10MB</p>
             </div>
 
             <div 

@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/components/auth-provider';
 import { collection, addDoc, updateDoc, deleteDoc, query, onSnapshot, doc } from 'firebase/firestore';
 import { getClientDb } from '@/lib/firebase/client';
-import { uploadReceipt, deleteReceipt as deleteReceiptFromStorage } from '@/lib/receipts';
 import { getMonthRange, getTodayDate } from '@/lib/format';
 import type { Transaction, TransactionInput } from '@/types';
 
@@ -43,8 +42,6 @@ export function useTransactions() {
           updatedAt: d.updatedAt?.toDate?.() || new Date(),
           isRecurring: d.isRecurring || false,
           recurringSourceId: d.recurringSourceId || undefined,
-          receiptUrl: d.receiptUrl || null,
-          receiptPath: d.receiptPath || null,
         });
       });
       setTransactions(data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
@@ -54,49 +51,10 @@ export function useTransactions() {
     return unsubscribe;
   }, [user]);
 
-  const addTransaction = useCallback(async (
-    input: TransactionInput,
-    categoryId: string,
-    categoryName: string,
-    categoryColor: string,
-    receiptFile?: File
-  ) => {
+  const addTransaction = useCallback(async (input: TransactionInput, categoryId: string, categoryName: string, categoryColor: string) => {
     if (!user) throw new Error('Not authenticated');
 
     const db = getClientDb();
-    
-    // Handle receipt upload if provided
-    let receiptUrl: string | undefined;
-    let receiptPath: string | undefined;
-    
-    if (receiptFile) {
-      // We need to create the doc first to get the ID
-      const docRef = await addDoc(collection(db, 'users', user.uid, 'transactions'), {
-        ...input,
-        userId: user.uid,
-        categoryId,
-        categoryName,
-        categoryColor,
-        isRecurring: input.isRecurring || false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-      
-      // Upload receipt with the doc ID
-      const receipt = await uploadReceipt(user.uid, docRef.id, receiptFile);
-      receiptUrl = receipt.url;
-      receiptPath = receipt.path;
-      
-      // Update the doc with receipt info
-      await updateDoc(docRef, {
-        receiptUrl,
-        receiptPath,
-        updatedAt: new Date(),
-      });
-      
-      return;
-    }
-    
     await addDoc(collection(db, 'users', user.uid, 'transactions'), {
       ...input,
       userId: user.uid,
@@ -109,16 +67,7 @@ export function useTransactions() {
     });
   }, [user]);
 
-  const updateTransaction = useCallback(async (
-    id: string,
-    input: Partial<TransactionInput>,
-    categoryId?: string,
-    categoryName?: string,
-    categoryColor?: string,
-    receiptFile?: File | null,
-    shouldDeleteReceipt?: boolean,
-    existingReceiptPath?: string | null
-  ) => {
+  const updateTransaction = useCallback(async (id: string, input: Partial<TransactionInput>, categoryId?: string, categoryName?: string, categoryColor?: string) => {
     if (!user) throw new Error('Not authenticated');
 
     const updateData: Record<string, unknown> = {
@@ -129,40 +78,12 @@ export function useTransactions() {
     if (categoryName) updateData.categoryName = categoryName;
     if (categoryColor) updateData.categoryColor = categoryColor;
 
-    // Handle receipt changes
-    if (shouldDeleteReceipt && existingReceiptPath) {
-      // Delete existing receipt from storage
-      await deleteReceiptFromStorage(existingReceiptPath);
-      updateData.receiptUrl = null;
-      updateData.receiptPath = null;
-    } else if (receiptFile) {
-      // Replace with new receipt
-      if (existingReceiptPath) {
-        // Delete old receipt first
-        await deleteReceiptFromStorage(existingReceiptPath);
-      }
-      // Upload new receipt
-      const receipt = await uploadReceipt(user.uid, id, receiptFile);
-      updateData.receiptUrl = receipt.url;
-      updateData.receiptPath = receipt.path;
-    }
-
     const db = getClientDb();
     await updateDoc(doc(db, 'users', user.uid, 'transactions', id), updateData);
   }, [user]);
 
-  const deleteTransaction = useCallback(async (id: string, receiptPath?: string | null) => {
+  const deleteTransaction = useCallback(async (id: string) => {
     if (!user) throw new Error('Not authenticated');
-    
-    // Delete receipt from storage if exists
-    if (receiptPath) {
-      try {
-        await deleteReceiptFromStorage(receiptPath);
-      } catch {
-        // Ignore storage errors - the transaction will still be deleted
-      }
-    }
-    
     const db = getClientDb();
     await deleteDoc(doc(db, 'users', user.uid, 'transactions', id));
   }, [user]);
