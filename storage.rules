@@ -1,0 +1,13 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Receipts - user-scoped, JPEG/PNG only, max 10MB
+    match /receipts/{userId}/{transactionId}/{allPaths=**} {
+      // Only authenticated users can access
+      allow read, write: if request.auth != null 
+        && request.auth.uid == userId
+        && request.resource.contentType.matches('image/(jpeg|png)')
+        && request.resource.size < 10 * 1024 * 1024; // 10MB max
+    }
+  }
+}
