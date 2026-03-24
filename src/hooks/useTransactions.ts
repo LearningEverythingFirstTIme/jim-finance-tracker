@@ -80,23 +80,20 @@ export function useTransactions() {
     // If a receipt file is provided, upload it and update the doc
     if (receiptFile) {
       try {
-        // Upload to Storage first
-        const storageRef = ref(getClientStorage(), `receipts/${user.uid}/${docRef.id}/${receiptFile.name}`);
+        const path = `receipts/${user.uid}/${docRef.id}/${receiptFile.name}`;
+        const storageRef = ref(getClientStorage(), path);
         await uploadBytesResumable(storageRef, receiptFile, {
           contentType: receiptFile.type,
         });
-        const url = await getDownloadURL(storageRef);
-        const path = `receipts/${user.uid}/${docRef.id}/${receiptFile.name}`;
         
-        // Then update Firestore with the URL and path
+        // Store only the path — download URL will be resolved at display time
         await updateDoc(docRef, {
-          receiptUrl: url,
           receiptPath: path,
           updatedAt: new Date(),
         });
       } catch (receiptError) {
         console.error('Receipt upload failed:', receiptError);
-        throw receiptError; // Re-throw so the caller can show a toast
+        throw receiptError;
       }
     }
   }, [user]);
@@ -134,13 +131,12 @@ export function useTransactions() {
         const oldRef = ref(getClientStorage(), existingReceiptPath);
         await deleteObject(oldRef);
       }
-      // Upload new receipt
-      const storageRef = ref(getClientStorage(), `receipts/${user.uid}/${id}/${receiptFile.name}`);
-      await uploadBytesResumable(storageRef, receiptFile, { contentType: receiptFile.type });
-      const url = await getDownloadURL(storageRef);
+      // Upload new receipt — store only path, URL resolved at display time
       const path = `receipts/${user.uid}/${id}/${receiptFile.name}`;
-      updateData.receiptUrl = url;
+      const storageRef = ref(getClientStorage(), path);
+      await uploadBytesResumable(storageRef, receiptFile, { contentType: receiptFile.type });
       updateData.receiptPath = path;
+      updateData.receiptUrl = null;
     }
 
     const db = getClientDb();

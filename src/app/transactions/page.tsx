@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,8 @@ import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
 import { formatCurrency, formatDate, formatDateShort, getTodayDate, getCurrentMonth, getMonthRange } from '@/lib/format';
 import { toast } from 'sonner';
+import { ref, getDownloadURL } from 'firebase/storage';
+import { getClientStorage } from '@/lib/firebase/client';
 import type { Transaction, TransactionType } from '@/types';
 
 export default function TransactionsPage() {
@@ -42,6 +44,23 @@ export default function TransactionsPage() {
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [calendarMonth, setCalendarMonth] = useState(getCurrentMonth());
   const [receiptLightbox, setReceiptLightbox] = useState<{ url: string; note: string } | null>(null);
+  const [resolvedReceiptUrls, setResolvedReceiptUrls] = useState<Record<string, string>>({});
+
+  // Resolve receipt download URLs from storage paths
+  useEffect(() => {
+    const unresolved = transactions.filter((tx) => tx.receiptPath && !resolvedReceiptUrls[tx.id] && !tx.receiptUrl);
+    if (unresolved.length === 0) return;
+
+    unresolved.forEach(async (tx) => {
+      if (!tx.receiptPath) return;
+      try {
+        const url = await getDownloadURL(ref(getClientStorage(), tx.receiptPath));
+        setResolvedReceiptUrls((prev) => ({ ...prev, [tx.id]: url }));
+      } catch {
+        // Receipt file may not exist or access denied — skip silently
+      }
+    });
+  }, [transactions, resolvedReceiptUrls]);
 
   const currentMonth = getCurrentMonth();
   const pendingRecurring = getPendingRecurring(currentMonth);
@@ -256,11 +275,15 @@ export default function TransactionsPage() {
                             {formatCurrency(tx.amount)}
                           </span>
                           <div className="flex gap-1">
-                            {tx.receiptUrl && (
+                            {(tx.receiptUrl || tx.receiptPath || resolvedReceiptUrls[tx.id]) && (
                               <Button
                                 variant="ghost"
                                 size="icon-sm"
-                                onClick={() => { void trigger(30); setReceiptLightbox({ url: tx.receiptUrl!, note: tx.note || tx.categoryName }); }}
+                                onClick={() => {
+                                  void trigger(30);
+                                  const url = tx.receiptUrl || resolvedReceiptUrls[tx.id];
+                                  if (url) setReceiptLightbox({ url, note: tx.note || tx.categoryName });
+                                }}
                                 title="View receipt"
                               >
                                 <ImageIcon className="h-4 w-4 text-primary" />
@@ -360,6 +383,7 @@ export default function TransactionsPage() {
 
       <EditTransactionDialog
         transaction={editTransaction}
+        resolvedReceiptUrl={editTransaction ? (editTransaction.receiptUrl || resolvedReceiptUrls[editTransaction.id] || null) : null}
         onClose={() => setEditTransaction(null)}
         onSave={async (data, receiptFile, deleteReceiptFlag) => {
           if (!editTransaction) return;
@@ -387,10 +411,12 @@ export default function TransactionsPage() {
 
 function EditTransactionDialog({
   transaction,
+  resolvedReceiptUrl,
   onClose,
   onSave,
 }: {
   transaction: Transaction | null;
+  resolvedReceiptUrl: string | null;
   onClose: () => void;
   onSave: (data: { amount: number; note: string; date: string }, receiptFile?: File | null, deleteReceipt?: boolean) => Promise<void>;
 }) {
@@ -399,7 +425,7 @@ function EditTransactionDialog({
   const [date, setDate] = useState(transaction?.date || getTodayDate());
   const [loading, setLoading] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  const [receiptPreview, setReceiptPreview] = useState<string | null>(transaction?.receiptUrl || null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(resolvedReceiptUrl);
   const [deleteReceipt, setDeleteReceipt] = useState(false);
 
   // Reset state when transaction changes
@@ -445,7 +471,7 @@ function EditTransactionDialog({
 
   const handleKeepReceipt = () => {
     setReceiptFile(null);
-    setReceiptPreview(transaction.receiptUrl || null);
+    setReceiptPreview(resolvedReceiptUrl);
     setDeleteReceipt(false);
   };
 
@@ -504,7 +530,7 @@ function EditTransactionDialog({
                   />
                 </div>
                 <div className="flex gap-2">
-                  {transaction.receiptUrl && !deleteReceipt && receiptPreview === transaction.receiptUrl && (
+                  {resolvedReceiptUrl && !deleteReceipt && receiptPreview === resolvedReceiptUrl && (
                     <>
                       <label
                         htmlFor="edit-receipt"
