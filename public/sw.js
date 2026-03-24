@@ -61,15 +61,24 @@ self.addEventListener('fetch', (event) => {
   // Next.js content-hashes these filenames, so a cached copy is always valid.
   if (url.pathname.startsWith('/_next/static/')) {
     event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((response) => {
+      (async () => {
+        try {
+          const cached = await caches.match(request);
+          if (cached) return cached;
+
+          const response = await fetch(request);
           if (response.ok) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone()));
+            // Clone immediately before any other consumption
+            const responseToCache = response.clone();
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, responseToCache);
           }
           return response;
-        });
-      })
+        } catch (err) {
+          console.error('SW static asset fetch failed:', err);
+          return fetch(request);
+        }
+      })()
     );
     return;
   }
@@ -78,23 +87,31 @@ self.addEventListener('fetch', (event) => {
   // Always try the network; fall back to the cached shell when offline.
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
+      (async () => {
+        try {
+          const response = await fetch(request);
           if (response.ok) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone()));
+            // Clone immediately before any other consumption
+            const responseToCache = response.clone();
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, responseToCache);
           }
           return response;
-        })
-        .catch(async () => {
+        } catch (err) {
           // Offline: return the cached version of this URL, or /dashboard as fallback
+          console.error('SW navigation fetch failed, falling back to cache:', err);
           const cached = await caches.match(request);
           if (cached) return cached;
           const shell = await caches.match('/dashboard');
-          return shell ?? new Response('Offline — please check your connection.', {
-            status: 503,
-            headers: { 'Content-Type': 'text/plain' },
-          });
-        })
+          return (
+            shell ??
+            new Response('Offline — please check your connection.', {
+              status: 503,
+              headers: { 'Content-Type': 'text/plain' },
+            })
+          );
+        }
+      })()
     );
     return;
   }
@@ -106,15 +123,24 @@ self.addEventListener('fetch', (event) => {
     url.pathname === '/manifest.webmanifest'
   ) {
     event.respondWith(
-      caches.match(request).then((cached) => {
-        const networkFetch = fetch(request).then((response) => {
+      (async () => {
+        try {
+          const cached = await caches.match(request);
+          if (cached) return cached;
+
+          const response = await fetch(request);
           if (response.ok) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone()));
+            // Clone immediately before any other consumption
+            const responseToCache = response.clone();
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, responseToCache);
           }
           return response;
-        });
-        return cached ?? networkFetch;
-      })
+        } catch (err) {
+          console.error('SW public asset fetch failed:', err);
+          return fetch(request);
+        }
+      })()
     );
   }
   // Everything else falls through to the browser (Firebase SDK, etc.)

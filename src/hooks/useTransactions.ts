@@ -64,39 +64,20 @@ export function useTransactions() {
     if (!user) throw new Error('Not authenticated');
 
     const db = getClientDb();
-    
-    // Handle receipt upload if provided
+
+    // Upload receipt FIRST if provided, then create doc in single write
     let receiptUrl: string | undefined;
     let receiptPath: string | undefined;
-    
+
     if (receiptFile) {
-      // We need to create the doc first to get the ID
-      const docRef = await addDoc(collection(db, 'users', user.uid, 'transactions'), {
-        ...input,
-        userId: user.uid,
-        categoryId,
-        categoryName,
-        categoryColor,
-        isRecurring: input.isRecurring || false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-      
-      // Upload receipt with the doc ID
-      const receipt = await uploadReceipt(user.uid, docRef.id, receiptFile);
+      // Use a temp ID for storage path (doesn't need to match transaction ID)
+      const tempId = crypto.randomUUID();
+      const receipt = await uploadReceipt(user.uid, tempId, receiptFile);
       receiptUrl = receipt.url;
       receiptPath = receipt.path;
-      
-      // Update the doc with receipt info
-      await updateDoc(docRef, {
-        receiptUrl,
-        receiptPath,
-        updatedAt: new Date(),
-      });
-      
-      return;
     }
-    
+
+    // Create the doc with all fields in a single write
     await addDoc(collection(db, 'users', user.uid, 'transactions'), {
       ...input,
       userId: user.uid,
@@ -106,6 +87,8 @@ export function useTransactions() {
       isRecurring: input.isRecurring || false,
       createdAt: new Date(),
       updatedAt: new Date(),
+      ...(receiptUrl && { receiptUrl }),
+      ...(receiptPath && { receiptPath }),
     });
   }, [user]);
 
