@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/components/auth-provider';
 import { collection, addDoc, updateDoc, deleteDoc, query, onSnapshot, doc } from 'firebase/firestore';
-import { getClientDb } from '@/lib/firebase/client';
-import { uploadReceipt, deleteReceipt as deleteReceiptFromStorage } from '@/lib/receipts';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
+import { getClientDb, getClientStorage } from '@/lib/firebase/client';
 import { getMonthRange, getTodayDate } from '@/lib/format';
 import type { Transaction, TransactionInput } from '@/types';
 
@@ -80,14 +80,23 @@ export function useTransactions() {
     // If a receipt file is provided, upload it and update the doc
     if (receiptFile) {
       try {
-        const receipt = await uploadReceipt(user.uid, docRef.id, receiptFile);
+        // Upload to Storage first
+        const storageRef = ref(getClientStorage(), `receipts/${user.uid}/${docRef.id}/${receiptFile.name}`);
+        await uploadBytesResumable(storageRef, receiptFile, {
+          contentType: receiptFile.type,
+        });
+        const url = await getDownloadURL(storageRef);
+        const path = `receipts/${user.uid}/${docRef.id}/${receiptFile.name}`;
+        
+        // Then update Firestore with the URL and path
         await updateDoc(docRef, {
-          receiptUrl: receipt.url,
-          receiptPath: receipt.path,
+          receiptUrl: url,
+          receiptPath: path,
           updatedAt: new Date(),
         });
       } catch (receiptError) {
-        console.error('Receipt upload failed, transaction was still created:', receiptError);
+        console.error('Receipt upload failed:', receiptError);
+        throw receiptError; // Re-throw so the caller can show a toast
       }
     }
   }, [user]);
@@ -115,19 +124,23 @@ export function useTransactions() {
     // Handle receipt changes
     if (shouldDeleteReceipt && existingReceiptPath) {
       // Delete existing receipt from storage
-      await deleteReceiptFromStorage(existingReceiptPath);
+      const storageRef = ref(getClientStorage(), existingReceiptPath);
+      await deleteObject(storageRef);
       updateData.receiptUrl = null;
       updateData.receiptPath = null;
     } else if (receiptFile) {
       // Replace with new receipt
       if (existingReceiptPath) {
-        // Delete old receipt first
-        await deleteReceiptFromStorage(existingReceiptPath);
+        const oldRef = ref(getClientStorage(), existingReceiptPath);
+        await deleteObject(oldRef);
       }
       // Upload new receipt
-      const receipt = await uploadReceipt(user.uid, id, receiptFile);
-      updateData.receiptUrl = receipt.url;
-      updateData.receiptPath = receipt.path;
+      const storageRef = ref(getClientStorage(), `receipts/${user.uid}/${id}/${receiptFile.name}`);
+      await uploadBytesResumable(storageRef, receiptFile, { contentType: receiptFile.type });
+      const url = await getDownloadURL(storageRef);
+      const path = `receipts/${user.uid}/${id}/${receiptFile.name}`;
+      updateData.receiptUrl = url;
+      updateData.receiptPath = path;
     }
 
     const db = getClientDb();
@@ -140,7 +153,8 @@ export function useTransactions() {
     // Delete receipt from storage if exists
     if (receiptPath) {
       try {
-        await deleteReceiptFromStorage(receiptPath);
+        const storageRef = ref(getClientStorage(), receiptPath);
+        await deleteObject(storageRef);
       } catch {
         // Ignore storage errors - the transaction will still be deleted
       }
