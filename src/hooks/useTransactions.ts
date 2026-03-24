@@ -65,20 +65,8 @@ export function useTransactions() {
 
     const db = getClientDb();
 
-    // Upload receipt FIRST if provided, then create doc in single write
-    let receiptUrl: string | undefined;
-    let receiptPath: string | undefined;
-
-    if (receiptFile) {
-      // Use a temp ID for storage path (doesn't need to match transaction ID)
-      const tempId = crypto.randomUUID();
-      const receipt = await uploadReceipt(user.uid, tempId, receiptFile);
-      receiptUrl = receipt.url;
-      receiptPath = receipt.path;
-    }
-
-    // Create the doc with all fields in a single write
-    await addDoc(collection(db, 'users', user.uid, 'transactions'), {
+    // Create the doc first to get its ID
+    const docRef = await addDoc(collection(db, 'users', user.uid, 'transactions'), {
       ...input,
       userId: user.uid,
       categoryId,
@@ -87,9 +75,21 @@ export function useTransactions() {
       isRecurring: input.isRecurring || false,
       createdAt: new Date(),
       updatedAt: new Date(),
-      ...(receiptUrl && { receiptUrl }),
-      ...(receiptPath && { receiptPath }),
     });
+
+    // If a receipt file is provided, upload it and update the doc
+    if (receiptFile) {
+      try {
+        const receipt = await uploadReceipt(user.uid, docRef.id, receiptFile);
+        await updateDoc(docRef, {
+          receiptUrl: receipt.url,
+          receiptPath: receipt.path,
+          updatedAt: new Date(),
+        });
+      } catch (receiptError) {
+        console.error('Receipt upload failed, transaction was still created:', receiptError);
+      }
+    }
   }, [user]);
 
   const updateTransaction = useCallback(async (
