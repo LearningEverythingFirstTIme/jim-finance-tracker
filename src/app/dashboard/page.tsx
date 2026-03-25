@@ -57,6 +57,7 @@ import {
   Zap,
   Activity,
   Flame,
+  Tag,
 } from 'lucide-react';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useSpendingStreak } from '@/hooks/useSpendingStreak';
@@ -105,6 +106,7 @@ const PANEL_ICONS: Record<PanelId, React.ElementType> = {
   'due-soon': Bell,
   'forecast': Activity,
   'streak': Flame,
+  'tag-summary': Tag,
 };
 
 function getGreeting(): string {
@@ -714,6 +716,84 @@ export default function DashboardPage() {
     </Card>
   );
 
+  const renderTagSummaryPanel = () => {
+    const currentMonth = getCurrentMonth();
+    const monthStart = `${currentMonth}-01`;
+    const today = getTodayDate();
+    const monthTransactions = transactions.filter(
+      (t) => t.date >= monthStart && t.date <= today && t.type === 'expense'
+    );
+
+    const tagTotals: Record<string, { total: number; count: number }> = {};
+    for (const tx of monthTransactions) {
+      for (const tag of tx.tags || []) {
+        if (!tagTotals[tag]) {
+          tagTotals[tag] = { total: 0, count: 0 };
+        }
+        tagTotals[tag].total += tx.amount;
+        tagTotals[tag].count += 1;
+      }
+    }
+
+    const sortedTags = Object.entries(tagTotals)
+      .map(([tagName, data]) => ({ tagName, ...data }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 6);
+
+    return (
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="text-lg">Spending by Tag</CardTitle>
+            <CardDescription>This month&apos;s top tags</CardDescription>
+          </div>
+          <Link href="/reports">
+            <Button variant="ghost" size="sm" className="font-bold">
+              Reports <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </Link>
+        </CardHeader>
+        <CardContent>
+          {sortedTags.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <div className="w-12 h-12 rounded-xl bg-muted/50 border border-border flex items-center justify-center mx-auto mb-3">
+                <Tag className="h-6 w-6 opacity-50" />
+              </div>
+              <p className="font-medium">No tagged transactions</p>
+              <p className="text-sm">Add tags to your transactions to see spending breakdowns</p>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {sortedTags.map((tag, index) => (
+                <button
+                  key={tag.tagName}
+                  type="button"
+                  onClick={() => {
+                    void trigger(30);
+                    router.push(`/transactions?tags=${encodeURIComponent(tag.tagName)}`);
+                  }}
+                  className={`w-full flex items-center justify-between p-3 rounded-lg border border-transparent hover:border-border transition-colors text-left ${
+                    index % 2 === 1 ? 'bg-muted/30' : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold">#{tag.tagName}</span>
+                    <span className="text-xs text-muted-foreground font-medium">
+                      {tag.count} tx{tag.count !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  <span className="text-sm font-bold text-[var(--destructive)]">
+                    {formatCurrency(tag.total)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
   const renderDueSoonPanel = () => (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -1075,6 +1155,7 @@ export default function DashboardPage() {
       case 'due-soon':            return renderDueSoonPanel();
       case 'forecast':            return renderForecastPanel();
       case 'streak':              return renderStreakPanel();
+      case 'tag-summary':         return renderTagSummaryPanel();
     }
   };
 
