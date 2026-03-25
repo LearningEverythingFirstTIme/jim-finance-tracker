@@ -83,3 +83,57 @@ export function getPercentageChange(current: number, previous: number): number {
   if (previous === 0) return current > 0 ? 100 : 0;
   return ((current - previous) / previous) * 100;
 }
+
+// Calendar helpers for Cash Flow
+
+export function getDaysInMonth(year: number, month: number): number {
+  return new Date(year, month, 0).getDate();
+}
+
+export function getFirstDayOfMonth(year: number, month: number): number {
+  // Returns 0 for Sunday, 1 for Monday, etc.
+  return new Date(year, month - 1, 1).getDay();
+}
+
+export function getMonthYear(monthStr: string): { year: number; month: number } {
+  const [year, month] = monthStr.split('-').map(Number);
+  return { year, month };
+}
+
+export function getNextMonth(monthStr: string): string {
+  const { year, month } = getMonthYear(monthStr);
+  if (month === 12) {
+    return `${year + 1}-01`;
+  }
+  return `${year}-${String(month + 1).padStart(2, '0')}`;
+}
+
+export function getPrevMonth(monthStr: string): string {
+  const { year, month } = getMonthYear(monthStr);
+  if (month === 1) {
+    return `${year - 1}-12`;
+  }
+  return `${year}-${String(month - 1).padStart(2, '0')}`;
+}
+
+export function formatDateForMonth(year: number, month: number, day: number): string {
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+export function isSameDay(date1: string, date2: string): boolean {
+  return date1 === date2;
+}
+
+export function isDateInPast(dateStr: string): boolean {
+  const today = getTodayDate();
+  return dateStr < today;
+}
+
+export function isDateInFuture(dateStr: string): boolean {
+  const today = getTodayDate();
+  return dateStr > today;
+}
+
+export function isToday(dateStr: string): boolean {
+  return dateStr === getTodayDate();
+}

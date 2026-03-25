@@ -26,6 +26,7 @@ import {
   DollarSign,
   Wallet,
   Target,
+  Calendar,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
@@ -33,6 +34,7 @@ import { useState } from 'react';
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/cash-flow', label: 'Cash Flow', icon: Calendar },
   { href: '/transactions', label: 'Transactions', icon: Receipt },
   { href: '/budgets', label: 'Budgets', icon: Wallet },
   { href: '/goals', label: 'Goals', icon: Target },
