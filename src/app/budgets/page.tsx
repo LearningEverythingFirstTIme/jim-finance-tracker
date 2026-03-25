@@ -48,20 +48,21 @@ import { formatCurrency, getCurrentMonth, getMonthRange } from '@/lib/format';
 import { toast } from 'sonner';
 import type { Budget, BudgetInput } from '@/types';
 
-const MONTHS = [
-  { value: '2026-01', label: 'January 2026' },
-  { value: '2026-02', label: 'February 2026' },
-  { value: '2026-03', label: 'March 2026' },
-  { value: '2026-04', label: 'April 2026' },
-  { value: '2026-05', label: 'May 2026' },
-  { value: '2026-06', label: 'June 2026' },
-  { value: '2026-07', label: 'July 2026' },
-  { value: '2026-08', label: 'August 2026' },
-  { value: '2026-09', label: 'September 2026' },
-  { value: '2026-10', label: 'October 2026' },
-  { value: '2026-11', label: 'November 2026' },
-  { value: '2026-12', label: 'December 2026' },
-];
+function generateMonths(): { value: string; label: string }[] {
+  const months = [];
+  const now = new Date();
+  // 6 months back, current month, 11 months forward (18 total)
+  const start = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+  for (let i = 0; i < 18; i++) {
+    const d = new Date(start.getFullYear(), start.getMonth() + i, 1);
+    const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const label = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+    months.push({ value, label });
+  }
+  return months;
+}
+
+const MONTHS = generateMonths();
 
 function getProgressColor(percentage: number): string {
   if (percentage < 60) return 'bg-[var(--success)]';

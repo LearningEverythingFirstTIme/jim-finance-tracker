@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -53,22 +53,37 @@ export default function TransactionsPage() {
   const [calendarMonth, setCalendarMonth] = useState(getCurrentMonth());
   const [receiptLightbox, setReceiptLightbox] = useState<{ url: string; note: string } | null>(null);
   const [resolvedReceiptUrls, setResolvedReceiptUrls] = useState<Record<string, string>>({});
+  const fetchingReceiptIds = useRef<Set<string>>(new Set());
 
   // Resolve receipt download URLs from storage paths
   useEffect(() => {
-    const unresolved = transactions.filter((tx) => tx.receiptPath && !resolvedReceiptUrls[tx.id] && !tx.receiptUrl);
+    const unresolved = transactions.filter(
+      (tx) => tx.receiptPath && !resolvedReceiptUrls[tx.id] && !tx.receiptUrl && !fetchingReceiptIds.current.has(tx.id)
+    );
     if (unresolved.length === 0) return;
 
-    unresolved.forEach(async (tx) => {
+    let cancelled = false;
+    unresolved.forEach((tx) => {
       if (!tx.receiptPath) return;
-      try {
-        const url = await getDownloadURL(ref(getClientStorage(), tx.receiptPath));
-        setResolvedReceiptUrls((prev) => ({ ...prev, [tx.id]: url }));
-      } catch {
-        // Receipt file may not exist or access denied — skip silently
-      }
+      fetchingReceiptIds.current.add(tx.id);
+      getDownloadURL(ref(getClientStorage(), tx.receiptPath))
+        .then((url) => {
+          if (!cancelled) {
+            setResolvedReceiptUrls((prev) => ({ ...prev, [tx.id]: url }));
+          }
+        })
+        .catch(() => {
+          // Receipt file may not exist or access denied — skip silently
+        })
+        .finally(() => {
+          fetchingReceiptIds.current.delete(tx.id);
+        });
     });
-  }, [transactions, resolvedReceiptUrls]);
+
+    return () => { cancelled = true; };
+  // resolvedReceiptUrls intentionally omitted: fetchingReceiptIds guards re-fetching
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transactions]);
 
   const currentMonth = getCurrentMonth();
   const pendingRecurring = getPendingRecurring(currentMonth);
@@ -461,16 +476,17 @@ function EditTransactionDialog({
   const [deleteReceipt, setDeleteReceipt] = useState(false);
 
   // Reset state when transaction changes
-  useState(() => {
+  useEffect(() => {
     if (transaction) {
       setAmount(transaction.amount.toString());
       setNote(transaction.note);
       setDate(transaction.date);
+      setTags(transaction.tags || []);
       setReceiptFile(null);
-      setReceiptPreview(transaction.receiptUrl || null);
+      setReceiptPreview(resolvedReceiptUrl || transaction.receiptUrl || null);
       setDeleteReceipt(false);
     }
-  });
+  }, [transaction, resolvedReceiptUrl]);
 
   if (!transaction) return null;
 

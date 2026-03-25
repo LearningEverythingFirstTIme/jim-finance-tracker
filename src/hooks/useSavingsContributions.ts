@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/components/auth-provider';
-import { collection, addDoc, deleteDoc, query, onSnapshot, doc } from 'firebase/firestore';
+import { collection, deleteDoc, query, onSnapshot, doc, writeBatch } from 'firebase/firestore';
 import { getClientDb } from '@/lib/firebase/client';
 import type { SavingsContribution, SavingsContributionInput } from '@/types';
 
@@ -44,33 +44,38 @@ export function useSavingsContributions() {
     return unsubscribe;
   }, [user]);
 
-  const addContribution = useCallback(async (input: SavingsContributionInput, updateGoalAmount: (goalId: string, delta: number) => Promise<void>) => {
+  const addContribution = useCallback(async (input: SavingsContributionInput, goalCurrentAmount: number) => {
     if (!user) throw new Error('Not authenticated');
 
     const db = getClientDb();
-    await addDoc(collection(db, 'users', user.uid, 'savingsContributions'), {
-      ...input,
-      userId: user.uid,
-      createdAt: new Date(),
-    });
+    const batch = writeBatch(db);
 
-    // Update the goal's currentAmount
-    await updateGoalAmount(input.goalId, input.amount);
+    const contributionRef = doc(collection(db, 'users', user.uid, 'savingsContributions'));
+    batch.set(contributionRef, { ...input, userId: user.uid, createdAt: new Date() });
+
+    const goalRef = doc(db, 'users', user.uid, 'savingsGoals', input.goalId);
+    batch.update(goalRef, { currentAmount: goalCurrentAmount + input.amount, updatedAt: new Date() });
+
+    await batch.commit();
   }, [user]);
 
   const deleteContribution = useCallback(async (
     id: string,
     goalId: string,
     amount: number,
-    updateGoalAmount: (goalId: string, delta: number) => Promise<void>
+    goalCurrentAmount: number,
   ) => {
     if (!user) throw new Error('Not authenticated');
 
     const db = getClientDb();
-    await deleteDoc(doc(db, 'users', user.uid, 'savingsContributions', id));
+    const batch = writeBatch(db);
 
-    // Decrement the goal's currentAmount
-    await updateGoalAmount(goalId, -amount);
+    batch.delete(doc(db, 'users', user.uid, 'savingsContributions', id));
+
+    const goalRef = doc(db, 'users', user.uid, 'savingsGoals', goalId);
+    batch.update(goalRef, { currentAmount: goalCurrentAmount - amount, updatedAt: new Date() });
+
+    await batch.commit();
   }, [user]);
 
   const getContributionsForGoal = useCallback((goalId: string) => {

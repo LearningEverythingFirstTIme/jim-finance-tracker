@@ -105,7 +105,7 @@ function getMonthsToCompletion(goal: SavingsGoal): number | null {
 
 export default function GoalsPage() {
   const { trigger } = useHaptics();
-  const { goals, loading, addGoal, updateGoal, updateGoalAmount, deleteGoal } = useSavingsGoals();
+  const { goals, loading, addGoal, updateGoal, deleteGoal } = useSavingsGoals();
   const { contributions, addContribution, deleteContribution, getContributionsForGoal } = useSavingsContributions();
 
   const [isGoalDialogOpen, setIsGoalDialogOpen] = useState(false);
@@ -227,12 +227,8 @@ export default function GoalsPage() {
 
     setSubmittingContribution(true);
     try {
-      await addContribution(input, async (goalId, delta) => {
-        const g = goals.find((gg) => gg.id === goalId);
-        if (g) {
-          await updateGoalAmount(goalId, g.currentAmount + delta);
-        }
-      });
+      const g = goals.find((gg) => gg.id === input.goalId);
+      await addContribution(input, g?.currentAmount ?? 0);
       void trigger("success");
       toast.success(`Added ${formatCurrency(amount)} to ${goal.name}`);
       setIsContributionDialogOpen(false);
@@ -245,12 +241,8 @@ export default function GoalsPage() {
 
   const handleDeleteContribution = async (contributionId: string, goalId: string, amount: number) => {
     try {
-      await deleteContribution(contributionId, goalId, amount, async (gId, delta) => {
-        const g = goals.find((gg) => gg.id === gId);
-        if (g) {
-          await updateGoalAmount(gId, g.currentAmount + delta);
-        }
-      });
+      const g = goals.find((gg) => gg.id === goalId);
+      await deleteContribution(contributionId, goalId, amount, g?.currentAmount ?? 0);
       void trigger([100, 50, 100]);
       toast.success('Contribution removed');
     } catch {
