@@ -78,7 +78,7 @@ export function useCashFlowSettings() {
       userId: user.uid,
       startingBalance: balance,
       asOfDate,
-      lowBalanceThreshold: settings?.lowBalanceThreshold || DEFAULT_LOW_BALANCE_THRESHOLD,
+      lowBalanceThreshold: settings?.lowBalanceThreshold ?? DEFAULT_LOW_BALANCE_THRESHOLD,
       updatedAt: new Date(),
     };
 

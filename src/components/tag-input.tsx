@@ -45,8 +45,10 @@ export function TagInput({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const MAX_TAG_LENGTH = 30;
+
   const addTag = (tag: string) => {
-    const trimmed = tag.trim().toLowerCase();
+    const trimmed = tag.trim().toLowerCase().slice(0, MAX_TAG_LENGTH);
     if (trimmed && !value.includes(trimmed)) {
       onChange([...value, trimmed]);
     }
@@ -88,6 +90,7 @@ export function TagInput({
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
+          maxLength={MAX_TAG_LENGTH}
           onFocus={() => setIsOpen(true)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && inputValue.trim()) {

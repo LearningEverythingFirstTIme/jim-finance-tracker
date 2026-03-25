@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/components/auth-provider';
 import { collection, addDoc, updateDoc, deleteDoc, query, onSnapshot, doc } from 'firebase/firestore';
 import { getClientDb } from '@/lib/firebase/client';
@@ -65,13 +65,17 @@ export function useCategories() {
     await deleteDoc(doc(db, 'users', user.uid, 'categories', id));
   }, [user]);
 
+  const categoryMap = useMemo(() => {
+    return new Map(categories.map((c) => [c.id, c]));
+  }, [categories]);
+
   const getCategoriesByType = useCallback((type: TransactionType) => {
     return categories.filter((c) => c.type === type);
   }, [categories]);
 
   const getCategoryById = useCallback((id: string) => {
-    return categories.find((c) => c.id === id);
-  }, [categories]);
+    return categoryMap.get(id);
+  }, [categoryMap]);
 
   return {
     categories,
