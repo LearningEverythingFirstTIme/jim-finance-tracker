@@ -100,7 +100,7 @@ export function Navigation() {
               </Button>
 
               <DropdownMenu>
-                <DropdownMenuTrigger>
+                <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" onClick={() => void trigger("nudge")}>
                     <Settings className="h-4 w-4" />
                   </Button>
