@@ -22,7 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus, Search, Filter, Loader2, Pencil, Trash2, RefreshCw, CalendarDays, List, ArrowLeft, ArrowRight, X, ImageIcon, Download, Camera } from 'lucide-react';
+import { Plus, Search, Filter, Loader2, Pencil, Trash2, RefreshCw, CalendarDays, List, ArrowLeft, ArrowRight, X, ImageIcon, Download, Camera, Receipt, SlidersHorizontal } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
 import { TagFilter, TagPills } from '@/components/tag-filter';
@@ -254,8 +254,30 @@ export default function TransactionsPage() {
         </CardHeader>
         <CardContent>
           {sortedDates.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <p className="font-bold">No transactions found</p>
+            <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
+              <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
+                {transactions.length === 0
+                  ? <Receipt className="h-7 w-7 text-muted-foreground" />
+                  : <SlidersHorizontal className="h-7 w-7 text-muted-foreground" />
+                }
+              </div>
+              <div>
+                <p className="font-bold">
+                  {transactions.length === 0 ? 'No transactions yet' : 'No transactions match your filters'}
+                </p>
+                <p className="text-sm text-muted-foreground font-medium mt-0.5">
+                  {transactions.length === 0
+                    ? 'Add your first transaction to get started'
+                    : 'Try adjusting your search, type, or category filters'}
+                </p>
+              </div>
+              {transactions.length === 0 && (
+                <Link href="/transactions/add">
+                  <Button size="sm" className="font-bold">
+                    <Plus className="h-4 w-4 mr-1" /> Add Transaction
+                  </Button>
+                </Link>
+              )}
             </div>
           ) : (
             <div className="space-y-6">

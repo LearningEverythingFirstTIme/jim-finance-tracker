@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, FolderOpen } from 'lucide-react';
 import { useCategories } from '@/hooks/useCategories';
 import { toast } from 'sonner';
 import { DynamicIcon, ICON_NAMES } from '@/lib/icons';
@@ -122,6 +122,20 @@ export default function CategoriesPage() {
             </Button>
           </CardHeader>
           <CardContent>
+            {expenseCategories.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-10 text-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                  <FolderOpen className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="font-bold text-sm">No expense categories yet</p>
+                  <p className="text-xs text-muted-foreground font-medium mt-0.5">Add one to start categorising your spending</p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => openAddDialog('expense')} className="font-bold">
+                  <Plus className="h-4 w-4 mr-1" /> Add Category
+                </Button>
+              </div>
+            )}
             <div className="space-y-1">
               {expenseCategories.map((cat, index) => (
                 <div
@@ -166,6 +180,20 @@ export default function CategoriesPage() {
             </Button>
           </CardHeader>
           <CardContent>
+            {incomeCategories.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-10 text-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                  <FolderOpen className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="font-bold text-sm">No income categories yet</p>
+                  <p className="text-xs text-muted-foreground font-medium mt-0.5">Add one to track where your money comes from</p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => openAddDialog('income')} className="font-bold">
+                  <Plus className="h-4 w-4 mr-1" /> Add Category
+                </Button>
+              </div>
+            )}
             <div className="space-y-1">
               {incomeCategories.map((cat, index) => (
                 <div
