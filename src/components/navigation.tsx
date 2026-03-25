@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/components/auth-provider';
 import { useHaptics } from '@/components/haptics-provider';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -100,10 +101,11 @@ export function Navigation() {
               </Button>
 
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" onClick={() => void trigger("nudge")}>
-                    <Settings className="h-4 w-4" />
-                  </Button>
+                <DropdownMenuTrigger
+                  className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
+                  onClick={() => void trigger("nudge")}
+                >
+                  <Settings className="h-4 w-4" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem>
