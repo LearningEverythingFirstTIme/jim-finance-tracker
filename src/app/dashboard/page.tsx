@@ -59,6 +59,7 @@ import {
   Flame,
   Tag,
 } from 'lucide-react';
+import { useAuth } from '@/components/auth-provider';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useSpendingStreak } from '@/hooks/useSpendingStreak';
 import { useReminders } from '@/hooks/useReminders';
@@ -109,11 +110,11 @@ const PANEL_ICONS: Record<PanelId, React.ElementType> = {
   'tag-summary': Tag,
 };
 
-function getGreeting(): string {
+function getGreeting(name: string): string {
   const hour = new Date().getHours();
-  if (hour < 12) return "Good morning, Jim";
-  if (hour < 17) return "Good afternoon, Jim";
-  return "Good evening, Jim";
+  if (hour < 12) return `Good morning, ${name}`;
+  if (hour < 17) return `Good afternoon, ${name}`;
+  return `Good evening, ${name}`;
 }
 
 // ─── Sortable Chip (edit mode only) ───────────────────────────────────────────
@@ -163,6 +164,7 @@ function SortablePanelChip({ id }: { id: PanelId }) {
 // ─── Dashboard Page ────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const { trigger } = useHaptics();
   const router = useRouter();
   const {
@@ -1177,7 +1179,7 @@ export default function DashboardPage() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black tracking-tight">{getGreeting()}</h1>
+          <h1 className="text-3xl font-black tracking-tight">{getGreeting(user?.displayName?.split(' ')[0] ?? 'there')}</h1>
           <p className="text-muted-foreground text-base">Here&apos;s your financial overview</p>
         </div>
         <div className="flex items-center gap-3">
