@@ -18,6 +18,7 @@ import { ArrowLeft, Loader2, Plus, Minus, RefreshCw, Camera, X } from 'lucide-re
 import Link from 'next/link';
 import { useCategories } from '@/hooks/useCategories';
 import { useTransactions } from '@/hooks/useTransactions';
+import { TagInput } from '@/components/tag-input';
 import { getTodayDate } from '@/lib/format';
 import { toast } from 'sonner';
 import type { TransactionType } from '@/types';
@@ -26,12 +27,13 @@ export default function AddTransactionPage() {
   const router = useRouter();
   const { trigger } = useHaptics();
   const { categories, getCategoriesByType } = useCategories();
-  const { addTransaction } = useTransactions();
+  const { addTransaction, transactions } = useTransactions();
 
   const [type, setType] = useState<TransactionType>('expense');
   const [amount, setAmount] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [note, setNote] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
   const [date, setDate] = useState(getTodayDate());
   const [isRecurring, setIsRecurring] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
@@ -39,6 +41,8 @@ export default function AddTransactionPage() {
   const [loading, setLoading] = useState(false);
 
   const filteredCategories = getCategoriesByType(type);
+
+  const allExistingTags = [...new Set(transactions.flatMap((t) => t.tags || []))].sort();
 
   const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -93,6 +97,7 @@ export default function AddTransactionPage() {
           categoryId,
           note: note || category.name,
           date,
+          tags,
           isRecurring,
         },
         category.id,
@@ -216,6 +221,17 @@ export default function AddTransactionPage() {
                 onChange={(e) => setNote(e.target.value)}
                 maxLength={200}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="font-bold">Tags (optional)</Label>
+              <TagInput
+                value={tags}
+                onChange={setTags}
+                existingTags={allExistingTags}
+                placeholder="Add tags..."
+              />
+              <p className="text-xs text-muted-foreground">Add tags to categorize transactions across categories</p>
             </div>
 
             <div className="space-y-2">

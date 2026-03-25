@@ -20,12 +20,13 @@ export type Transaction = {
   categoryColor: string;
   note: string;
   date: string;
+  tags: string[];
   createdAt: Date;
   updatedAt: Date;
   isRecurring?: boolean;
-  recurringSourceId?: string; // ID of the source recurring transaction (set on auto-generated copies)
-  receiptUrl?: string | null; // Download URL for the receipt image
-  receiptPath?: string | null; // Storage path for deletion
+  recurringSourceId?: string;
+  receiptUrl?: string | null;
+  receiptPath?: string | null;
 };
 
 export type Reminder = {
@@ -70,12 +71,20 @@ export type CategoryBreakdown = {
   count: number;
 };
 
+export type TagBreakdown = {
+  tagName: string;
+  total: number;
+  percentage: number;
+  count: number;
+};
+
 export type TransactionInput = {
   amount: number;
   type: TransactionType;
   categoryId: string;
   note: string;
   date: string;
+  tags?: string[];
   isRecurring?: boolean;
 };
 

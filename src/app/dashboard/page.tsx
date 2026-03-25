@@ -63,6 +63,7 @@ import { useSpendingStreak } from '@/hooks/useSpendingStreak';
 import { useReminders } from '@/hooks/useReminders';
 import { useBudgets } from '@/hooks/useBudgets';
 import { useSavingsGoals } from '@/hooks/useSavingsGoals';
+import { TagPills } from '@/components/tag-filter';
 import {
   useDashboardLayout,
   type PanelId,
@@ -683,6 +684,7 @@ export default function DashboardPage() {
                     <p className="text-xs text-muted-foreground font-medium">
                       {formatDateShort(tx.date)} &bull; {tx.categoryName}
                     </p>
+                    <TagPills tags={tx.tags || []} className="mt-0.5" />
                   </div>
                 </div>
                 <span

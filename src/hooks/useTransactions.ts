@@ -39,6 +39,7 @@ export function useTransactions() {
           categoryColor: d.categoryColor,
           note: d.note || '',
           date: d.date,
+          tags: d.tags || [],
           createdAt: d.createdAt?.toDate?.() || new Date(),
           updatedAt: d.updatedAt?.toDate?.() || new Date(),
           isRecurring: d.isRecurring || false,
@@ -65,13 +66,13 @@ export function useTransactions() {
 
     const db = getClientDb();
 
-    // Create the doc first to get its ID
     const docRef = await addDoc(collection(db, 'users', user.uid, 'transactions'), {
       ...input,
       userId: user.uid,
       categoryId,
       categoryName,
       categoryColor,
+      tags: input.tags || [],
       isRecurring: input.isRecurring || false,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -199,6 +200,7 @@ export function useTransactions() {
           categoryColor: source.categoryColor,
           note: source.note,
           date: newDate,
+          tags: source.tags || [],
           isRecurring: false,
           recurringSourceId: source.id,
           createdAt: new Date(),

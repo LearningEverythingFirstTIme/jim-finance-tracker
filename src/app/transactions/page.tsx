@@ -24,6 +24,8 @@ import {
 import { Plus, Search, Filter, Loader2, Pencil, Trash2, RefreshCw, CalendarDays, List, ArrowLeft, ArrowRight, X, ImageIcon, Download, Camera } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
+import { TagFilter, TagPills } from '@/components/tag-filter';
+import { TagInput } from '@/components/tag-input';
 import { formatCurrency, formatDate, formatDateShort, getTodayDate, getCurrentMonth, getMonthRange } from '@/lib/format';
 import { toast } from 'sonner';
 import { ref, getDownloadURL } from 'firebase/storage';
@@ -38,6 +40,7 @@ export default function TransactionsPage() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<TransactionType | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [generatingRecurring, setGeneratingRecurring] = useState(false);
@@ -65,13 +68,16 @@ export default function TransactionsPage() {
   const currentMonth = getCurrentMonth();
   const pendingRecurring = getPendingRecurring(currentMonth);
 
+  const allTags = [...new Set(transactions.flatMap((t) => t.tags || []))].sort();
+
   const filteredTransactions = transactions.filter((tx) => {
     const matchesSearch =
       tx.note.toLowerCase().includes(search.toLowerCase()) ||
       tx.categoryName.toLowerCase().includes(search.toLowerCase());
     const matchesType = typeFilter === 'all' || tx.type === typeFilter;
     const matchesCategory = categoryFilter === 'all' || tx.categoryId === categoryFilter;
-    return matchesSearch && matchesType && matchesCategory;
+    const matchesTags = selectedTags.length === 0 || selectedTags.every((tag) => (tx.tags || []).includes(tag));
+    return matchesSearch && matchesType && matchesCategory && matchesTags;
   });
 
   const groupedTransactions = filteredTransactions.reduce<Record<string, Transaction[]>>((acc, tx) => {
@@ -191,8 +197,13 @@ export default function TransactionsPage() {
                 className="pl-10"
               />
             </div>
-            <div className="flex gap-2">
-              <Select value={typeFilter} onValueChange={(v) => { void trigger(30); setTypeFilter(v as TransactionType | 'all'); }} items={{ all: 'All Types', income: 'Income', expense: 'Expense' }}>
+             <div className="flex gap-2">
+               <TagFilter
+                 allTags={allTags}
+                 selectedTags={selectedTags}
+                 onChange={(tags) => { void trigger(30); setSelectedTags(tags); }}
+               />
+               <Select value={typeFilter} onValueChange={(v) => { void trigger(30); setTypeFilter(v as TransactionType | 'all'); }} items={{ all: 'All Types', income: 'Income', expense: 'Expense' }}>
                 <SelectTrigger className="w-36">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue />
@@ -263,6 +274,7 @@ export default function TransactionsPage() {
                                 </Badge>
                               )}
                             </div>
+                            <TagPills tags={tx.tags || []} className="mt-1" />
                           </div>
                         </div>
                         <div className="flex items-center gap-4">
@@ -384,6 +396,7 @@ export default function TransactionsPage() {
       <EditTransactionDialog
         transaction={editTransaction}
         resolvedReceiptUrl={editTransaction ? (editTransaction.receiptUrl || resolvedReceiptUrls[editTransaction.id] || null) : null}
+        allTags={allTags}
         onClose={() => setEditTransaction(null)}
         onSave={async (data, receiptFile, deleteReceiptFlag) => {
           if (!editTransaction) return;
@@ -412,17 +425,20 @@ export default function TransactionsPage() {
 function EditTransactionDialog({
   transaction,
   resolvedReceiptUrl,
+  allTags,
   onClose,
   onSave,
 }: {
   transaction: Transaction | null;
   resolvedReceiptUrl: string | null;
+  allTags: string[];
   onClose: () => void;
-  onSave: (data: { amount: number; note: string; date: string }, receiptFile?: File | null, deleteReceipt?: boolean) => Promise<void>;
+  onSave: (data: { amount: number; note: string; date: string; tags: string[] }, receiptFile?: File | null, deleteReceipt?: boolean) => Promise<void>;
 }) {
   const [amount, setAmount] = useState(transaction?.amount.toString() || '');
   const [note, setNote] = useState(transaction?.note || '');
   const [date, setDate] = useState(transaction?.date || getTodayDate());
+  const [tags, setTags] = useState<string[]>(transaction?.tags || []);
   const [loading, setLoading] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(resolvedReceiptUrl);
@@ -483,6 +499,7 @@ function EditTransactionDialog({
           amount: parseFloat(amount),
           note,
           date,
+          tags,
         },
         receiptFile,
         deleteReceipt
@@ -512,10 +529,19 @@ function EditTransactionDialog({
             <label className="text-sm font-bold">Note</label>
             <Input value={note} onChange={(e) => setNote(e.target.value)} />
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-bold">Date</label>
-            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-          </div>
+           <div className="space-y-2">
+             <label className="text-sm font-bold">Date</label>
+             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+           </div>
+           <div className="space-y-2">
+             <label className="text-sm font-bold">Tags</label>
+             <TagInput
+               value={tags}
+               onChange={setTags}
+               existingTags={allTags}
+               placeholder="Add tags..."
+             />
+           </div>
           
           {/* Receipt Section */}
           <div className="space-y-2">
@@ -738,6 +764,7 @@ function CalendarView({
                       <div>
                         <p className="font-bold text-sm">{tx.note || tx.categoryName}</p>
                         <p className="text-xs text-muted-foreground font-medium">{tx.categoryName}</p>
+                        <TagPills tags={tx.tags || []} className="mt-1" />
                       </div>
                     </div>
                     <span className={`font-black ${tx.type === 'income' ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>

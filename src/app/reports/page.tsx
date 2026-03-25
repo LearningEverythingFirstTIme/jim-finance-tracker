@@ -27,7 +27,7 @@ import {
 } from 'recharts';
 import { useTransactions } from '@/hooks/useTransactions';
 import { formatCurrency, getCurrentMonth, getMonthRange, getMonthName } from '@/lib/format';
-import type { CategoryBreakdown } from '@/types';
+import type { CategoryBreakdown, TagBreakdown } from '@/types';
 
 // Generate a list of the last N months relative to today
 function getRecentMonths(count: number): string[] {
@@ -129,6 +129,30 @@ export default function ReportsPage() {
       total: data.total,
       percentage: totalExpenses > 0 ? (data.total / totalExpenses) * 100 : 0,
       count: data.count,
+    }))
+    .sort((a, b) => b.total - a.total);
+
+  const expenseByTag = currentMonthTransactions
+    .filter((t) => t.type === 'expense' && (t.tags || []).length > 0)
+    .reduce<Record<string, { total: number; count: number }>>((acc, t) => {
+      for (const tag of t.tags || []) {
+        if (!acc[tag]) {
+          acc[tag] = { total: 0, count: 0 };
+        }
+        acc[tag].total += t.amount;
+        acc[tag].count += 1;
+      }
+      return acc;
+    }, {});
+
+  const totalTaggedExpenses = Object.values(expenseByTag).reduce((sum, d) => sum + d.total, 0);
+
+  const tagBreakdown: TagBreakdown[] = Object.entries(expenseByTag)
+    .map(([tagName, data]) => ({
+      tagName,
+      total: data.total,
+      count: data.count,
+      percentage: totalTaggedExpenses > 0 ? (data.total / totalTaggedExpenses) * 100 : 0,
     }))
     .sort((a, b) => b.total - a.total);
 
@@ -374,10 +398,37 @@ export default function ReportsPage() {
                   ))}
                 </div>
               </div>
-            )}
+             )}
+           </CardContent>
+         </Card>
+      </div>
+
+      {tagBreakdown.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Spending by Tag</CardTitle>
+            <CardDescription>Breakdown across categories</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-2">
+              {tagBreakdown.slice(0, 10).map((tag, i) => (
+                <div key={tag.tagName} className={`flex items-center justify-between p-3 rounded-lg border border-transparent ${i % 2 === 1 ? 'bg-muted/30' : ''} hover:border-border transition-colors`}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold">#{tag.tagName}</span>
+                    <span className="text-xs text-muted-foreground font-medium">({tag.count} tx{tag.count !== 1 ? 's' : ''})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold">{formatCurrency(tag.total)}</span>
+                    <span className="text-xs text-muted-foreground font-medium">
+                      ({tag.percentage.toFixed(0)}%)
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
-      </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
