@@ -80,6 +80,7 @@ import {
 } from '@/lib/format';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import type { TransactionType } from '@/types';
@@ -161,6 +162,7 @@ function SortablePanelChip({ id }: { id: PanelId }) {
 
 export default function DashboardPage() {
   const { trigger } = useHaptics();
+  const router = useRouter();
   const {
     stats,
     transactions,
@@ -684,7 +686,14 @@ export default function DashboardPage() {
                     <p className="text-xs text-muted-foreground font-medium">
                       {formatDateShort(tx.date)} &bull; {tx.categoryName}
                     </p>
-                    <TagPills tags={tx.tags || []} className="mt-0.5" />
+                    <TagPills
+                      tags={tx.tags || []}
+                      className="mt-0.5"
+                      onTagClick={(tag) => {
+                        void trigger(30);
+                        router.push(`/transactions?tags=${encodeURIComponent(tag)}`);
+                      }}
+                    />
                   </div>
                 </div>
                 <span

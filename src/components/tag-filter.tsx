@@ -115,10 +115,12 @@ export function TagPills({
   tags,
   maxVisible = 3,
   className,
+  onTagClick,
 }: {
   tags: string[];
   maxVisible?: number;
   className?: string;
+  onTagClick?: (tag: string) => void;
 }) {
   if (!tags || tags.length === 0) return null;
 
@@ -128,7 +130,15 @@ export function TagPills({
   return (
     <div className={cn('flex flex-wrap gap-1', className)}>
       {visible.map((tag) => (
-        <Badge key={tag} variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal">
+        <Badge
+          key={tag}
+          variant="outline"
+          className={cn(
+            'text-[10px] px-1.5 py-0 h-4 font-normal',
+            onTagClick && 'cursor-pointer hover:bg-muted transition-colors'
+          )}
+          onClick={onTagClick ? (e) => { e.stopPropagation(); onTagClick(tag); } : undefined}
+        >
           {tag}
         </Badge>
       ))}

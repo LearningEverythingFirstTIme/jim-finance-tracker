@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,13 +35,17 @@ import type { Transaction, TransactionType } from '@/types';
 
 export default function TransactionsPage() {
   const { trigger } = useHaptics();
+  const searchParams = useSearchParams();
   const { transactions, loading, deleteTransaction, updateTransaction, getPendingRecurring, generateRecurringForMonth } = useTransactions();
   const { categories } = useCategories();
 
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<TransactionType | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>(() => {
+    const tagsParam = searchParams.get('tags');
+    return tagsParam ? tagsParam.split(',').filter(Boolean) : [];
+  });
   const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [generatingRecurring, setGeneratingRecurring] = useState(false);
@@ -182,6 +187,10 @@ export default function TransactionsPage() {
           transactions={transactions}
           month={calendarMonth}
           onMonthChange={setCalendarMonth}
+          onTagClick={(tag) => {
+            void trigger(30);
+            setSelectedTags((prev) => prev.includes(tag) ? prev : [...prev, tag]);
+          }}
         />
       )}
 
@@ -274,7 +283,14 @@ export default function TransactionsPage() {
                                 </Badge>
                               )}
                             </div>
-                            <TagPills tags={tx.tags || []} className="mt-1" />
+                            <TagPills
+                              tags={tx.tags || []}
+                              className="mt-1"
+                              onTagClick={(tag) => {
+                                void trigger(30);
+                                setSelectedTags((prev) => prev.includes(tag) ? prev : [...prev, tag]);
+                              }}
+                            />
                           </div>
                         </div>
                         <div className="flex items-center gap-4">
@@ -643,10 +659,12 @@ function CalendarView({
   transactions,
   month,
   onMonthChange,
+  onTagClick,
 }: {
   transactions: Transaction[];
   month: string;
   onMonthChange: (month: string) => void;
+  onTagClick?: (tag: string) => void;
 }) {
   const { trigger } = useHaptics();
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
@@ -764,7 +782,7 @@ function CalendarView({
                       <div>
                         <p className="font-bold text-sm">{tx.note || tx.categoryName}</p>
                         <p className="text-xs text-muted-foreground font-medium">{tx.categoryName}</p>
-                        <TagPills tags={tx.tags || []} className="mt-1" />
+                        <TagPills tags={tx.tags || []} className="mt-1" onTagClick={onTagClick} />
                       </div>
                     </div>
                     <span className={`font-black ${tx.type === 'income' ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
