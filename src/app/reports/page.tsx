@@ -41,6 +41,11 @@ function getRecentMonths(count: number): string[] {
 // Build a list of the last 24 months as options for the range selectors
 const MONTH_OPTIONS = getRecentMonths(24);
 
+const TAG_COLORS = [
+  '#3b82f6', '#ef4444', '#22c55e', '#f59e0b', '#8b5cf6',
+  '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1',
+];
+
 function getMonthsBetween(start: string, end: string): string[] {
   const result: string[] = [];
   const [sy, sm] = start.split('-').map(Number);
@@ -89,6 +94,49 @@ export default function ReportsPage() {
       net: income - expenses,
     };
   });
+
+  const tagTrendData = trendMonths.map((month) => {
+    const range = getMonthRange(month);
+    const monthTransactions = transactions.filter(
+      (t) => t.date >= range.start && t.date <= range.end && t.type === 'expense'
+    );
+    const tagTotals: Record<string, number> = {};
+    for (const tx of monthTransactions) {
+      for (const tag of tx.tags || []) {
+        tagTotals[tag] = (tagTotals[tag] || 0) + tx.amount;
+      }
+    }
+    return {
+      month: getMonthName(parseInt(month.split('-')[1]) - 1).slice(0, 3),
+      ...tagTotals,
+    };
+  });
+
+  const allTagsInTrend = [...new Set(
+    transactions
+      .filter((t) => {
+        const trendStartRange = getMonthRange(trendStart);
+        const trendEndRange = getMonthRange(trendEnd);
+        return t.date >= trendStartRange.start && t.date <= trendEndRange.end && t.type === 'expense';
+      })
+      .flatMap((t) => t.tags || [])
+  )];
+
+  const tagTrendTotals: Record<string, number> = {};
+  for (const tx of transactions.filter((t) => {
+    const trendStartRange = getMonthRange(trendStart);
+    const trendEndRange = getMonthRange(trendEnd);
+    return t.date >= trendStartRange.start && t.date <= trendEndRange.end && t.type === 'expense';
+  })) {
+    for (const tag of tx.tags || []) {
+      tagTrendTotals[tag] = (tagTrendTotals[tag] || 0) + tx.amount;
+    }
+  }
+
+  const topTrendTags = Object.entries(tagTrendTotals)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([tag]) => tag);
 
   const currentRange = getMonthRange(selectedMonth);
   const currentMonthTransactions = transactions.filter(
@@ -425,6 +473,47 @@ export default function ReportsPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {topTrendTags.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Tag Spending Trend</CardTitle>
+            <CardDescription>How your tag spending has changed over time</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64 border border-border rounded-xl p-2 bg-muted/20">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={tagTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="month" className="text-xs font-bold" tick={{ fontSize: 11 }} />
+                  <YAxis className="text-xs font-bold" tick={{ fontSize: 11 }} />
+                  <Tooltip
+                    formatter={(value) => formatCurrency(Number(value))}
+                    contentStyle={{
+                      backgroundColor: 'var(--card)',
+                      border: '3px solid var(--border)',
+                      borderRadius: '10px',
+                      fontWeight: 'bold',
+                      boxShadow: 'var(--btn-shadow)'
+                    }}
+                  />
+                  <Legend />
+                  {topTrendTags.map((tag, index) => (
+                    <Bar
+                      key={tag}
+                      dataKey={tag}
+                      name={tag}
+                      fill={TAG_COLORS[index % TAG_COLORS.length]}
+                      stackId="a"
+                      radius={[0, 0, 0, 0]}
+                    />
+                  ))}
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
